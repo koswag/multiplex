@@ -7,6 +7,9 @@ import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.char
+import io.kotest.property.checkAll
 import pl.kskarzynski.multiplex.domain.user.model.UserInfo
 import pl.kskarzynski.multiplex.domain.user.model.UserName
 import pl.kskarzynski.multiplex.domain.user.model.UserSurname
@@ -72,6 +75,22 @@ class UserInfoValidationSpec : FeatureSpec({
             }
         }
 
+        scenario("User name contains special characters") {
+            checkAll(Arb.invalidNameCharacter()) { specialCharacter ->
+                // given:
+                val userInfo = userInfoOf("Andrzej$specialCharacter", "Kowalski")
+
+                // expect:
+                checkValidationResult(userInfo) {
+                    it.isRight() shouldBe false
+                    it.onLeft { errors ->
+                        errors shouldContain InvalidNameCharacters
+                    }
+                }
+            }
+        }
+
+
         scenario("User surname is too short") {
             // given:
             val userInfo = userInfoOf(
@@ -135,6 +154,21 @@ class UserInfoValidationSpec : FeatureSpec({
                 }
             }
         }
+
+        scenario("User surname contains invalid characters") {
+            checkAll(Arb.invalidSurnameCharacter()) { specialCharacter ->
+                // given:
+                val userInfo = userInfoOf("Andrzej", "Kowalski$specialCharacter")
+
+                // expect:
+                checkValidationResult(userInfo) {
+                    it.isRight() shouldBe false
+                    it.onLeft { errors ->
+                        errors shouldContain InvalidSurnameCharacters
+                    }
+                }
+            }
+        }
     }
 
 })
@@ -143,4 +177,21 @@ private fun userInfoOf(name: String, surname: String): UserInfo =
     UserInfo(
         name = UserName(name),
         surname = UserSurname(surname),
+    )
+
+private fun Arb.Companion.invalidNameCharacter(): Arb<Char> =
+    Arb.char(
+        Char(32)..Char(47),
+        Char(58)..Char(64),
+        Char(91)..Char(96),
+        Char(123)..Char(126),
+    )
+
+private fun Arb.Companion.invalidSurnameCharacter(): Arb<Char> =
+    Arb.char(
+        Char(32)..Char(44),
+        Char(46)..Char(47),
+        Char(58)..Char(64),
+        Char(91)..Char(96),
+        Char(123)..Char(126),
     )

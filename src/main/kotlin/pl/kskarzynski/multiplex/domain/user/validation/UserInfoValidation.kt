@@ -13,6 +13,9 @@ interface UserInfoValidation {
         private const val MIN_NAME_LENGTH = 3
         private const val MIN_SURNAME_LENGTH = 3
         private const val MAX_HYPHEN_COUNT = 1
+
+        private val validNameCharacters = "^\\p{L}+$".toRegex()
+        private val validSurnameCharacters = "^[\\p{L}-]+$".toRegex()
     }
 
     fun validateUserInfo(userInfo: UserInfo): EitherNel<UserInfoValidationError, UserInfo> =
@@ -23,12 +26,14 @@ interface UserInfoValidation {
             zipOrAccumulate(
                 { ensure(name.length >= MIN_NAME_LENGTH) { NameTooShort } },
                 { ensure(name.isCapitalized()) { NameNotCapitalized } },
+                { ensure(name matches validNameCharacters) { InvalidNameCharacters } },
 
                 { ensure(surname.length > MIN_SURNAME_LENGTH) { SurnameTooShort } },
                 { ensure(surname.isCapitalized()) { SurnameNotCapitalized } },
                 { ensure(surname.hyphenCount() <= MAX_HYPHEN_COUNT) { SurnameHasTooManyHyphens } },
                 { ensure(surname.secondPartIsCapitalized()) { SurnameSecondPartIsNotCapitalized } },
-            ) { _, _, _, _, _, _ ->
+                { ensure(surname matches validSurnameCharacters) { InvalidSurnameCharacters } },
+            ) { _, _, _, _, _, _, _, _ ->
                 userInfo
             }
         }
