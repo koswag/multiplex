@@ -26,7 +26,9 @@ repositories {
 }
 
 object Versions {
-    val kotest = "5.7.2"
+    const val ARROW = "1.2.0"
+    const val KOTEST = "5.7.2"
+    const val KOTEST_EXTRA_ARBS = "2.1.2"
 }
 
 dependencies {
@@ -34,13 +36,17 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    implementation("io.arrow-kt:arrow-core:${Versions.ARROW}")
+
     runtimeOnly("org.postgresql:postgresql")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.kotest:kotest-runner-junit5:${Versions.kotest}")
-    testImplementation("io.kotest:kotest-property:${Versions.kotest}")
+
+    testImplementation("io.kotest:kotest-runner-junit5:${Versions.KOTEST}")
+    testImplementation("io.kotest:kotest-property:${Versions.KOTEST}")
+    testImplementation("io.kotest.extensions:kotest-property-arbs:${Versions.KOTEST_EXTRA_ARBS}")
 }
 
 tasks.withType<KotlinCompile> {
