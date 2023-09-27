@@ -1,6 +1,5 @@
 package pl.kskarzynski.multiplex.domain.user.validation
 
-import arrow.core.Either.Right
 import arrow.core.EitherNel
 import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.data.blocking.forAll
@@ -10,21 +9,21 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.char
 import io.kotest.property.checkAll
-import pl.kskarzynski.multiplex.domain.user.model.UserInfo
-import pl.kskarzynski.multiplex.domain.user.model.UserName
-import pl.kskarzynski.multiplex.domain.user.model.UserSurname
-import pl.kskarzynski.multiplex.domain.user.validation.UserInfoValidationError.*
-
-private object TestUserInfoValidation : UserInfoValidation
+import pl.kskarzynski.multiplex.domain.user.model.*
+import pl.kskarzynski.multiplex.domain.user.model.UserInfoValidationError.InvalidName
+import pl.kskarzynski.multiplex.domain.user.model.UserInfoValidationError.InvalidSurname
+import pl.kskarzynski.multiplex.domain.user.model.UserNameValidationError.*
+import pl.kskarzynski.multiplex.domain.user.model.UserSurnameValidationError.*
 
 class UserInfoValidationSpec : FeatureSpec({
 
     fun checkValidationResult(
-        userInfo: UserInfo,
+        name: String,
+        surname: String,
         block: (result: EitherNel<UserInfoValidationError, UserInfo>) -> Unit,
     ) {
-        val validationResult = TestUserInfoValidation.validateUserInfo(userInfo)
-        block(validationResult)
+        val userInfo = UserInfo(name, surname)
+        block(userInfo)
     }
 
     feature("User info validation") {
@@ -33,58 +32,49 @@ class UserInfoValidationSpec : FeatureSpec({
                 row("Andrzej", "Kowalski"),
                 row("Andrzej", "Kowalski-Nowak"),
             ) { name, surname ->
-                // given:
-                val userInfo = userInfoOf(name, surname)
-
-                // expect:
-                checkValidationResult(userInfo) {
-                    it shouldBe Right(userInfo)
+                checkValidationResult(name, surname) {
+                    it.isRight() shouldBe true
+                    it.onRight { userInfo ->
+                        userInfo.name shouldBe name
+                        userInfo.surname shouldBe surname
+                    }
                 }
             }
         }
 
         scenario("User name is too short") {
-            // given:
-            val userInfo = userInfoOf(
+            checkValidationResult(
                 name = "Aa",
                 surname = "Kowalski",
-            )
-
-            // expect:
-            checkValidationResult(userInfo) {
+            ) {
                 it.isRight() shouldBe false
                 it.onLeft { errors ->
-                    errors shouldContain NameTooShort
+                    errors shouldContain InvalidName(NameTooShort)
                 }
             }
         }
 
         scenario("User name is not capitalized") {
-            // given:
-            val userInfo = userInfoOf(
+            checkValidationResult(
                 name = "andrzej",
                 surname = "Kowalski",
-            )
-
-            // expect:
-            checkValidationResult(userInfo) {
+            ) {
                 it.isRight() shouldBe false
                 it.onLeft { errors ->
-                    errors shouldContain NameNotCapitalized
+                    errors shouldContain InvalidName(NameNotCapitalized)
                 }
             }
         }
 
         scenario("User name contains special characters") {
             checkAll(Arb.invalidNameCharacter()) { specialCharacter ->
-                // given:
-                val userInfo = userInfoOf("Andrzej$specialCharacter", "Kowalski")
-
-                // expect:
-                checkValidationResult(userInfo) {
+                checkValidationResult(
+                    name = "Andrzej$specialCharacter",
+                    surname = "Kowalski",
+                ) {
                     it.isRight() shouldBe false
                     it.onLeft { errors ->
-                        errors shouldContain InvalidNameCharacters
+                        errors shouldContain InvalidName(InvalidNameCharacters)
                     }
                 }
             }
@@ -92,79 +82,62 @@ class UserInfoValidationSpec : FeatureSpec({
 
 
         scenario("User surname is too short") {
-            // given:
-            val userInfo = userInfoOf(
+            checkValidationResult(
                 name = "Andrzej",
                 surname = "Ko",
-            )
-
-            // expect:
-            checkValidationResult(userInfo) {
+            ) {
                 it.isRight() shouldBe false
                 it.onLeft { errors ->
-                    errors shouldContain SurnameTooShort
+                    errors shouldContain InvalidSurname(SurnameTooShort)
                 }
             }
         }
 
         scenario("User surname is not capitalized") {
-            // given:
-            val userInfo = userInfoOf(
+            checkValidationResult(
                 name = "Andrzej",
                 surname = "kowalski",
-            )
-
-            // expect:
-            checkValidationResult(userInfo) {
+            ) {
                 it.isRight() shouldBe false
                 it.onLeft { errors ->
-                    errors shouldContain SurnameNotCapitalized
+                    errors shouldContain InvalidSurname(SurnameNotCapitalized)
                 }
             }
         }
 
         scenario("User surname has too many hyphens") {
-            // given:
-            val userInfo = userInfoOf(
+            checkValidationResult(
                 name = "Andrzej",
                 surname = "Kowalski-Nowak-Aa",
-            )
-
-            // expect:
-            checkValidationResult(userInfo) {
+            ) {
                 it.isRight() shouldBe false
                 it.onLeft { errors ->
-                    errors shouldContain SurnameHasTooManyHyphens
+                    errors shouldContain InvalidSurname(SurnameHasTooManyHyphens)
                 }
             }
         }
 
         scenario("User surname's second part is not capitalized") {
-            // given:
-            val userInfo = userInfoOf(
+            checkValidationResult(
                 name = "Andrzej",
                 surname = "Kowalski-nowak",
-            )
-
-            // expect:
-            checkValidationResult(userInfo) {
+            ) {
                 it.isRight() shouldBe false
                 it.onLeft { errors ->
-                    errors shouldContain SurnameSecondPartIsNotCapitalized
+                    errors shouldContain InvalidSurname(SurnameSecondPartIsNotCapitalized)
                 }
             }
         }
 
         scenario("User surname contains invalid characters") {
             checkAll(Arb.invalidSurnameCharacter()) { specialCharacter ->
-                // given:
-                val userInfo = userInfoOf("Andrzej", "Kowalski$specialCharacter")
-
-                // expect:
-                checkValidationResult(userInfo) {
+                checkValidationResult(
+                    name = "Andrzej",
+                    surname = "Kowalski$specialCharacter",
+                ) {
                     it.isRight() shouldBe false
                     it.onLeft { errors ->
-                        errors shouldContain InvalidSurnameCharacters
+                        errors shouldContain InvalidSurname(InvalidSurnameCharacters)
                     }
                 }
             }
@@ -172,12 +145,6 @@ class UserInfoValidationSpec : FeatureSpec({
     }
 
 })
-
-private fun userInfoOf(name: String, surname: String): UserInfo =
-    UserInfo(
-        name = UserName(name),
-        surname = UserSurname(surname),
-    )
 
 private fun Arb.Companion.invalidNameCharacter(): Arb<Char> =
     Arb.char(
