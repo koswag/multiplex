@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.domain.ticket.model
+package pl.kskarzynski.multiplex.domain.model.ticket
 
 import java.math.BigDecimal
 

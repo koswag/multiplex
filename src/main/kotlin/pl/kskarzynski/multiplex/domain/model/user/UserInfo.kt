@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.domain.user.model
+package pl.kskarzynski.multiplex.domain.model.user
 
 import arrow.core.Either
 import arrow.core.EitherNel

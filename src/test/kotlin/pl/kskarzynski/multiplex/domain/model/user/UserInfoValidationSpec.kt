@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.domain.user.validation
+package pl.kskarzynski.multiplex.domain.model.user
 
 import arrow.core.EitherNel
 import io.kotest.core.spec.style.FeatureSpec
@@ -9,11 +9,10 @@ import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.char
 import io.kotest.property.checkAll
-import pl.kskarzynski.multiplex.domain.user.model.*
-import pl.kskarzynski.multiplex.domain.user.model.UserInfoValidationError.InvalidName
-import pl.kskarzynski.multiplex.domain.user.model.UserInfoValidationError.InvalidSurname
-import pl.kskarzynski.multiplex.domain.user.model.UserNameValidationError.*
-import pl.kskarzynski.multiplex.domain.user.model.UserSurnameValidationError.*
+import pl.kskarzynski.multiplex.domain.model.user.UserInfoValidationError.InvalidName
+import pl.kskarzynski.multiplex.domain.model.user.UserInfoValidationError.InvalidSurname
+import pl.kskarzynski.multiplex.domain.model.user.UserNameValidationError.*
+import pl.kskarzynski.multiplex.domain.model.user.UserSurnameValidationError.*
 
 class UserInfoValidationSpec : FeatureSpec({
 

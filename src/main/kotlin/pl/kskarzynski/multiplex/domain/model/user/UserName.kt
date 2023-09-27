@@ -1,11 +1,11 @@
-package pl.kskarzynski.multiplex.domain.user.model
+package pl.kskarzynski.multiplex.domain.model.user
 
 import arrow.core.EitherNel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.zipOrAccumulate
 import pl.kskarzynski.multiplex.common.util.extensions.isCapitalized
-import pl.kskarzynski.multiplex.domain.user.model.UserNameValidationError.*
+import pl.kskarzynski.multiplex.domain.model.user.UserNameValidationError.*
 
 sealed interface UserNameValidationError {
     data object NameTooShort : UserNameValidationError
