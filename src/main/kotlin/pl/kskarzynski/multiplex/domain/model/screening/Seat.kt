@@ -6,11 +6,14 @@ value class SeatRow(val value: Int)
 @JvmInline
 value class SeatNumber(val value: Int)
 
-@JvmInline
-value class IsTaken(val value: Boolean)
-
-data class Seat(
+data class SeatPlacement(
     val row: SeatRow,
     val number: SeatNumber,
-    val isTaken: IsTaken,
 )
+
+data class Seat(
+    val placement: SeatPlacement,
+    val isTaken: Boolean,
+) {
+    val isAvailable: Boolean = !isTaken
+}

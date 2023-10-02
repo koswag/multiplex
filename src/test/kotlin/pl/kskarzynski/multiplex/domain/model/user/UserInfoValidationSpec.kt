@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.char
@@ -79,6 +80,18 @@ class UserInfoValidationSpec : FeatureSpec({
             }
         }
 
+        scenario("User name contains Polish characters") {
+            checkValidationResult(
+                name = "Żaneta",
+                surname = "Kowalska",
+            ) {
+                it.isRight() shouldBe true
+                it.onLeft { errors ->
+                    errors shouldNotContain InvalidName(InvalidNameCharacters)
+                }
+            }
+        }
+
 
         scenario("User surname is too short") {
             checkValidationResult(
@@ -138,6 +151,18 @@ class UserInfoValidationSpec : FeatureSpec({
                     it.onLeft { errors ->
                         errors shouldContain InvalidSurname(InvalidSurnameCharacters)
                     }
+                }
+            }
+        }
+
+        scenario("User surname contains Polish characters") {
+            checkValidationResult(
+                name = "Andrzej",
+                surname = "Kowalśki",
+            ) {
+                it.isRight() shouldBe true
+                it.onLeft { errors ->
+                    errors shouldNotContain InvalidSurname(InvalidSurnameCharacters)
                 }
             }
         }
