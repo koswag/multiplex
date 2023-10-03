@@ -30,6 +30,7 @@ class BookingValidationSpec : FeatureSpec({
     val invalidCurrentTime = testStartTime.minusMinutes((MIN_TIME_BEFORE_SCREENING_IN_MINUTES - 5).toLong())
 
     val testScreening = screeningOf(
+        startTime = testStartTime,
         seatOf(1, 1), seatOf(1, 2), seatOf(1, 3), seatOf(1, 4),
         seatOf(2, 1), seatOf(2, 2), seatOf(2, 3, isTaken = true), seatOf(2, 4, isTaken = true),
     )
@@ -194,11 +195,11 @@ class BookingValidationSpec : FeatureSpec({
 
 })
 
-private fun screeningOf(vararg seats: Seat): ScreeningInfo =
+private fun screeningOf(startTime: LocalDateTime, vararg seats: Seat): ScreeningInfo =
     ScreeningInfo(
         id = ScreeningId.generate(),
         title = MovieTitle("Movie Title"),
-        startTime = LocalDateTime.of(2023, 10, 2, 13, 30),
+        startTime = startTime,
         room = Room(
             number = RoomNumber(10),
             seats = listOf(*seats),
