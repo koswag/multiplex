@@ -1,6 +1,7 @@
 package pl.kskarzynski.multiplex.domain.services.validation
 
 import arrow.core.Either.Right
+import arrow.core.EitherNel
 import arrow.core.getOrElse
 import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.data.blocking.forAll
@@ -11,6 +12,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import pl.kskarzynski.multiplex.domain.model.booking.Booking
+import pl.kskarzynski.multiplex.domain.model.booking.BookingValidationError
 import pl.kskarzynski.multiplex.domain.model.booking.BookingValidationError.*
 import pl.kskarzynski.multiplex.domain.model.booking.ValidBooking
 import pl.kskarzynski.multiplex.domain.model.screening.*
@@ -45,6 +47,15 @@ class BookingValidationSpec : FeatureSpec({
             screening = testScreening,
         )
 
+    fun checkValidationResult(
+        currTime: LocalDateTime,
+        booking: Booking,
+        block: (EitherNel<BookingValidationError, ValidBooking>) -> Unit,
+    ) {
+        val validationResult = TestBookingValidation.validateBooking(currTime, booking)
+        block(validationResult)
+    }
+
     feature("Booking validation") {
         scenario("Booking is valid") {
             forAll(
@@ -62,95 +73,86 @@ class BookingValidationSpec : FeatureSpec({
                     )
                 ),
             ) { bookedSeats ->
-                // given:
                 val booking = bookingOf(*bookedSeats.toTypedArray())
 
-                // when:
-                val validationResult = TestBookingValidation.validateBooking(validCurrentTime, booking)
-
-                // then:
-                validationResult shouldBe Right(ValidBooking(booking))
+                checkValidationResult(
+                    currTime = validCurrentTime,
+                    booking = booking,
+                ) {
+                    it shouldBe Right(ValidBooking(booking))
+                }
             }
         }
 
         scenario("Too late for booking") {
-            // given:
-            val currTime = invalidCurrentTime
-            val booking = bookingOf(seatPlacementOf(1, 1))
-
-            // when:
-            val validationResult = TestBookingValidation.validateBooking(currTime, booking)
-
-            // then:
-            validationResult.isRight() shouldBe false
-            validationResult.onLeft { errors ->
-                errors shouldContain TooLateForBooking
+            checkValidationResult(
+                currTime = invalidCurrentTime,
+                booking = bookingOf(seatPlacementOf(1, 1)),
+            ) {
+                it.isRight() shouldBe false
+                it.onLeft { errors ->
+                    errors shouldContain TooLateForBooking
+                }
             }
         }
 
         scenario("No tickets") {
-            // given:
-            val booking = bookingOf()
-
-            // when:
-            val validationResult = TestBookingValidation.validateBooking(validCurrentTime, booking)
-
-            // then:
-            validationResult.isRight() shouldBe false
-            validationResult.onLeft { errors ->
-                errors shouldContain NoTickets
+            checkValidationResult(
+                currTime = validCurrentTime,
+                booking = bookingOf(),
+            ) {
+                it.isRight() shouldBe false
+                it.onLeft { errors ->
+                    errors shouldContain NoTickets
+                }
             }
         }
 
         scenario("Non-existent seats") {
-            // given:
-            val booking = bookingOf(
-                seatPlacementOf(1, 1),
-                seatPlacementOf(3, 1),
-                seatPlacementOf(3, 2),
-            )
-
-            // when:
-            val validationResult = TestBookingValidation.validateBooking(validCurrentTime, booking)
-
-            // then:
-            validationResult.isRight() shouldBe false
-            validationResult.onLeft { errors ->
-                errors.shouldHaveSize(1)
-
-                val error = errors.first()
-                    .shouldBeInstanceOf<NonExistentSeats>()
-
-                error.seats shouldContainAll listOf(
+            checkValidationResult(
+                currTime = validCurrentTime,
+                booking = bookingOf(
+                    seatPlacementOf(1, 1),
                     seatPlacementOf(3, 1),
                     seatPlacementOf(3, 2),
-                )
+                ),
+            ) {
+                it.isRight() shouldBe false
+                it.onLeft { errors ->
+                    errors.shouldHaveSize(1)
+
+                    val error = errors.first()
+                        .shouldBeInstanceOf<NonExistentSeats>()
+
+                    error.seats shouldContainAll listOf(
+                        seatPlacementOf(3, 1),
+                        seatPlacementOf(3, 2),
+                    )
+                }
             }
         }
 
         scenario("Seats already taken") {
-            // given:
-            val booking = bookingOf(
-                seatPlacementOf(1, 1),
-                seatPlacementOf(2, 3),
-                seatPlacementOf(2, 4),
-            )
-
-            // when:
-            val validationResult = TestBookingValidation.validateBooking(validCurrentTime, booking)
-
-            // then:
-            validationResult.isRight() shouldBe false
-            validationResult.onLeft { errors ->
-                errors.shouldHaveSize(1)
-
-                val error = errors.first()
-                    .shouldBeInstanceOf<SeatsAlreadyTaken>()
-
-                error.seats shouldContainAll listOf(
+            checkValidationResult(
+                currTime = validCurrentTime,
+                booking = bookingOf(
+                    seatPlacementOf(1, 1),
                     seatPlacementOf(2, 3),
                     seatPlacementOf(2, 4),
-                )
+                ),
+            ) {
+                it.isRight() shouldBe false
+                it.onLeft { errors ->
+                    errors.shouldHaveSize(1)
+
+                    val error = errors.first()
+                        .shouldBeInstanceOf<SeatsAlreadyTaken>()
+
+                    error.seats shouldContainAll listOf(
+                        seatPlacementOf(2, 3),
+                        seatPlacementOf(2, 4),
+                    )
+                }
             }
         }
 
@@ -187,21 +189,19 @@ class BookingValidationSpec : FeatureSpec({
                     listOf(seatPlacementOf(1, 4)),
                 ),
             ) { bookedSeats, expectedSingleSeats ->
-                // given:
-                val booking = bookingOf(*bookedSeats.toTypedArray())
+                checkValidationResult(
+                    currTime = validCurrentTime,
+                    booking = bookingOf(*bookedSeats.toTypedArray()),
+                ) {
+                    it.isRight() shouldBe false
+                    it.onLeft { errors ->
+                        errors.shouldHaveSize(1)
 
-                // when:
-                val validationResult = TestBookingValidation.validateBooking(validCurrentTime, booking)
+                        val error = errors.first()
+                            .shouldBeInstanceOf<SingleSeatsLeft>()
 
-                // then:
-                validationResult.isRight() shouldBe false
-                validationResult.onLeft { errors ->
-                    errors.shouldHaveSize(1)
-
-                    val error = errors.first()
-                        .shouldBeInstanceOf<SingleSeatsLeft>()
-
-                    error.seats shouldContainAll expectedSingleSeats
+                        error.seats shouldContainAll expectedSingleSeats
+                    }
                 }
             }
         }
