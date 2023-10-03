@@ -8,6 +8,7 @@ import io.kotest.property.arbitrary.enum
 import io.kotest.property.arbitrary.list
 import io.kotest.property.checkAll
 import pl.kskarzynski.multiplex.domain.model.booking.Booking
+import pl.kskarzynski.multiplex.domain.model.booking.BookingId
 import pl.kskarzynski.multiplex.domain.model.booking.ValidBooking
 import pl.kskarzynski.multiplex.domain.model.screening.*
 import pl.kskarzynski.multiplex.domain.model.ticket.Ticket
@@ -44,6 +45,7 @@ class BookingPricingPolicySpec : FeatureSpec({
 
 private fun bookingOf(ticketTypes: Collection<TicketType>): ValidBooking =
     Booking(
+        id = BookingId.generate(),
         userInfo = UserInfo("Andrzej", "Kowalski")
             .getOrElse { throw IllegalArgumentException(it.joinToString()) },
         tickets = ticketTypes

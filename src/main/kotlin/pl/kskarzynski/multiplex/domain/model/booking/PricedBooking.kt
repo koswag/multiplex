@@ -9,10 +9,14 @@ import java.time.LocalDateTime
 @JvmInline
 value class BookingPrice(val value: BigDecimal)
 
-data class BookingSummary(
+@JvmInline
+value class BookingExpirationTime(val value: LocalDateTime)
+
+data class PricedBooking(
+    val id: BookingId,
     val userInfo: UserInfo,
     val tickets: Collection<Ticket>,
     val screening: ScreeningSummary,
     val totalPrice: BookingPrice,
-    val expiresAt: LocalDateTime,
+    val expiresAt: BookingExpirationTime,
 )
