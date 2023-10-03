@@ -12,6 +12,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import pl.kskarzynski.multiplex.domain.model.booking.Booking
+import pl.kskarzynski.multiplex.domain.model.booking.BookingId
 import pl.kskarzynski.multiplex.domain.model.booking.BookingValidationError
 import pl.kskarzynski.multiplex.domain.model.booking.BookingValidationError.*
 import pl.kskarzynski.multiplex.domain.model.booking.ValidBooking
@@ -41,6 +42,7 @@ class BookingValidationSpec : FeatureSpec({
 
     fun bookingOf(vararg seats: SeatPlacement): Booking =
         Booking(
+            id = BookingId.generate(),
             userInfo = testUser,
             tickets = listOf(*seats)
                 .map { Ticket(Adult, it) },
