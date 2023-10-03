@@ -4,6 +4,7 @@ import arrow.core.EitherNel
 import pl.kskarzynski.multiplex.domain.model.booking.Booking
 import pl.kskarzynski.multiplex.domain.model.booking.BookingValidationError
 import pl.kskarzynski.multiplex.domain.model.booking.PricedBooking
+import pl.kskarzynski.multiplex.domain.model.booking.ValidBooking
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningInfo
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningSummary
 import pl.kskarzynski.multiplex.domain.repo.BookingRepository
@@ -23,21 +24,24 @@ interface BookingService {
         booking: Booking,
     ): EitherNel<BookingValidationError, PricedBooking> =
         bookingValidation.validateBooking(currTime, booking)
-            .map { validBooking ->
-                val totalPrice = bookingPricingPolicy(validBooking)
-                val expirationDate = bookingExpirationPolicy(currTime)
+            .map { validBooking -> priceBooking(currTime, validBooking) }
+            .onRight(bookingRepository::saveBooking)
 
-                PricedBooking(
-                    id = booking.id,
-                    userInfo = booking.userInfo,
-                    screening = mapScreeningSummary(booking.screening),
-                    tickets = booking.tickets,
-                    totalPrice = totalPrice,
-                    expiresAt = expirationDate,
-                ).also {
-                    bookingRepository.saveBooking(it)
-                }
-            }
+    private fun priceBooking(currTime: LocalDateTime, validBooking: ValidBooking): PricedBooking {
+        val booking = validBooking.inner
+
+        val totalPrice = bookingPricingPolicy(validBooking)
+        val expirationDate = bookingExpirationPolicy(currTime)
+
+        return PricedBooking(
+            id = booking.id,
+            userInfo = booking.userInfo,
+            screening = mapScreeningSummary(booking.screening),
+            tickets = booking.tickets,
+            totalPrice = totalPrice,
+            expiresAt = expirationDate,
+        )
+    }
 
     private fun mapScreeningSummary(screening: ScreeningInfo): ScreeningSummary =
         ScreeningSummary(
