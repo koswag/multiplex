@@ -31,10 +31,11 @@ interface BookingValidation {
 
             zipOrAccumulate(
                 { ensure(notTooLateForBooking(currTime, booking)) { TooLateForBooking } },
+                { ensure(booking.tickets.isNotEmpty()) { NoTickets } },
                 { ensure(nonExistentSeats.isEmpty()) { NonExistentSeats(nonExistentSeats) } },
                 { ensure(alreadyTakenSeats.isEmpty()) { SeatsAlreadyTaken(alreadyTakenSeats) } },
                 { ensure(singleSeats.isEmpty()) { SingleSeatsLeft(singleSeats) } },
-            ) { _, _, _, _ ->
+            ) { _, _, _, _, _ ->
                 ValidBooking(booking)
             }
         }

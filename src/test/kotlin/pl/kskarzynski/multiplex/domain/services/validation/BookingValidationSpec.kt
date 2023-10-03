@@ -17,7 +17,6 @@ import pl.kskarzynski.multiplex.domain.model.screening.*
 import pl.kskarzynski.multiplex.domain.model.ticket.Ticket
 import pl.kskarzynski.multiplex.domain.model.ticket.TicketType.Adult
 import pl.kskarzynski.multiplex.domain.model.user.UserInfo
-import pl.kskarzynski.multiplex.domain.services.validation.BookingValidation
 import pl.kskarzynski.multiplex.domain.services.validation.BookingValidation.Companion.MIN_TIME_BEFORE_SCREENING_IN_MINUTES
 import java.time.LocalDateTime
 
@@ -86,6 +85,20 @@ class BookingValidationSpec : FeatureSpec({
             validationResult.isRight() shouldBe false
             validationResult.onLeft { errors ->
                 errors shouldContain TooLateForBooking
+            }
+        }
+
+        scenario("No tickets") {
+            // given:
+            val booking = bookingOf()
+
+            // when:
+            val validationResult = TestBookingValidation.validateBooking(validCurrentTime, booking)
+
+            // then:
+            validationResult.isRight() shouldBe false
+            validationResult.onLeft { errors ->
+                errors shouldContain NoTickets
             }
         }
 
