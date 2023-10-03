@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.domain.validation.booking
+package pl.kskarzynski.multiplex.domain.services.validation
 
 import arrow.core.Either.Right
 import arrow.core.getOrElse
@@ -17,7 +17,8 @@ import pl.kskarzynski.multiplex.domain.model.screening.*
 import pl.kskarzynski.multiplex.domain.model.ticket.Ticket
 import pl.kskarzynski.multiplex.domain.model.ticket.TicketType.Adult
 import pl.kskarzynski.multiplex.domain.model.user.UserInfo
-import pl.kskarzynski.multiplex.domain.validation.booking.BookingValidation.Companion.MIN_TIME_BEFORE_SCREENING_IN_MINUTES
+import pl.kskarzynski.multiplex.domain.services.validation.BookingValidation
+import pl.kskarzynski.multiplex.domain.services.validation.BookingValidation.Companion.MIN_TIME_BEFORE_SCREENING_IN_MINUTES
 import java.time.LocalDateTime
 
 private object TestBookingValidation : BookingValidation

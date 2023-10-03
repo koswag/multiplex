@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.domain.validation.booking
+package pl.kskarzynski.multiplex.domain.services.validation
 
 import arrow.core.EitherNel
 import arrow.core.raise.either
