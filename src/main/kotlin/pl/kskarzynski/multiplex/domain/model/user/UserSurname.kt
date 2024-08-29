@@ -1,13 +1,8 @@
 package pl.kskarzynski.multiplex.domain.model.user
 
-import arrow.core.EitherNel
-import arrow.core.raise.either
-import arrow.core.raise.ensure
-import arrow.core.raise.zipOrAccumulate
 import pl.kskarzynski.multiplex.common.util.extensions.hyphenCount
 import pl.kskarzynski.multiplex.common.util.extensions.isCapitalized
 import pl.kskarzynski.multiplex.common.util.extensions.secondPartIsCapitalized
-import pl.kskarzynski.multiplex.domain.model.user.UserSurnameValidationError.*
 
 sealed interface UserSurnameValidationError {
     data object SurnameTooShort : UserSurnameValidationError
@@ -18,24 +13,18 @@ sealed interface UserSurnameValidationError {
 }
 
 @JvmInline
-value class UserSurname private constructor(val value: String) {
+value class UserSurname(val value: String) {
+    init {
+        require(value.length >= MIN_LENGTH) { "Surname has to have at least $MIN_LENGTH characters: $value" }
+        require(value.isCapitalized()) { "Surname has to be capitalized: $value" }
+        require(value.hyphenCount() <= MAX_HYPHEN_COUNT) { "Surname can have at most $MAX_HYPHEN_COUNT hyphens: $value" }
+        require(value.secondPartIsCapitalized()) { "Surname's second part have to be capitalized: $value" }
+        require(value.all { it in VALID_CHARACTERS }) { "Surname contains invalid characters: $value" }
+    }
+
     companion object {
-        private const val MIN_LENGTH = 3
-        private const val MAX_HYPHEN_COUNT = 1
-
-        private val validCharacters = "^[\\p{L}-]+$".toRegex()
-
-        operator fun invoke(value: String): EitherNel<UserSurnameValidationError, UserSurname> =
-            either {
-                zipOrAccumulate(
-                    { ensure(value.length > MIN_LENGTH) { SurnameTooShort } },
-                    { ensure(value.isCapitalized()) { SurnameNotCapitalized } },
-                    { ensure(value.hyphenCount() <= MAX_HYPHEN_COUNT) { SurnameHasTooManyHyphens } },
-                    { ensure(value.secondPartIsCapitalized()) { SurnameSecondPartIsNotCapitalized } },
-                    { ensure(value matches validCharacters) { InvalidSurnameCharacters } },
-                ) { _, _, _, _, _, ->
-                    UserSurname(value)
-                }
-            }
+        const val MIN_LENGTH = 3
+        const val MAX_HYPHEN_COUNT = 1
+        val VALID_CHARACTERS = LOWERCASE_CHARACTERS + UPPERCASE_CHARACTERS + POLISH_CHARACTERS + HYPHEN
     }
 }
