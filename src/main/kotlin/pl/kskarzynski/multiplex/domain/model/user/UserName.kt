@@ -1,11 +1,6 @@
 package pl.kskarzynski.multiplex.domain.model.user
 
-import arrow.core.EitherNel
-import arrow.core.raise.either
-import arrow.core.raise.ensure
-import arrow.core.raise.zipOrAccumulate
 import pl.kskarzynski.multiplex.common.util.extensions.isCapitalized
-import pl.kskarzynski.multiplex.domain.model.user.UserNameValidationError.*
 
 sealed interface UserNameValidationError {
     data object NameTooShort : UserNameValidationError
@@ -14,20 +9,15 @@ sealed interface UserNameValidationError {
 }
 
 @JvmInline
-value class UserName private constructor(val value: String) {
-    companion object {
-        private const val MIN_LENGTH = 3
-        private val validCharacters = "^\\p{L}+$".toRegex()
+value class UserName(val value: String) {
+    init {
+        require(value.length >= MIN_LENGTH) { "Username has to have at least $MIN_LENGTH characters: $value" }
+        require(value.isCapitalized()) { "Username has to be capitalized: $value" }
+        require(value matches VALID_CHARACTERS) { "Username contains invalid characters: $value" }
+    }
 
-        operator fun invoke(value: String): EitherNel<UserNameValidationError, UserName> =
-            either {
-                zipOrAccumulate(
-                    { ensure(value.length >= MIN_LENGTH) { NameTooShort } },
-                    { ensure(value.isCapitalized()) { NameNotCapitalized } },
-                    { ensure(value matches validCharacters) { InvalidNameCharacters } },
-                ) { _, _, _ ->
-                    UserName(value)
-                }
-            }
+    companion object {
+        const val MIN_LENGTH = 3
+        val VALID_CHARACTERS = "^\\p{L}+$".toRegex()
     }
 }
