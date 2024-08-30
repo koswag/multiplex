@@ -13,11 +13,11 @@ value class UserName(val value: String) {
     init {
         require(value.length >= MIN_LENGTH) { "Username has to have at least $MIN_LENGTH characters: $value" }
         require(value.isCapitalized()) { "Username has to be capitalized: $value" }
-        require(value matches VALID_CHARACTERS) { "Username contains invalid characters: $value" }
+        require(value.all { it in VALID_CHARACTERS }) { "Username contains invalid characters: $value" }
     }
 
     companion object {
         const val MIN_LENGTH = 3
-        val VALID_CHARACTERS = "^\\p{L}+$".toRegex()
+        val VALID_CHARACTERS = LOWERCASE_CHARACTERS + UPPERCASE_CHARACTERS + POLISH_CHARACTERS
     }
 }

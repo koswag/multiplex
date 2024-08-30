@@ -20,7 +20,7 @@ class UserNameValidationImpl : UserNameValidation {
             accumulateErrors(
                 { ensure(name.length >= UserName.MIN_LENGTH) { NameTooShort } },
                 { ensure(name.isCapitalized()) { NameNotCapitalized } },
-                { ensure(name matches UserName.VALID_CHARACTERS) { InvalidNameCharacters } },
+                { ensure(name.all { it in UserName.VALID_CHARACTERS }) { InvalidNameCharacters } },
             )
 
             UserName(name)
