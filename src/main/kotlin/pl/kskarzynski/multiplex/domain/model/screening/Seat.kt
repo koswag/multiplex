@@ -1,19 +1,19 @@
 package pl.kskarzynski.multiplex.domain.model.screening
 
-@JvmInline
-value class SeatRow(val value: Int)
-
-@JvmInline
-value class SeatNumber(val value: Int)
-
-data class SeatPlacement(
-    val row: SeatRow,
-    val number: SeatNumber,
-)
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensure
+import pl.kskarzynski.multiplex.domain.model.screening.BookingError.SeatAlreadyTaken
 
 data class Seat(
     val placement: SeatPlacement,
     val isTaken: Boolean,
 ) {
     val isAvailable: Boolean = !isTaken
+
+    fun markAsTaken(): Either<SeatAlreadyTaken, Seat> =
+        either {
+            ensure(!isTaken) { SeatAlreadyTaken(placement) }
+            copy(isTaken = true)
+        }
 }
