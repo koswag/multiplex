@@ -4,14 +4,6 @@ import pl.kskarzynski.multiplex.common.util.extensions.hyphenCount
 import pl.kskarzynski.multiplex.common.util.extensions.isCapitalized
 import pl.kskarzynski.multiplex.common.util.extensions.secondPartIsCapitalized
 
-sealed interface UserSurnameValidationError {
-    data object SurnameTooShort : UserSurnameValidationError
-    data object SurnameNotCapitalized : UserSurnameValidationError
-    data object SurnameHasTooManyHyphens : UserSurnameValidationError
-    data object SurnameSecondPartIsNotCapitalized : UserSurnameValidationError
-    data object InvalidSurnameCharacters : UserSurnameValidationError
-}
-
 @JvmInline
 value class UserSurname(val value: String) {
     init {

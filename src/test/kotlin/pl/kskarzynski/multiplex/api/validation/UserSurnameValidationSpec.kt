@@ -11,12 +11,13 @@ import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.map
 import io.kotest.property.arbs.lastName
 import io.kotest.property.checkAll
+import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserSurnameValidationError.InvalidSurnameCharacters
+import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserSurnameValidationError.SurnameHasTooManyHyphens
+import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserSurnameValidationError.SurnameNotCapitalized
+import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserSurnameValidationError.SurnameSecondPartIsNotCapitalized
+import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserSurnameValidationError.SurnameTooShort
+import pl.kskarzynski.multiplex.api.validation.user.UserSurnameValidationImpl
 import pl.kskarzynski.multiplex.domain.model.user.UserSurname
-import pl.kskarzynski.multiplex.domain.model.user.UserSurnameValidationError.InvalidSurnameCharacters
-import pl.kskarzynski.multiplex.domain.model.user.UserSurnameValidationError.SurnameHasTooManyHyphens
-import pl.kskarzynski.multiplex.domain.model.user.UserSurnameValidationError.SurnameNotCapitalized
-import pl.kskarzynski.multiplex.domain.model.user.UserSurnameValidationError.SurnameSecondPartIsNotCapitalized
-import pl.kskarzynski.multiplex.domain.model.user.UserSurnameValidationError.SurnameTooShort
 import pl.kskarzynski.multiplex.domain.util.insert
 import pl.kskarzynski.multiplex.domain.util.shouldBeLeft
 import pl.kskarzynski.multiplex.domain.util.shouldBeRight
@@ -137,8 +138,10 @@ class UserSurnameValidationSpec : FeatureSpec({
                 val result = validation.validateSurname(surname)
 
                 // then:
+                val illegalChars = surname.filter { it !in UserSurname.VALID_CHARACTERS }.toList()
+
                 result.shouldBeLeft { errors ->
-                    errors shouldContain InvalidSurnameCharacters
+                    errors shouldContain InvalidSurnameCharacters(illegalChars)
                 }
             }
         }

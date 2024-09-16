@@ -2,12 +2,6 @@ package pl.kskarzynski.multiplex.domain.model.user
 
 import pl.kskarzynski.multiplex.common.util.extensions.isCapitalized
 
-sealed interface UserNameValidationError {
-    data object NameTooShort : UserNameValidationError
-    data object NameNotCapitalized : UserNameValidationError
-    data object InvalidNameCharacters : UserNameValidationError
-}
-
 @JvmInline
 value class UserName(val value: String) {
     init {

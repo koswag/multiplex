@@ -11,10 +11,11 @@ import io.kotest.property.arbitrary.map
 import io.kotest.property.arbitrary.orNull
 import io.kotest.property.arbs.firstName
 import io.kotest.property.checkAll
+import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserNameValidationError.InvalidNameCharacters
+import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserNameValidationError.NameNotCapitalized
+import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserNameValidationError.NameTooShort
+import pl.kskarzynski.multiplex.api.validation.user.UserNameValidationImpl
 import pl.kskarzynski.multiplex.domain.model.user.UserName
-import pl.kskarzynski.multiplex.domain.model.user.UserNameValidationError.InvalidNameCharacters
-import pl.kskarzynski.multiplex.domain.model.user.UserNameValidationError.NameNotCapitalized
-import pl.kskarzynski.multiplex.domain.model.user.UserNameValidationError.NameTooShort
 import pl.kskarzynski.multiplex.domain.util.insert
 import pl.kskarzynski.multiplex.domain.util.polishCharacter
 import pl.kskarzynski.multiplex.domain.util.shouldBeLeft
@@ -65,8 +66,10 @@ class UserNameValidationSpec : FeatureSpec({
                 val result = userNameValidation.validateName(userName)
 
                 // then:
+                val illegalChars = userName.filter { it !in UserName.VALID_CHARACTERS }.toList()
+
                 result.shouldBeLeft { errors ->
-                    errors.shouldContainExactly(InvalidNameCharacters)
+                    errors.shouldContainExactly(InvalidNameCharacters(illegalChars))
                 }
             }
         }
