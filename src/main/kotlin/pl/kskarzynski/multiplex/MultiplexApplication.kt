@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.web
+package pl.kskarzynski.multiplex
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

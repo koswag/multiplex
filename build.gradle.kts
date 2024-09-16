@@ -4,8 +4,8 @@ plugins {
     id("org.springframework.boot") version "3.1.4"
     id("io.spring.dependency-management") version "1.1.3"
     id("org.graalvm.buildtools.native") version "0.9.27"
-    kotlin("jvm") version "1.9.0"
-    kotlin("plugin.spring") version "1.9.0"
+    kotlin("jvm") version "2.0.20"
+    kotlin("plugin.spring") version "2.0.20"
 }
 
 group = "pl.kskarzynski"
@@ -26,19 +26,26 @@ repositories {
 }
 
 object Versions {
-    const val ARROW = "1.2.0"
-    const val KOTEST = "5.7.2"
+    const val ARROW = "1.2.4"
+    const val COROUTINES = "1.8.1"
+    const val EXPOSED = "0.53.0"
+    const val KOTEST = "5.9.1"
     const val KOTEST_EXTRA_ARBS = "2.1.2"
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.COROUTINES}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${Versions.COROUTINES}")
+
     implementation("io.arrow-kt:arrow-core:${Versions.ARROW}")
 
-    runtimeOnly("org.postgresql:postgresql")
+    implementation("org.jetbrains.exposed:exposed-core:${Versions.EXPOSED}")
+    implementation("org.jetbrains.exposed:exposed-java-time:${Versions.EXPOSED}")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -51,7 +58,10 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        freeCompilerArgs += "-Xjsr305=strict"
+        freeCompilerArgs += listOf(
+            "-Xjsr305=strict",
+            "-Xcontext-receivers",
+        )
         jvmTarget = "17"
     }
 }
