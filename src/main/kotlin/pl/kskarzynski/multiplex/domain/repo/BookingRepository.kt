@@ -4,6 +4,6 @@ import pl.kskarzynski.multiplex.domain.model.booking.BookingId
 import pl.kskarzynski.multiplex.domain.model.booking.PricedBooking
 
 interface BookingRepository {
-    fun saveBooking(booking: PricedBooking)
-    fun deleteBooking(bookingId: BookingId)
+    suspend fun saveBooking(booking: PricedBooking)
+    suspend fun deleteBooking(bookingId: BookingId)
 }
