@@ -10,11 +10,10 @@ import java.time.LocalDateTime
 import pl.kskarzynski.multiplex.common.util.extensions.toNonEmptyList
 import pl.kskarzynski.multiplex.domain.model.booking.Booking
 import pl.kskarzynski.multiplex.domain.model.booking.BookingId
-import pl.kskarzynski.multiplex.domain.model.screening.MovieTitle
-import pl.kskarzynski.multiplex.domain.model.screening.Room
 import pl.kskarzynski.multiplex.domain.model.screening.RoomNumber
+import pl.kskarzynski.multiplex.domain.model.screening.Screening
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningId
-import pl.kskarzynski.multiplex.domain.model.screening.ScreeningInfo
+import pl.kskarzynski.multiplex.domain.model.screening.ScreeningRoom
 import pl.kskarzynski.multiplex.domain.model.screening.SeatNumber
 import pl.kskarzynski.multiplex.domain.model.screening.SeatPlacement
 import pl.kskarzynski.multiplex.domain.model.screening.SeatRow
@@ -64,11 +63,10 @@ private fun bookingOf(ticketTypes: Collection<TicketType>): Booking =
                 )
             }
             .toNonEmptyList(),
-        screening = ScreeningInfo(
+        screening = Screening(
             id = ScreeningId.generate(),
-            title = MovieTitle("Movie Title"),
             startTime = LocalDateTime.of(2023, 10, 3, 16, 30),
-            room = Room(RoomNumber(1), seats = emptyList()),
+            room = ScreeningRoom(RoomNumber(1), seats = emptyList()),
         ),
         bookedAt = LocalDateTime.of(2023, 10, 3, 16, 30),
     )

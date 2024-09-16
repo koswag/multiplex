@@ -1,8 +1,6 @@
 package pl.kskarzynski.multiplex.domain.model.screening
 
 import arrow.core.EitherNel
-import arrow.core.NonEmptyList
-import arrow.core.raise.Raise
 import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
 import arrow.core.raise.mapOrAccumulate
@@ -16,26 +14,28 @@ data class ScreeningRoom(
 ) {
     fun bookSeats(seatPlacements: List<SeatPlacement>): EitherNel<BookingError, ScreeningRoom> =
         either {
-            val seatsToMark = findSeats(seatPlacements)
-            val markedSeats = markSeatsAsTaken(seatsToMark)
+            val seatsToMark = findSeats(seatPlacements).bind()
+            val markedSeats = markSeatsAsTaken(seatsToMark).bind()
 
             val updatedSeats = updateSeats(markedSeats)
-            ensureNoSingleSeats(updatedSeats)
+            ensureNoSingleSeats(updatedSeats).bind()
 
             copy(seats = updatedSeats)
         }
 
-    context(Raise<NonEmptyList<SeatDoesNotExist>>)
-    private fun findSeats(seatPlacements: List<SeatPlacement>): List<Seat> =
-        mapOrAccumulate(seatPlacements) { seatPlacement ->
-            val seat = seats.find { it.placement == seatPlacement }
-            ensureNotNull(seat) { SeatDoesNotExist(seatPlacement) }
+    private fun findSeats(seatPlacements: List<SeatPlacement>): EitherNel<SeatDoesNotExist, List<Seat>> =
+        either {
+            mapOrAccumulate(seatPlacements) { seatPlacement ->
+                val seat = seats.find { it.placement == seatPlacement }
+                ensureNotNull(seat) { SeatDoesNotExist(seatPlacement) }
+            }
         }
 
-    context(Raise<NonEmptyList<SeatAlreadyTaken>>)
-    private fun markSeatsAsTaken(seats: List<Seat>): List<Seat> =
-        mapOrAccumulate(seats) { seat ->
-            seat.markAsTaken().bind()
+    private fun markSeatsAsTaken(seats: List<Seat>): EitherNel<SeatAlreadyTaken, List<Seat>> =
+        either {
+            mapOrAccumulate(seats) { seat ->
+                seat.markAsTaken().bind()
+            }
         }
 
     private fun updateSeats(modifiedSeats: List<Seat>): List<Seat> {
@@ -43,13 +43,13 @@ data class ScreeningRoom(
         return seats.filter { it.placement !in modifiedSeatPlacements } + modifiedSeats
     }
 
-    context(Raise<NonEmptyList<SeatIsSingle>>)
-    private fun ensureNoSingleSeats(seats: List<Seat>) {
-        val singleSeats = findSingleSeats(seats)
-        mapOrAccumulate(singleSeats) { seatPlacement ->
-            raise(SeatIsSingle(seatPlacement))
+    private fun ensureNoSingleSeats(seats: List<Seat>): EitherNel<SeatIsSingle, Unit> =
+        either {
+            val singleSeats = findSingleSeats(seats)
+            mapOrAccumulate(singleSeats) { seatPlacement ->
+                raise(SeatIsSingle(seatPlacement))
+            }
         }
-    }
 }
 
 private fun findSingleSeats(allSeats: List<Seat>): Collection<SeatPlacement> =
