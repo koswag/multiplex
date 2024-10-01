@@ -1,7 +1,7 @@
 package pl.kskarzynski.multiplex.api.validation
 
 import java.time.LocalDateTime
-import pl.kskarzynski.multiplex.domain.model.screening.ScreeningId
+import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
 sealed interface BookingValidationError {
 

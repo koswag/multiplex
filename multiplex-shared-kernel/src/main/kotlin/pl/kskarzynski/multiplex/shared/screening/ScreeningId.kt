@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.domain.model.screening
+package pl.kskarzynski.multiplex.shared.screening
 
 import java.util.UUID
 

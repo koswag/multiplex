@@ -13,8 +13,8 @@ import pl.kskarzynski.multiplex.api.validation.BookingValidationError.ScreeningV
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.ScreeningValidationError.TooLateForBooking
 import pl.kskarzynski.multiplex.domain.model.booking.BookingRequest.Companion.MIN_TIME_BEFORE_SCREENING_IN_MINUTES
 import pl.kskarzynski.multiplex.domain.model.screening.Screening
-import pl.kskarzynski.multiplex.domain.model.screening.ScreeningId
 import pl.kskarzynski.multiplex.domain.queries.ScreeningQueries
+import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
 // TODO: Tests
 @Service

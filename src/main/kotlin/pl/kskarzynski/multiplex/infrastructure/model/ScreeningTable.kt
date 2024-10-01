@@ -8,13 +8,13 @@ import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.javatime.day
 import org.jetbrains.exposed.sql.javatime.month
 import org.jetbrains.exposed.sql.javatime.year
-import pl.kskarzynski.multiplex.domain.model.screening.MovieId
-import pl.kskarzynski.multiplex.domain.model.screening.MovieTitle
-import pl.kskarzynski.multiplex.domain.model.screening.RoomNumber
 import pl.kskarzynski.multiplex.domain.model.screening.Screening
-import pl.kskarzynski.multiplex.domain.model.screening.ScreeningId
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningRoom
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningSummary
+import pl.kskarzynski.multiplex.shared.movie.MovieId
+import pl.kskarzynski.multiplex.shared.movie.MovieTitle
+import pl.kskarzynski.multiplex.shared.screening.RoomNumber
+import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
 object ScreeningTable : UUIDTable("SCREENINGS") {
     val movieId = reference("MOVIE_ID", MovieTable)

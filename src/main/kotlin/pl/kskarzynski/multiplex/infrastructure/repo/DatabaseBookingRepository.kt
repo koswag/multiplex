@@ -3,9 +3,9 @@ package pl.kskarzynski.multiplex.infrastructure.repo
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.springframework.stereotype.Repository
 import pl.kskarzynski.multiplex.domain.model.booking.Booking
-import pl.kskarzynski.multiplex.domain.model.booking.BookingId
 import pl.kskarzynski.multiplex.domain.repo.BookingRepository
 import pl.kskarzynski.multiplex.infrastructure.model.BookingTable
+import pl.kskarzynski.multiplex.shared.booking.BookingId
 
 @Repository
 class DatabaseBookingRepository : BookingRepository {

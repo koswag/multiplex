@@ -7,9 +7,12 @@ import arrow.core.raise.ensure
 import java.time.LocalDateTime
 import pl.kskarzynski.multiplex.domain.model.booking.BookingConfirmationError.BookingExpired
 import pl.kskarzynski.multiplex.domain.model.screening.Screening
-import pl.kskarzynski.multiplex.domain.model.screening.SeatPlacement
 import pl.kskarzynski.multiplex.domain.model.ticket.Ticket
 import pl.kskarzynski.multiplex.domain.model.user.UserInfo
+import pl.kskarzynski.multiplex.shared.booking.BookingId
+import pl.kskarzynski.multiplex.shared.booking.BookingPrice
+import pl.kskarzynski.multiplex.shared.booking.BookingTime
+import pl.kskarzynski.multiplex.shared.screening.SeatPlacement
 
 sealed interface Booking {
     val id: BookingId

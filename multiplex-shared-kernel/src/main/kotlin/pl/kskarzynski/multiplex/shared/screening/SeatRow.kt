@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.domain.model.screening
+package pl.kskarzynski.multiplex.shared.screening
 
 @JvmInline
 value class SeatRow(val value: Int) {

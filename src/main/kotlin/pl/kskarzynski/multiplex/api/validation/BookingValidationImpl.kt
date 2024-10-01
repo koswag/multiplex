@@ -12,9 +12,9 @@ import pl.kskarzynski.multiplex.api.validation.ticket.TicketValidation
 import pl.kskarzynski.multiplex.api.validation.user.UserNameValidation
 import pl.kskarzynski.multiplex.api.validation.user.UserSurnameValidation
 import pl.kskarzynski.multiplex.domain.model.booking.BookingRequest
-import pl.kskarzynski.multiplex.domain.model.booking.BookingTime
-import pl.kskarzynski.multiplex.domain.model.screening.ScreeningId
 import pl.kskarzynski.multiplex.domain.model.user.UserInfo
+import pl.kskarzynski.multiplex.shared.booking.BookingTime
+import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
 // TODO: Tests
 @Service

@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.domain.model.booking
+package pl.kskarzynski.multiplex.shared.booking
 
 import java.util.UUID
 

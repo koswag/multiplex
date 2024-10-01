@@ -11,8 +11,8 @@ import pl.kskarzynski.multiplex.domain.model.booking.Booking.UnconfirmedBooking
 import pl.kskarzynski.multiplex.domain.model.booking.BookingConfirmationError
 import pl.kskarzynski.multiplex.domain.model.booking.BookingConfirmationError.BookingDoesNotExist
 import pl.kskarzynski.multiplex.domain.model.booking.BookingConfirmationError.BookingExpired
-import pl.kskarzynski.multiplex.domain.model.booking.BookingId
 import pl.kskarzynski.multiplex.domain.repo.BookingRepository
+import pl.kskarzynski.multiplex.shared.booking.BookingId
 
 class ConfirmBookingUseCase(
     private val bookingRepository: BookingRepository,

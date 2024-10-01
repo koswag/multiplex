@@ -4,10 +4,10 @@ import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.springframework.stereotype.Service
 import pl.kskarzynski.multiplex.domain.model.screening.Screening
-import pl.kskarzynski.multiplex.domain.model.screening.ScreeningId
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningSummary
 import pl.kskarzynski.multiplex.domain.queries.ScreeningQueries
 import pl.kskarzynski.multiplex.infrastructure.model.ScreeningTable
+import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
 @Service
 class DatabaseScreeningQueries : ScreeningQueries {

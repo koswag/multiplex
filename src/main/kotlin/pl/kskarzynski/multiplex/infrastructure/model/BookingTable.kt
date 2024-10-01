@@ -13,18 +13,18 @@ import pl.kskarzynski.multiplex.domain.model.booking.Booking.CancelledBooking
 import pl.kskarzynski.multiplex.domain.model.booking.Booking.ConfirmedBooking
 import pl.kskarzynski.multiplex.domain.model.booking.Booking.UnconfirmedBooking
 import pl.kskarzynski.multiplex.domain.model.booking.BookingExpirationTime
-import pl.kskarzynski.multiplex.domain.model.booking.BookingId
-import pl.kskarzynski.multiplex.domain.model.booking.BookingPrice
-import pl.kskarzynski.multiplex.domain.model.booking.BookingTime
-import pl.kskarzynski.multiplex.domain.model.screening.ScreeningId
-import pl.kskarzynski.multiplex.domain.model.screening.SeatNumber
-import pl.kskarzynski.multiplex.domain.model.screening.SeatPlacement
-import pl.kskarzynski.multiplex.domain.model.screening.SeatRow
 import pl.kskarzynski.multiplex.domain.model.ticket.Ticket
 import pl.kskarzynski.multiplex.domain.model.ticket.TicketType
 import pl.kskarzynski.multiplex.domain.model.user.UserInfo
 import pl.kskarzynski.multiplex.domain.model.user.UserName
 import pl.kskarzynski.multiplex.domain.model.user.UserSurname
+import pl.kskarzynski.multiplex.shared.booking.BookingId
+import pl.kskarzynski.multiplex.shared.booking.BookingPrice
+import pl.kskarzynski.multiplex.shared.booking.BookingTime
+import pl.kskarzynski.multiplex.shared.screening.ScreeningId
+import pl.kskarzynski.multiplex.shared.screening.SeatNumber
+import pl.kskarzynski.multiplex.shared.screening.SeatPlacement
+import pl.kskarzynski.multiplex.shared.screening.SeatRow
 
 object BookingTable : UUIDTable("BOOKINGS") {
     val userName = varchar("USER_NAME", length = 64)
