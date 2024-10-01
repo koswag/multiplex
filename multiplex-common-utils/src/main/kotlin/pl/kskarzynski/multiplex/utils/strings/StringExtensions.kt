@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.common.util.extensions
+package pl.kskarzynski.multiplex.utils.strings
 
 fun String.secondPartIsCapitalized(): Boolean {
     val parts = this.split("-")

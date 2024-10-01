@@ -1,6 +1,6 @@
 package pl.kskarzynski.multiplex.domain.model.user
 
-import pl.kskarzynski.multiplex.common.util.extensions.isCapitalized
+import pl.kskarzynski.multiplex.utils.strings.isCapitalized
 
 @JvmInline
 value class UserName(val value: String) {

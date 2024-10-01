@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -35,6 +36,7 @@ object Versions {
 
 dependencies {
     implementation(project("multiplex-shared-kernel"))
+    implementation(project("multiplex-common-utils"))
 
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
@@ -60,11 +62,14 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        freeCompilerArgs += listOf(
+    }
+
+    compilerOptions {
+        freeCompilerArgs.addAll(
             "-Xjsr305=strict",
             "-Xcontext-receivers",
         )
-        jvmTarget = "17"
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 

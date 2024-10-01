@@ -1,8 +1,8 @@
 package pl.kskarzynski.multiplex.domain.model.user
 
-import pl.kskarzynski.multiplex.common.util.extensions.hyphenCount
-import pl.kskarzynski.multiplex.common.util.extensions.isCapitalized
-import pl.kskarzynski.multiplex.common.util.extensions.secondPartIsCapitalized
+import pl.kskarzynski.multiplex.utils.strings.hyphenCount
+import pl.kskarzynski.multiplex.utils.strings.isCapitalized
+import pl.kskarzynski.multiplex.utils.strings.secondPartIsCapitalized
 
 @JvmInline
 value class UserSurname(val value: String) {

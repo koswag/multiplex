@@ -7,7 +7,6 @@ import io.kotest.property.arbitrary.enum
 import io.kotest.property.arbitrary.list
 import io.kotest.property.checkAll
 import java.time.LocalDateTime
-import pl.kskarzynski.multiplex.common.util.extensions.toNonEmptyList
 import pl.kskarzynski.multiplex.domain.model.booking.BookingRequest
 import pl.kskarzynski.multiplex.domain.model.screening.Screening
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningRoom
@@ -24,6 +23,7 @@ import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 import pl.kskarzynski.multiplex.shared.screening.SeatNumber
 import pl.kskarzynski.multiplex.shared.screening.SeatPlacement
 import pl.kskarzynski.multiplex.shared.screening.SeatRow
+import pl.kskarzynski.multiplex.utils.arrow.toNonEmptyList
 
 class BookingPricingPolicySpec : FeatureSpec({
 

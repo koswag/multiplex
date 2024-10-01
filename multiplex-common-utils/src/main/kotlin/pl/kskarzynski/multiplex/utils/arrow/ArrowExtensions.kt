@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.common.util.extensions
+package pl.kskarzynski.multiplex.utils.arrow
 
 import arrow.core.NonEmptyList
 import arrow.core.raise.Raise

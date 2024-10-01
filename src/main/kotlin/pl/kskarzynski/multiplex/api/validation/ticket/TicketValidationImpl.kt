@@ -14,11 +14,11 @@ import pl.kskarzynski.multiplex.api.validation.BookingValidationError.TicketVali
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.TicketValidationError.InvalidRowNumber
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.TicketValidationError.InvalidSeatNumber
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.TicketValidationError.NoTickets
-import pl.kskarzynski.multiplex.common.util.extensions.toNonEmptyList
 import pl.kskarzynski.multiplex.domain.model.ticket.Ticket
 import pl.kskarzynski.multiplex.shared.screening.SeatNumber
 import pl.kskarzynski.multiplex.shared.screening.SeatPlacement
 import pl.kskarzynski.multiplex.shared.screening.SeatRow
+import pl.kskarzynski.multiplex.utils.arrow.toNonEmptyList
 
 // TODO: Tests
 @Service

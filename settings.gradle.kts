@@ -5,3 +5,4 @@ plugins {
 rootProject.name = "multiplex"
 
 include("multiplex-shared-kernel")
+include("multiplex-common-utils")

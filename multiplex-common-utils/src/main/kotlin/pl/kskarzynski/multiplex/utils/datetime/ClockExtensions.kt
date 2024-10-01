@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.common.util.extensions
+package pl.kskarzynski.multiplex.utils.datetime
 
 import java.time.Clock
 import java.time.LocalDateTime
