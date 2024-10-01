@@ -1,12 +1,12 @@
 package pl.kskarzynski.multiplex.domain.policy
 
-import pl.kskarzynski.multiplex.domain.model.booking.Booking
 import pl.kskarzynski.multiplex.domain.model.booking.BookingExpirationTime
+import pl.kskarzynski.multiplex.domain.model.booking.BookingRequest
 
 class BookingExpirationPolicy {
 
-    fun determineBookingExpirationTime(booking: Booking): BookingExpirationTime {
-        val expirationTime = booking.bookedAt.plusMinutes(BOOKING_LIFESPAN_IN_MINUTES.toLong())
+    fun determineBookingExpirationTime(bookingRequest: BookingRequest): BookingExpirationTime {
+        val expirationTime = bookingRequest.bookingTime.value.plusMinutes(BOOKING_LIFESPAN_IN_MINUTES.toLong())
         return BookingExpirationTime(expirationTime)
     }
 
