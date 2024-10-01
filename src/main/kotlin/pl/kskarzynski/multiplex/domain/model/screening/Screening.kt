@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 
 data class Screening(
     val id: ScreeningId,
+    val movieId: MovieId,
     val startTime: LocalDateTime,
     val room: ScreeningRoom,
 ) {
@@ -14,4 +15,9 @@ data class Screening(
             val updatedRoom = room.bookSeats(seats).bind()
             copy(room = updatedRoom)
         }
+
+    fun cancelBooking(seats: List<SeatPlacement>): Screening {
+        val updatedRoom = room.cancelBooking(seats)
+        return copy(room = updatedRoom)
+    }
 }

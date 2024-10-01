@@ -6,14 +6,14 @@ import org.springframework.stereotype.Service
 import pl.kskarzynski.multiplex.api.model.BookingDto
 import pl.kskarzynski.multiplex.api.validation.BookingValidation
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError
-import pl.kskarzynski.multiplex.domain.model.booking.PricedBooking
+import pl.kskarzynski.multiplex.domain.model.booking.Booking.UnconfirmedBooking
 import pl.kskarzynski.multiplex.domain.model.screening.BookingError
 import pl.kskarzynski.multiplex.domain.usecase.BookScreeningUseCase
 
 typealias BookingResult =
     EitherNel<
         BookingValidationError,
-        EitherNel<BookingError, PricedBooking>
+        EitherNel<BookingError, UnconfirmedBooking>
     >
 
 @Service

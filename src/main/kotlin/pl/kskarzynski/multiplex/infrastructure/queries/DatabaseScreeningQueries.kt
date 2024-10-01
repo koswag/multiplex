@@ -3,8 +3,8 @@ package pl.kskarzynski.multiplex.infrastructure.queries
 import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.springframework.stereotype.Service
+import pl.kskarzynski.multiplex.domain.model.screening.Screening
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningId
-import pl.kskarzynski.multiplex.domain.model.screening.ScreeningInfo
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningSummary
 import pl.kskarzynski.multiplex.domain.queries.ScreeningQueries
 import pl.kskarzynski.multiplex.infrastructure.model.ScreeningTable
@@ -17,8 +17,8 @@ class DatabaseScreeningQueries : ScreeningQueries {
             ScreeningTable.findScreeningsAfter(time)
         }
 
-    override suspend fun findScreeningInfo(id: ScreeningId): ScreeningInfo? =
+    override suspend fun findScreening(id: ScreeningId): Screening? =
         newSuspendedTransaction {
-            ScreeningTable.findScreeningInfo(id)
+            ScreeningTable.findScreening(id)
         }
 }

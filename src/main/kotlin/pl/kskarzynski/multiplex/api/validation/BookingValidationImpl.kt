@@ -11,8 +11,8 @@ import pl.kskarzynski.multiplex.api.validation.screening.ScreeningValidation
 import pl.kskarzynski.multiplex.api.validation.ticket.TicketValidation
 import pl.kskarzynski.multiplex.api.validation.user.UserNameValidation
 import pl.kskarzynski.multiplex.api.validation.user.UserSurnameValidation
-import pl.kskarzynski.multiplex.domain.model.booking.Booking
-import pl.kskarzynski.multiplex.domain.model.booking.BookingId
+import pl.kskarzynski.multiplex.domain.model.booking.BookingRequest
+import pl.kskarzynski.multiplex.domain.model.booking.BookingTime
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningId
 import pl.kskarzynski.multiplex.domain.model.user.UserInfo
 
@@ -26,7 +26,7 @@ class BookingValidationImpl(
     private val ticketValidation: TicketValidation,
 ) : BookingValidation {
 
-    override suspend fun validateBooking(booking: BookingDto): EitherNel<BookingValidationError, Booking> =
+    override suspend fun validateBooking(booking: BookingDto): EitherNel<BookingValidationError, BookingRequest> =
         either {
             val screeningId = ScreeningId(booking.screeningId)
             val bookingTime = LocalDateTime.now(clock)
@@ -37,12 +37,11 @@ class BookingValidationImpl(
                 { userSurnameValidation.validateSurname(booking.userInfo.surname).bind() },
                 { ticketValidation.validateTickets(booking.tickets).bind() }
             ) { screening, name, surname, tickets ->
-                Booking(
-                    id = BookingId.generate(),
+                BookingRequest(
                     userInfo = UserInfo(name, surname),
                     tickets = tickets,
                     screening = screening,
-                    bookedAt = bookingTime,
+                    bookingTime = BookingTime(bookingTime),
                 )
             }
         }

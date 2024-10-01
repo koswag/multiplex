@@ -2,8 +2,8 @@ package pl.kskarzynski.multiplex.domain.usecase
 
 import arrow.core.EitherNel
 import arrow.core.raise.either
-import pl.kskarzynski.multiplex.domain.model.booking.Booking
-import pl.kskarzynski.multiplex.domain.model.booking.PricedBooking
+import pl.kskarzynski.multiplex.domain.model.booking.Booking.UnconfirmedBooking
+import pl.kskarzynski.multiplex.domain.model.booking.BookingRequest
 import pl.kskarzynski.multiplex.domain.model.screening.BookingError
 import pl.kskarzynski.multiplex.domain.policy.BookingExpirationPolicy
 import pl.kskarzynski.multiplex.domain.policy.BookingPricingPolicy
@@ -14,22 +14,12 @@ class BookScreeningUseCase(
     private val bookingExpirationPolicy: BookingExpirationPolicy,
     private val bookingRepository: BookingRepository,
 ) {
-    suspend fun execute(booking: Booking): EitherNel<BookingError, PricedBooking> =
+    suspend fun execute(bookingRequest: BookingRequest): EitherNel<BookingError, UnconfirmedBooking> =
         either {
-            val booked = booking.bookSeats().bind()
+            val totalPrice = bookingPricingPolicy.priceBooking(bookingRequest)
+            val expirationTime = bookingExpirationPolicy.determineBookingExpirationTime(bookingRequest)
 
-            priceBooking(booked)
-                .also { bookingRepository.saveBooking(it) }
+            val booking = bookingRequest.book(totalPrice, expirationTime).bind()
+            booking.also { bookingRepository.saveBooking(it) }
         }
-
-    private fun priceBooking(booking: Booking): PricedBooking {
-        val totalPrice = bookingPricingPolicy.priceBooking(booking)
-        val expirationTime = bookingExpirationPolicy.determineBookingExpirationTime(booking)
-
-        return PricedBooking(
-            booking = booking,
-            totalPrice = totalPrice,
-            expiresAt = expirationTime,
-        )
-    }
 }
