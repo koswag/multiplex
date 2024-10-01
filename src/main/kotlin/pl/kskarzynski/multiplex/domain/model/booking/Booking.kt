@@ -1,37 +1,62 @@
 package pl.kskarzynski.multiplex.domain.model.booking
 
-import arrow.core.EitherNel
+import arrow.core.Either
 import arrow.core.NonEmptyCollection
 import arrow.core.raise.either
+import arrow.core.raise.ensure
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit.MINUTES
-import pl.kskarzynski.multiplex.domain.model.screening.BookingError
+import pl.kskarzynski.multiplex.domain.model.booking.BookingConfirmationError.BookingExpired
 import pl.kskarzynski.multiplex.domain.model.screening.Screening
+import pl.kskarzynski.multiplex.domain.model.screening.SeatPlacement
 import pl.kskarzynski.multiplex.domain.model.ticket.Ticket
 import pl.kskarzynski.multiplex.domain.model.user.UserInfo
 
-data class Booking(
-    val id: BookingId,
-    val userInfo: UserInfo,
-    val tickets: NonEmptyCollection<Ticket>,
-    val screening: Screening,
-    val bookedAt: LocalDateTime,
-) {
-    init {
-        require(MINUTES.between(bookedAt, screening.startTime) >= MIN_TIME_BEFORE_SCREENING_IN_MINUTES) {
-            "Screening has to be booked at most $MIN_TIME_BEFORE_SCREENING_IN_MINUTES minutes before screening"
+sealed interface Booking {
+    val id: BookingId
+    val userInfo: UserInfo
+    val tickets: NonEmptyCollection<Ticket>
+    val screening: Screening
+    val bookingTime: BookingTime
+
+    data class UnconfirmedBooking(
+        override val id: BookingId,
+        override val userInfo: UserInfo,
+        override val tickets: NonEmptyCollection<Ticket>,
+        override val screening: Screening,
+        override val bookingTime: BookingTime,
+        val totalPrice: BookingPrice,
+        val expirationTime: BookingExpirationTime,
+    ) : Booking {
+        private val seats: List<SeatPlacement>
+            get() = tickets.map { it.seatPlacement }
+
+        fun cancel(): CancelledBooking {
+            val updatedScreening = screening.cancelBooking(seats)
+            return CancelledBooking(id, userInfo, tickets, updatedScreening, bookingTime, expirationTime)
         }
+
+        fun confirm(currTime: LocalDateTime): Either<BookingConfirmationError, ConfirmedBooking> =
+            either {
+                ensure(currTime.isBefore(expirationTime.value)) { BookingExpired(expirationTime) }
+                ConfirmedBooking(id, userInfo, tickets, screening, bookingTime, totalPrice)
+            }
     }
 
-    fun bookSeats(): EitherNel<BookingError, Booking> =
-        either {
-            val seatPlacements = tickets.map { it.seatPlacement }
-            val updatedScreening = screening.bookSeats(seatPlacements).bind()
+    data class CancelledBooking(
+        override val id: BookingId,
+        override val userInfo: UserInfo,
+        override val tickets: NonEmptyCollection<Ticket>,
+        override val screening: Screening,
+        override val bookingTime: BookingTime,
+        val expirationTime: BookingExpirationTime,
+    ) : Booking
 
-            copy(screening = updatedScreening)
-        }
-
-    companion object {
-        const val MIN_TIME_BEFORE_SCREENING_IN_MINUTES = 15
-    }
+    data class ConfirmedBooking(
+        override val id: BookingId,
+        override val userInfo: UserInfo,
+        override val tickets: NonEmptyCollection<Ticket>,
+        override val screening: Screening,
+        override val bookingTime: BookingTime,
+        val totalPrice: BookingPrice,
+    ) : Booking
 }
