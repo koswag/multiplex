@@ -16,4 +16,9 @@ data class Seat(
             ensure(!isTaken) { SeatAlreadyTaken(placement) }
             copy(isTaken = true)
         }
+
+    fun markAsNotTaken(): Seat {
+        check(isTaken) { "Seat (${placement.row}, ${placement.number}) is not taken" }
+        return copy(isTaken = false)
+    }
 }

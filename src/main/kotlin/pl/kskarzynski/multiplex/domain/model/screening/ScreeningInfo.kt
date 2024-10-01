@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 data class ScreeningInfo(
     val id: ScreeningId,
-    val title: MovieTitle,
+    val movie: Movie,
     val startTime: LocalDateTime,
     val room: ScreeningRoom,
 )

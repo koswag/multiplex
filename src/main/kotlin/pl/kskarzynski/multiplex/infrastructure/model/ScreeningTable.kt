@@ -8,10 +8,11 @@ import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.javatime.day
 import org.jetbrains.exposed.sql.javatime.month
 import org.jetbrains.exposed.sql.javatime.year
+import pl.kskarzynski.multiplex.domain.model.screening.MovieId
 import pl.kskarzynski.multiplex.domain.model.screening.MovieTitle
 import pl.kskarzynski.multiplex.domain.model.screening.RoomNumber
+import pl.kskarzynski.multiplex.domain.model.screening.Screening
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningId
-import pl.kskarzynski.multiplex.domain.model.screening.ScreeningInfo
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningRoom
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningSummary
 
@@ -39,17 +40,16 @@ object ScreeningTable : UUIDTable("SCREENINGS") {
             }
 
     context(Transaction)
-    fun findScreeningInfo(id: ScreeningId): ScreeningInfo? =
+    fun findScreening(id: ScreeningId): Screening? =
         ScreeningTable
-            .innerJoin(MovieTable)
             .innerJoin(RoomTable)
-            .select(MovieTable.title, RoomTable.id, startTime)
+            .select(RoomTable.id, movieId, startTime)
             .where { ScreeningTable.id eq id.value }
             .firstOrNull()
             ?.let { row ->
-                ScreeningInfo(
+                Screening(
                     id = id,
-                    title = MovieTitle(row[MovieTable.title]),
+                    movieId = MovieId(row[movieId].value),
                     startTime = row[startTime],
                     room = ScreeningRoom(
                         number = RoomNumber(row[RoomTable.id].value),

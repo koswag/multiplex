@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.ScreeningValidationError.ScreeningDoesNotExist
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.ScreeningValidationError.TooLateForBooking
-import pl.kskarzynski.multiplex.domain.model.booking.Booking.Companion.MIN_TIME_BEFORE_SCREENING_IN_MINUTES
+import pl.kskarzynski.multiplex.domain.model.booking.BookingRequest.Companion.MIN_TIME_BEFORE_SCREENING_IN_MINUTES
+import pl.kskarzynski.multiplex.domain.model.screening.Screening
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningId
-import pl.kskarzynski.multiplex.domain.model.screening.ScreeningInfo
 import pl.kskarzynski.multiplex.domain.queries.ScreeningQueries
 
 // TODO: Tests
@@ -25,9 +25,9 @@ class ScreeningValidationImpl(
     override suspend fun validateBookedScreening(
         screeningId: ScreeningId,
         bookingTime: LocalDateTime
-    ): EitherNel<BookingValidationError, ScreeningInfo> =
+    ): EitherNel<BookingValidationError, Screening> =
         either {
-            val screening = screeningQueries.findScreeningInfo(screeningId)
+            val screening = screeningQueries.findScreening(screeningId)
             ensureNotNull(screening) { ScreeningDoesNotExist(screeningId).nel() }
 
             ensure(MINUTES.between(bookingTime, screening.startTime) >= MIN_TIME_BEFORE_SCREENING_IN_MINUTES) {

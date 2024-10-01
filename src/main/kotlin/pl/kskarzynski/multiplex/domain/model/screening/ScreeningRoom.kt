@@ -1,6 +1,7 @@
 package pl.kskarzynski.multiplex.domain.model.screening
 
 import arrow.core.EitherNel
+import arrow.core.getOrElse
 import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
 import arrow.core.raise.mapOrAccumulate
@@ -50,6 +51,17 @@ data class ScreeningRoom(
                 raise(SeatIsSingle(seatPlacement))
             }
         }
+
+
+    fun cancelBooking(seatPlacements: List<SeatPlacement>): ScreeningRoom {
+        val seatsToUnmark = findSeats(seatPlacements)
+            .getOrElse { error("Seats not found: $it") }
+
+        val unmarkedSeats = seatsToUnmark.map { it.markAsNotTaken() }
+        val updatedSeats = updateSeats(unmarkedSeats)
+
+        return copy(seats = updatedSeats)
+    }
 }
 
 private fun findSingleSeats(allSeats: List<Seat>): Collection<SeatPlacement> =
