@@ -1,12 +1,12 @@
 package pl.kskarzynski.multiplex.domain.policy
 
-import pl.kskarzynski.multiplex.domain.model.booking.Booking
 import pl.kskarzynski.multiplex.domain.model.booking.BookingPrice
+import pl.kskarzynski.multiplex.domain.model.booking.BookingRequest
 
 class BookingPricingPolicy {
 
-    fun priceBooking(booking: Booking): BookingPrice =
-        booking.tickets
+    fun priceBooking(bookingRequest: BookingRequest): BookingPrice =
+        bookingRequest.tickets
             .sumOf { it.type.price.value }
             .let(::BookingPrice)
 }
