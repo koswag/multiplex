@@ -12,3 +12,15 @@ include("multiplex-movies:multiplex-movies-domain")
 include("multiplex-movies:multiplex-movies-api")
 include("multiplex-movies:multiplex-movies-infrastructure")
 include("multiplex-shared-kernel")
+include("multiplex-rooms")
+include("multiplex-rooms:multiplex-rooms-domain")
+findProject(":multiplex-rooms:multiplex-rooms-domain")?.name = "multiplex-rooms-domain"
+include("multiplex-rooms:multiplex-rooms-infrastructure")
+findProject(":multiplex-rooms:multiplex-rooms-infrastructure")?.name = "multiplex-rooms-infrastructure"
+include("multiplex-rooms")
+include("multiplex-rooms:multiplex-rooms-domain")
+findProject(":multiplex-rooms:multiplex-rooms-domain")?.name = "multiplex-rooms-domain"
+include("multiplex-rooms:multiplex-rooms-api")
+findProject(":multiplex-rooms:multiplex-rooms-api")?.name = "multiplex-rooms-api"
+include("multiplex-rooms:multiplex-rooms-infrastructure")
+findProject(":multiplex-rooms:multiplex-rooms-infrastructure")?.name = "multiplex-rooms-infrastructure"

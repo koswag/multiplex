@@ -2,18 +2,20 @@ package pl.kskarzynski.multiplex.movies.infra.adapter.data.table
 
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.intLiteral
 import org.jetbrains.exposed.sql.stringLiteral
 import org.jetbrains.exposed.sql.upsert
-import pl.kskarzynski.multiplex.movies.api.model.Movie
-import pl.kskarzynski.multiplex.movies.api.model.MovieReleaseYear
-import pl.kskarzynski.multiplex.movies.api.model.MovieTitle
+import pl.kskarzynski.multiplex.shared.movie.Movie
 import pl.kskarzynski.multiplex.shared.movie.MovieId
+import pl.kskarzynski.multiplex.shared.movie.MovieReleaseYear
+import pl.kskarzynski.multiplex.shared.movie.MovieTitle
 
 object MovieTable : UUIDTable("multiplex_movies.movies") {
     val title = varchar("title", 255)
     val year = integer("year")
 
+    context(Transaction)
     fun upsert(movie: Movie) {
         upsert(id,
             onUpdate = listOf(
@@ -27,12 +29,14 @@ object MovieTable : UUIDTable("multiplex_movies.movies") {
         }
     }
 
+    context(Transaction)
     fun find(movieId: MovieId): Movie? =
         select(id, title, year)
             .where { id eq movieId.value }
             .firstOrNull()
-            ?.let(::rowToDomain)
+            ?.let { rowToDomain(it) }
 
+    context(Transaction)
     fun rowToDomain(row: ResultRow): Movie =
         Movie(
             id = MovieId(row[id].value),

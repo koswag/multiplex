@@ -6,11 +6,11 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
-import pl.kskarzynski.multiplex.movies.api.model.Movie
-import pl.kskarzynski.multiplex.movies.api.model.MovieTitle
 import pl.kskarzynski.multiplex.movies.infra.adapter.data.table.MovieTable
 import pl.kskarzynski.multiplex.movies.infra.util.movie
+import pl.kskarzynski.multiplex.shared.movie.Movie
 import pl.kskarzynski.multiplex.shared.movie.MovieId
+import pl.kskarzynski.multiplex.shared.movie.MovieTitle
 import strikt.api.expect
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo

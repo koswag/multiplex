@@ -16,9 +16,9 @@ import pl.kskarzynski.multiplex.api.validation.BookingValidationError.TicketVali
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.TicketValidationError.NoTickets
 import pl.kskarzynski.multiplex.common.utils.arrow.toNonEmptyList
 import pl.kskarzynski.multiplex.domain.model.ticket.Ticket
-import pl.kskarzynski.multiplex.shared.screening.SeatNumber
-import pl.kskarzynski.multiplex.shared.screening.SeatPlacement
-import pl.kskarzynski.multiplex.shared.screening.SeatRow
+import pl.kskarzynski.multiplex.shared.room.Seat
+import pl.kskarzynski.multiplex.shared.room.SeatNumber
+import pl.kskarzynski.multiplex.shared.room.SeatRow
 
 // TODO: Tests
 @Service
@@ -35,7 +35,7 @@ class TicketValidationImpl : TicketValidation {
                 ) { row, number ->
                     Ticket(
                         type = ticket.type.toModel(),
-                        seatPlacement = SeatPlacement(row, number)
+                        seatPlacement = Seat(row, number)
                     )
                 }
             }

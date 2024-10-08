@@ -12,7 +12,7 @@ import pl.kskarzynski.multiplex.domain.model.user.UserInfo
 import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.booking.BookingPrice
 import pl.kskarzynski.multiplex.shared.booking.BookingTime
-import pl.kskarzynski.multiplex.shared.screening.SeatPlacement
+import pl.kskarzynski.multiplex.shared.room.Seat
 
 sealed interface Booking {
     val id: BookingId
@@ -30,7 +30,7 @@ sealed interface Booking {
         val totalPrice: BookingPrice,
         val expirationTime: BookingExpirationTime,
     ) : Booking {
-        private val seats: List<SeatPlacement>
+        private val seats: List<Seat>
             get() = tickets.map { it.seatPlacement }
 
         fun cancel(): CancelledBooking {

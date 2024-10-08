@@ -19,12 +19,12 @@ import pl.kskarzynski.multiplex.domain.model.user.UserSurname
 import pl.kskarzynski.multiplex.domain.policy.BookingPricingPolicy
 import pl.kskarzynski.multiplex.shared.booking.BookingTime
 import pl.kskarzynski.multiplex.shared.movie.MovieId
-import pl.kskarzynski.multiplex.shared.screening.RoomId
-import pl.kskarzynski.multiplex.shared.screening.RoomNumber
+import pl.kskarzynski.multiplex.shared.room.RoomId
+import pl.kskarzynski.multiplex.shared.room.RoomNumber
+import pl.kskarzynski.multiplex.shared.room.Seat
+import pl.kskarzynski.multiplex.shared.room.SeatNumber
+import pl.kskarzynski.multiplex.shared.room.SeatRow
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
-import pl.kskarzynski.multiplex.shared.screening.SeatNumber
-import pl.kskarzynski.multiplex.shared.screening.SeatPlacement
-import pl.kskarzynski.multiplex.shared.screening.SeatRow
 
 class BookingPricingPolicySpec : FeatureSpec({
 
@@ -61,7 +61,7 @@ private fun bookingOf(ticketTypes: Collection<TicketType>): BookingRequest =
                 .mapIndexed { i, type ->
                     Ticket(
                         type = type,
-                        seatPlacement = SeatPlacement(SeatRow(1), SeatNumber(i)),
+                        seatPlacement = Seat(SeatRow(1), SeatNumber(i)),
                     )
                 }
                 .toNonEmptyList(),

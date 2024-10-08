@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.shared.screening
+package pl.kskarzynski.multiplex.shared.room
 
 import java.util.UUID
 

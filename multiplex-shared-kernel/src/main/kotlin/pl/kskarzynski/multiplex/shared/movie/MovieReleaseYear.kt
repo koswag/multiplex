@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.movies.api.model
+package pl.kskarzynski.multiplex.shared.movie
 
 @JvmInline
 value class MovieReleaseYear(val value: Int)

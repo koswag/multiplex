@@ -9,5 +9,5 @@ import pl.kskarzynski.multiplex.movies.infra.adapter.data.DatabaseMovieRepositor
 val MovieModule =
     module {
         single<MovieRepository> { DatabaseMovieRepository() }
-        single<MovieService> { MovieServiceImpl(movieRepository = get()) }
+        single<MovieService> { MovieServiceImpl(movieQueries = get()) }
     }

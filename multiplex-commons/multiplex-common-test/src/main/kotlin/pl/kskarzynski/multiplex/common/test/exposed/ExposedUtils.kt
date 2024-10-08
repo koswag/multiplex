@@ -11,8 +11,7 @@ fun initializeDatabase(datasource: DataSource, vararg tables: Table) {
     Database.connect(datasource)
 
     val schemas =
-        tables
-            .mapNotNull { it.schemaName?.let(::Schema) }
+        tables.mapNotNull { it.schemaName?.let(::Schema) }
             .distinct()
             .toTypedArray()
 

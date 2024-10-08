@@ -1,6 +1,4 @@
-package pl.kskarzynski.multiplex.movies.api.model
-
-import pl.kskarzynski.multiplex.shared.movie.MovieId
+package pl.kskarzynski.multiplex.shared.movie
 
 data class Movie(
     val id: MovieId,

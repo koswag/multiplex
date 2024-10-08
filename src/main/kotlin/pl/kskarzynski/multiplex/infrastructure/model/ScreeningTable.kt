@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.javatime.year
 import pl.kskarzynski.multiplex.domain.model.screening.Screening
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningSummary
 import pl.kskarzynski.multiplex.shared.movie.MovieId
-import pl.kskarzynski.multiplex.shared.screening.RoomId
+import pl.kskarzynski.multiplex.shared.room.RoomId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
 object ScreeningTable : UUIDTable("SCREENINGS") {

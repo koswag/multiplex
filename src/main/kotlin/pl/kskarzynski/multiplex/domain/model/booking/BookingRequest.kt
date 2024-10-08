@@ -12,7 +12,7 @@ import pl.kskarzynski.multiplex.domain.model.user.UserInfo
 import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.booking.BookingPrice
 import pl.kskarzynski.multiplex.shared.booking.BookingTime
-import pl.kskarzynski.multiplex.shared.screening.SeatPlacement
+import pl.kskarzynski.multiplex.shared.room.Seat
 
 data class BookingRequest(
     val userInfo: UserInfo,
@@ -26,7 +26,7 @@ data class BookingRequest(
         }
     }
 
-    private val seats: List<SeatPlacement>
+    private val seats: List<Seat>
         get() = tickets.map { it.seatPlacement }
 
     fun book(

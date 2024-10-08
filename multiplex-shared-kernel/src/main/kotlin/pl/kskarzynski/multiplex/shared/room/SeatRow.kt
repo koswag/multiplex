@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.shared.screening
+package pl.kskarzynski.multiplex.shared.room
 
 @JvmInline
 value class SeatRow(val value: Int) {

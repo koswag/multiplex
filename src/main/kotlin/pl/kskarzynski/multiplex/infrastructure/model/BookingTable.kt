@@ -21,10 +21,10 @@ import pl.kskarzynski.multiplex.domain.model.user.UserSurname
 import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.booking.BookingPrice
 import pl.kskarzynski.multiplex.shared.booking.BookingTime
+import pl.kskarzynski.multiplex.shared.room.Seat
+import pl.kskarzynski.multiplex.shared.room.SeatNumber
+import pl.kskarzynski.multiplex.shared.room.SeatRow
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
-import pl.kskarzynski.multiplex.shared.screening.SeatNumber
-import pl.kskarzynski.multiplex.shared.screening.SeatPlacement
-import pl.kskarzynski.multiplex.shared.screening.SeatRow
 
 object BookingTable : UUIDTable("BOOKINGS") {
     val userName = varchar("USER_NAME", length = 64)
@@ -54,7 +54,7 @@ object BookingTable : UUIDTable("BOOKINGS") {
                                 ),
                             tickets =
                                 nonEmptyListOf(
-                                    Ticket(TicketType.CHILD, SeatPlacement(SeatRow(1), SeatNumber(1)))
+                                    Ticket(TicketType.CHILD, Seat(SeatRow(1), SeatNumber(1)))
                                 ), // TODO
                             screening =
                                 ScreeningTable.findScreening(ScreeningId(row[screeningId].value))
@@ -78,7 +78,7 @@ object BookingTable : UUIDTable("BOOKINGS") {
                                 ),
                             tickets =
                                 nonEmptyListOf(
-                                    Ticket(TicketType.CHILD, SeatPlacement(SeatRow(1), SeatNumber(1)))
+                                    Ticket(TicketType.CHILD, Seat(SeatRow(1), SeatNumber(1)))
                                 ), // TODO
                             screening =
                                 ScreeningTable.findScreening(ScreeningId(row[screeningId].value))
@@ -99,7 +99,7 @@ object BookingTable : UUIDTable("BOOKINGS") {
                                 ),
                             tickets =
                                 nonEmptyListOf(
-                                    Ticket(TicketType.CHILD, SeatPlacement(SeatRow(1), SeatNumber(1)))
+                                    Ticket(TicketType.CHILD, Seat(SeatRow(1), SeatNumber(1)))
                                 ), // TODO
                             screening =
                                 ScreeningTable.findScreening(ScreeningId(row[screeningId].value))
