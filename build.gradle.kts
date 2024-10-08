@@ -36,7 +36,7 @@ object Versions {
 
 dependencies {
     implementation(project("multiplex-shared-kernel"))
-    implementation(project("multiplex-common-utils"))
+    implementation(project("multiplex-commons:multiplex-common-utils"))
 
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
@@ -61,9 +61,6 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
-    }
-
     compilerOptions {
         freeCompilerArgs.addAll(
             "-Xjsr305=strict",

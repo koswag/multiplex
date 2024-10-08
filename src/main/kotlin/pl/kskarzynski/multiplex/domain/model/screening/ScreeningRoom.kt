@@ -8,10 +8,12 @@ import arrow.core.raise.mapOrAccumulate
 import pl.kskarzynski.multiplex.domain.model.screening.BookingError.SeatAlreadyTaken
 import pl.kskarzynski.multiplex.domain.model.screening.BookingError.SeatDoesNotExist
 import pl.kskarzynski.multiplex.domain.model.screening.BookingError.SeatIsSingle
+import pl.kskarzynski.multiplex.shared.screening.RoomId
 import pl.kskarzynski.multiplex.shared.screening.RoomNumber
 import pl.kskarzynski.multiplex.shared.screening.SeatPlacement
 
 data class ScreeningRoom(
+    val id: RoomId,
     val number: RoomNumber,
     val seats: List<Seat>,
 ) {

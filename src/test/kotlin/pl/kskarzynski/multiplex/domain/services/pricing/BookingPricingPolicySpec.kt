@@ -7,6 +7,7 @@ import io.kotest.property.arbitrary.enum
 import io.kotest.property.arbitrary.list
 import io.kotest.property.checkAll
 import java.time.LocalDateTime
+import pl.kskarzynski.multiplex.common.utils.arrow.toNonEmptyList
 import pl.kskarzynski.multiplex.domain.model.booking.BookingRequest
 import pl.kskarzynski.multiplex.domain.model.screening.Screening
 import pl.kskarzynski.multiplex.domain.model.screening.ScreeningRoom
@@ -18,12 +19,12 @@ import pl.kskarzynski.multiplex.domain.model.user.UserSurname
 import pl.kskarzynski.multiplex.domain.policy.BookingPricingPolicy
 import pl.kskarzynski.multiplex.shared.booking.BookingTime
 import pl.kskarzynski.multiplex.shared.movie.MovieId
+import pl.kskarzynski.multiplex.shared.screening.RoomId
 import pl.kskarzynski.multiplex.shared.screening.RoomNumber
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 import pl.kskarzynski.multiplex.shared.screening.SeatNumber
 import pl.kskarzynski.multiplex.shared.screening.SeatPlacement
 import pl.kskarzynski.multiplex.shared.screening.SeatRow
-import pl.kskarzynski.multiplex.utils.arrow.toNonEmptyList
 
 class BookingPricingPolicySpec : FeatureSpec({
 
@@ -69,7 +70,7 @@ private fun bookingOf(ticketTypes: Collection<TicketType>): BookingRequest =
                 id = ScreeningId.generate(),
                 movieId = MovieId.generate(),
                 startTime = LocalDateTime.of(2023, 10, 3, 16, 30),
-                room = ScreeningRoom(RoomNumber(1), seats = emptyList()),
+                room = ScreeningRoom(RoomId.generate(), RoomNumber(1), seats = emptyList()),
             ),
         bookingTime = BookingTime(LocalDateTime.of(2023, 10, 3, 16, 30)),
     )

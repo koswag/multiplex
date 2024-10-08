@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
 import java.time.Clock
+import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
 import pl.kskarzynski.multiplex.domain.model.booking.Booking.CancelledBooking
 import pl.kskarzynski.multiplex.domain.model.booking.Booking.ConfirmedBooking
 import pl.kskarzynski.multiplex.domain.model.booking.Booking.UnconfirmedBooking
@@ -12,7 +13,6 @@ import pl.kskarzynski.multiplex.domain.model.booking.BookingConfirmationError.Bo
 import pl.kskarzynski.multiplex.domain.model.booking.BookingConfirmationError.BookingExpired
 import pl.kskarzynski.multiplex.domain.repo.BookingRepository
 import pl.kskarzynski.multiplex.shared.booking.BookingId
-import pl.kskarzynski.multiplex.utils.datetime.currentTime
 
 class ConfirmBookingUseCase(
     private val bookingRepository: BookingRepository,

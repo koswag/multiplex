@@ -8,9 +8,9 @@ import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserNameVa
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserNameValidationError.InvalidNameCharacters
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserNameValidationError.NameNotCapitalized
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserNameValidationError.NameTooShort
+import pl.kskarzynski.multiplex.common.utils.arrow.accumulateErrors
+import pl.kskarzynski.multiplex.common.utils.strings.isCapitalized
 import pl.kskarzynski.multiplex.domain.model.user.UserName
-import pl.kskarzynski.multiplex.utils.arrow.accumulateErrors
-import pl.kskarzynski.multiplex.utils.strings.isCapitalized
 
 @Service
 class UserNameValidationImpl : UserNameValidation {

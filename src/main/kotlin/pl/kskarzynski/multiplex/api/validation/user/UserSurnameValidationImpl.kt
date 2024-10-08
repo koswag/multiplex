@@ -10,11 +10,11 @@ import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserSurnam
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserSurnameValidationError.SurnameNotCapitalized
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserSurnameValidationError.SurnameSecondPartIsNotCapitalized
 import pl.kskarzynski.multiplex.api.validation.BookingValidationError.UserSurnameValidationError.SurnameTooShort
+import pl.kskarzynski.multiplex.common.utils.arrow.accumulateErrors
+import pl.kskarzynski.multiplex.common.utils.strings.hyphenCount
+import pl.kskarzynski.multiplex.common.utils.strings.isCapitalized
+import pl.kskarzynski.multiplex.common.utils.strings.secondPartIsCapitalized
 import pl.kskarzynski.multiplex.domain.model.user.UserSurname
-import pl.kskarzynski.multiplex.utils.arrow.accumulateErrors
-import pl.kskarzynski.multiplex.utils.strings.hyphenCount
-import pl.kskarzynski.multiplex.utils.strings.isCapitalized
-import pl.kskarzynski.multiplex.utils.strings.secondPartIsCapitalized
 
 @Service
 class UserSurnameValidationImpl : UserSurnameValidation {
