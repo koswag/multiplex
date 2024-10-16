@@ -13,6 +13,14 @@ fun <E> Raise<NonEmptyList<E>>.accumulateErrors(
     mapOrAccumulate(checks.asIterable()) { check -> check() }
 }
 
+@RaiseDSL
+fun <E, T> Raise<NonEmptyList<E>>.accumulateErrors(
+    items: Iterable<T>,
+    check: Raise<E>.(T) -> Unit,
+) {
+    mapOrAccumulate(items, check)
+}
+
 fun <T> List<T>.toNonEmptyList(): NonEmptyList<T> =
     this.toNonEmptyListOrNull()
         ?: throw IllegalArgumentException("List is empty")

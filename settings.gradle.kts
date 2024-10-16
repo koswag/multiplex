@@ -24,3 +24,6 @@ include("multiplex-rooms:multiplex-rooms-api")
 findProject(":multiplex-rooms:multiplex-rooms-api")?.name = "multiplex-rooms-api"
 include("multiplex-rooms:multiplex-rooms-infrastructure")
 findProject(":multiplex-rooms:multiplex-rooms-infrastructure")?.name = "multiplex-rooms-infrastructure"
+include("multiplex-screenings")
+include("multiplex-screenings:multiplex-screenings-domain")
+findProject(":multiplex-screenings:multiplex-screenings-domain")?.name = "multiplex-screenings-domain"
