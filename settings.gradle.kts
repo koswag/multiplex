@@ -27,3 +27,7 @@ findProject(":multiplex-rooms:multiplex-rooms-infrastructure")?.name = "multiple
 include("multiplex-screenings")
 include("multiplex-screenings:multiplex-screenings-domain")
 findProject(":multiplex-screenings:multiplex-screenings-domain")?.name = "multiplex-screenings-domain"
+include("multiplex-screenings:multiplex-screenings-infrastructure")
+findProject(":multiplex-screenings:multiplex-screenings-infrastructure")?.name = "multiplex-screenings-infrastructure"
+include("multiplex-commons:multiplex-common-infra")
+findProject(":multiplex-commons:multiplex-common-infra")?.name = "multiplex-common-infra"

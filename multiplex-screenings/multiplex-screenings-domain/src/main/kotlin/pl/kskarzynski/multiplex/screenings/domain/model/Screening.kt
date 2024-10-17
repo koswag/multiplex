@@ -26,12 +26,13 @@ import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.room.Room
 import pl.kskarzynski.multiplex.shared.room.Seat
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
+import pl.kskarzynski.multiplex.shared.screening.ScreeningStartTime
 
 data class Screening(
     val id: ScreeningId,
     val movieId: MovieId,
     val room: Room,
-    val startTime: LocalDateTime,
+    val startTime: ScreeningStartTime,
     val bookings: List<Booking>,
 ) {
     private val bookingIds: Set<BookingId>
