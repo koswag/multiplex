@@ -21,6 +21,6 @@ fun <E, T> Raise<NonEmptyList<E>>.accumulateErrors(
     mapOrAccumulate(items, check)
 }
 
-fun <T> List<T>.toNonEmptyList(): NonEmptyList<T> =
+fun <T> Collection<T>.toNonEmptyList(): NonEmptyList<T> =
     this.toNonEmptyListOrNull()
         ?: throw IllegalArgumentException("List is empty")

@@ -10,6 +10,7 @@ import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import java.time.LocalDateTime
 import pl.kskarzynski.multiplex.common.utils.arrow.accumulateErrors
+import pl.kskarzynski.multiplex.common.utils.datetime.isBefore
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ConfirmedBooking
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ExpiredBooking
@@ -20,7 +21,7 @@ import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingConfirmat
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError.SeatAlreadyTaken
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError.SeatDoesNotExist
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError.SeatIsSingle
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError.SingleSeatLeft
 import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.room.Room
@@ -43,11 +44,10 @@ data class Screening(
 
     private val takenSeats: Set<Seat>
         get() =
-            bookings
-                .filter { it is UnconfirmedBooking || it is ConfirmedBooking }
+            bookings.filter { it is UnconfirmedBooking || it is ConfirmedBooking }
                 .flatMapTo(mutableSetOf()) { it.seats }
 
-    fun book(booking: Booking): EitherNel<BookingError, Screening> {
+    fun book(booking: UnconfirmedBooking): EitherNel<BookingError, Screening> {
         if (booking.id in bookingIds) return this.right()
 
         return either {
@@ -64,8 +64,6 @@ data class Screening(
 
     context(Raise<NonEmptyList<SeatDoesNotExist>>)
     private fun ensureSeatsExist(booking: Booking) {
-        val allSeats = room.seats.toSet()
-
         accumulateErrors(booking.seats) { seat ->
             ensure(seat in allSeats) { SeatDoesNotExist(seat) }
         }
@@ -78,23 +76,18 @@ data class Screening(
         }
     }
 
-    context(Raise<NonEmptyList<SeatIsSingle>>)
+    context(Raise<NonEmptyList<SingleSeatLeft>>)
     private fun ensureNoSingleSeats(booking: Booking) {
         val updatedSeats = takenSeats + booking.seats
         val singleSeats = findSingleSeats(allSeats, isTaken = { it in updatedSeats })
 
         accumulateErrors(singleSeats) { seat ->
-            raise(SeatIsSingle(seat))
+            raise(SingleSeatLeft(seat))
         }
     }
 
-
     fun cancelExpiredBookings(currentTime: LocalDateTime): Screening {
-        val expiredBookings =
-            bookings
-                .filterIsInstance<UnconfirmedBooking>()
-                .filter { it.expirationTime.value.isBefore(currentTime) }
-                .map { it.expire() }
+        val expiredBookings = findExpiredBookings(currentTime)
 
         val expiredBookingIds: Set<BookingId> = expiredBookings.mapTo(mutableSetOf()) { it.id }
         val nonExpiredBookings = bookings.filter { it.id !in expiredBookingIds }
@@ -102,6 +95,11 @@ data class Screening(
         val updatedBookings = nonExpiredBookings + expiredBookings
         return copy(bookings = updatedBookings)
     }
+
+    private fun findExpiredBookings(currentTime: LocalDateTime) =
+        bookings.filterIsInstance<UnconfirmedBooking>()
+            .filter { it.expirationTime.value isBefore currentTime }
+            .map { it.expire() }
 
     fun confirmBooking(
         bookingId: BookingId,

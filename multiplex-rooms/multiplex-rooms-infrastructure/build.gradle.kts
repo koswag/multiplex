@@ -12,6 +12,7 @@ repositories {
 }
 
 object Versions {
+    const val ARROW = "1.2.4"
     const val EXPOSED = "0.53.0"
     const val KOIN = "4.0.0"
     const val KOTEST = "5.9.1"
@@ -22,16 +23,19 @@ object Versions {
 }
 
 dependencies {
-    implementation(project(":multiplex-commons:multiplex-common-test"))
+    implementation(project(":multiplex-commons:multiplex-common-utils"))
     implementation(project(":multiplex-rooms:multiplex-rooms-api"))
     implementation(project(":multiplex-rooms:multiplex-rooms-domain"))
     implementation(project(":multiplex-shared-kernel"))
 
-    implementation("org.jetbrains.exposed:exposed-jdbc:${Versions.EXPOSED}")
-    implementation("org.postgresql:postgresql:${Versions.POSTGRES}")
+    implementation("io.arrow-kt:arrow-core:${Versions.ARROW}")
 
     implementation("io.insert-koin:koin-core-jvm:${Versions.KOIN}")
 
+    implementation("org.jetbrains.exposed:exposed-jdbc:${Versions.EXPOSED}")
+    implementation("org.postgresql:postgresql:${Versions.POSTGRES}")
+
+    testImplementation(project(":multiplex-commons:multiplex-common-test"))
     testImplementation("io.insert-koin:koin-test:${Versions.KOIN}")
     testImplementation("io.kotest.extensions:kotest-extensions-koin:${Versions.KOTEST_KOIN}")
     testImplementation("io.kotest:kotest-runner-junit5:${Versions.KOTEST}")

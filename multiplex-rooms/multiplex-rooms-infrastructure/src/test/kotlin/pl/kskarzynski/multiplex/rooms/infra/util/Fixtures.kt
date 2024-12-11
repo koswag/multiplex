@@ -1,5 +1,7 @@
 package pl.kskarzynski.multiplex.rooms.infra.util
 
+import arrow.core.NonEmptyList
+import arrow.core.nonEmptyListOf
 import java.util.UUID
 import pl.kskarzynski.multiplex.shared.room.Room
 import pl.kskarzynski.multiplex.shared.room.RoomId
@@ -12,7 +14,7 @@ val DEFAULT_ROOM_ID = RoomId.generate()
 val DEFAULT_ROOM_NUMBER = RoomNumber(1)
 
 val DEFAULT_SEATS =
-    listOf(
+    nonEmptyListOf(
         seat(1, 1), seat(1, 2), seat(1, 3), seat(1, 4),
         seat(2, 1), seat(2, 2), seat(2, 3), seat(2, 4),
         seat(3, 1), seat(3, 2), seat(3, 3), seat(3, 4),
@@ -21,7 +23,7 @@ val DEFAULT_SEATS =
 fun room(
     id: UUID = RoomId.generate().value,
     number: Int = DEFAULT_ROOM_NUMBER.value,
-    seats: List<Seat> = DEFAULT_SEATS,
+    seats: NonEmptyList<Seat> = DEFAULT_SEATS,
 ) = Room(RoomId(id), RoomNumber(number), seats)
 
 fun seat(row: Int, number: Int) = Seat(SeatRow(row), SeatNumber(number))

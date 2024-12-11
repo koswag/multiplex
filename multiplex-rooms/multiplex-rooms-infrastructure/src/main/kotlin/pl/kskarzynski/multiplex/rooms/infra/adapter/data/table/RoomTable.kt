@@ -4,6 +4,7 @@ import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.intLiteral
 import org.jetbrains.exposed.sql.upsert
+import pl.kskarzynski.multiplex.common.utils.arrow.toNonEmptyList
 import pl.kskarzynski.multiplex.shared.room.Room
 import pl.kskarzynski.multiplex.shared.room.RoomId
 import pl.kskarzynski.multiplex.shared.room.RoomNumber
@@ -20,7 +21,7 @@ object RoomTable : UUIDTable("multiplex_rooms.rooms") {
                 Room(
                     id = roomId,
                     number = RoomNumber(row[number]),
-                    seats = RoomSeatTable.findSeats(roomId),
+                    seats = RoomSeatTable.findSeats(roomId).toNonEmptyList(),
                 )
             }
 

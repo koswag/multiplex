@@ -7,5 +7,5 @@ interface BookingError {
     data class ScreeningDoesNotExist(val screeningId: ScreeningId) : BookingError
     data class SeatDoesNotExist(val seatPlacement: Seat) : BookingError
     data class SeatAlreadyTaken(val seatPlacement: Seat) : BookingError
-    data class SeatIsSingle(val seatPlacement: Seat) : BookingError
+    data class SingleSeatLeft(val singleSeatPlacement: Seat) : BookingError
 }

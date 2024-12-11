@@ -9,7 +9,13 @@ repositories {
     mavenCentral()
 }
 
+object Versions {
+    const val ARROW = "1.2.4"
+}
+
 dependencies {
+    implementation("io.arrow-kt:arrow-core:${Versions.ARROW}")
+
     testImplementation(kotlin("test"))
 }
 
