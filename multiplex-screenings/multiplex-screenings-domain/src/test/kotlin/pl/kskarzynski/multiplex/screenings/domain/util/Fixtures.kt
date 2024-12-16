@@ -4,6 +4,7 @@ import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
 import java.math.BigDecimal
 import java.time.LocalDateTime
+import pl.kskarzynski.multiplex.common.utils.arrow.toNonEmptyList
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.UnconfirmedBooking
@@ -47,6 +48,11 @@ val DEFAULT_SCREENING_START_TIME = ScreeningStartTime(LocalDateTime.of(2024, 10,
 
 val DEFAULT_BOOKING_PRICE = BookingPrice(BigDecimal(50))
 
+fun unconfirmedBookingWithOneTicket(row: Int, seat: Int) =
+    unconfirmedBooking(
+        tickets = nonEmptyListOf(adultTicket(row, seat))
+    )
+
 fun unconfirmedBooking(
     id: BookingId = BookingId.generate(),
     userInfo: UserInfo = DEFAULT_USER_INFO,
@@ -63,6 +69,9 @@ fun screening(
     startTime: ScreeningStartTime = DEFAULT_SCREENING_START_TIME,
     bookings: List<Booking> = emptyList()
 ) = Screening(id, movieId, room, startTime, bookings)
+
+fun room(vararg seats: Seat): Room =
+    room(seats = seats.toList().toNonEmptyList())
 
 fun room(
     id: RoomId = RoomId.generate(),

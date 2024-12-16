@@ -36,16 +36,10 @@ data class Screening(
     val startTime: ScreeningStartTime,
     val bookings: List<Booking>,
 ) {
-    private val bookingIds: Set<BookingId>
-        get() = bookings.mapTo(mutableSetOf()) { it.id }
-
-    private val allSeats: Set<Seat>
-        get() = room.seats.toSet()
-
-    private val takenSeats: Set<Seat>
-        get() =
-            bookings.filter { it is UnconfirmedBooking || it is ConfirmedBooking }
-                .flatMapTo(mutableSetOf()) { it.seats }
+    init {
+        val singleSeats = findSingleSeats(allSeats, isTaken = { it in takenSeats })
+        check(singleSeats.isEmpty()) { "Booking of ID $id has single seats: $singleSeats" }
+    }
 
     fun book(booking: UnconfirmedBooking): EitherNel<BookingError, Screening> {
         if (booking.id in bookingIds) return this.right()
@@ -120,6 +114,17 @@ data class Screening(
             copy(bookings = updatedBookings)
         }
 }
+
+private val Screening.takenSeats: Set<Seat>
+    get() =
+        bookings.filter { it is UnconfirmedBooking || it is ConfirmedBooking }
+            .flatMapTo(mutableSetOf()) { it.seats }
+
+private val Screening.allSeats: Set<Seat>
+    get() = room.seats.toSet()
+
+private val Screening.bookingIds: Set<BookingId>
+    get() = bookings.mapTo(mutableSetOf()) { it.id }
 
 private fun findSingleSeats(
     allSeats: Iterable<Seat>,
