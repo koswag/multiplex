@@ -11,7 +11,7 @@ import pl.kskarzynski.multiplex.screenings.domain.port.usecase.CancelExpiredBook
 import pl.kskarzynski.multiplex.screenings.domain.port.usecase.ConfirmBookingUseCase
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.DatabaseScreeningRepository
 
-val ScreeningsModule =
+val ScreeningModule =
     module {
         single<ScreeningRepository> { DatabaseScreeningRepository(get(), get()) }
         single<BookingPricingPolicy> { BookingPricingPolicyImpl() }
