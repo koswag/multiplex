@@ -4,7 +4,7 @@ import pl.kskarzynski.multiplex.screenings.domain.model.booking.user.UserInfo
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.user.UserName
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.user.UserSurname
 
-data class PersistentUserInfo(
+internal data class PersistentUserInfo(
     val userName: String,
     val userSurname: String,
 ) {

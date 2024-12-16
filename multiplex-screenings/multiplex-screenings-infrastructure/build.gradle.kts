@@ -13,6 +13,7 @@ object Versions {
     const val ARROW = "1.2.4"
     const val COROUTINES = "1.8.1"
     const val EXPOSED = "0.53.0"
+    const val JACKSON = "2.18.2"
     const val KOIN = "4.0.0"
     const val KOTEST = "5.9.1"
     const val KOTEST_KOIN = "1.3.0"
@@ -25,6 +26,9 @@ dependencies {
     implementation(project(":multiplex-commons:multiplex-common-utils"))
     implementation(project(":multiplex-screenings:multiplex-screenings-domain"))
     implementation(project(":multiplex-shared-kernel"))
+
+    implementation("com.fasterxml.jackson.core:jackson-databind:${Versions.JACKSON}")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.JACKSON}")
 
     implementation("io.arrow-kt:arrow-core:${Versions.ARROW}")
     implementation("io.insert-koin:koin-core-jvm:${Versions.KOIN}")

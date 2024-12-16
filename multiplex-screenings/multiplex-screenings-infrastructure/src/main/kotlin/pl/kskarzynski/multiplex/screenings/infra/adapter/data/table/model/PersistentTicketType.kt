@@ -2,7 +2,7 @@ package pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model
 
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.ticket.TicketType
 
-enum class PersistentTicketType {
+internal enum class PersistentTicketType {
     ADULT,
     STUDENT,
     CHILD,

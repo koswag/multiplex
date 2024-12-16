@@ -4,7 +4,7 @@ import pl.kskarzynski.multiplex.shared.room.Seat
 import pl.kskarzynski.multiplex.shared.room.SeatNumber
 import pl.kskarzynski.multiplex.shared.room.SeatRow
 
-data class PersistentSeat(
+internal data class PersistentSeat(
     val row: Int,
     val number: Int,
 ) {

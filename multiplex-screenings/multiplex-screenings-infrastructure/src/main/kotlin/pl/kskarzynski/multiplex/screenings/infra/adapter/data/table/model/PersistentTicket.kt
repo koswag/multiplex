@@ -2,7 +2,7 @@ package pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model
 
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.ticket.Ticket
 
-data class PersistentTicket(
+internal data class PersistentTicket(
     val type: PersistentTicketType,
     val seat: PersistentSeat,
 ) {

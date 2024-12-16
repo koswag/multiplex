@@ -15,7 +15,8 @@ import pl.kskarzynski.multiplex.shared.room.RoomId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningStartTime
 
-object ScreeningTable : UUIDTable("multiplex_screenings.screenings") {
+// TODO: Tests
+internal object ScreeningTable : UUIDTable("multiplex_screenings.screenings") {
     val movieId = uuid("movie_id")
     val roomId = uuid("room_id")
     val startTime = datetime("start_time")

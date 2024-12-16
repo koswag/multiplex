@@ -33,7 +33,7 @@ class BookingTest : FeatureSpec({
                     get { bookingTime } isEqualTo booking.bookingTime
                     get { expirationTime } isEqualTo booking.expirationTime
                     get { totalPrice } isEqualTo booking.totalPrice
-                    get { confirmedAt.value } isEqualTo currentTime
+                    get { confirmationTime.value } isEqualTo currentTime
                 }
             }
         }

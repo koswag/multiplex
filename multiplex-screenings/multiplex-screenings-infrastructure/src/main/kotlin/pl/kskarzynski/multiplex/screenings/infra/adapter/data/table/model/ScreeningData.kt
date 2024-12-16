@@ -9,7 +9,7 @@ import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningStartTime
 
 // TODO: Better naming?
-data class ScreeningData(
+internal data class ScreeningData(
     val id: ScreeningId,
     val movieId: MovieId,
     val roomId: RoomId,

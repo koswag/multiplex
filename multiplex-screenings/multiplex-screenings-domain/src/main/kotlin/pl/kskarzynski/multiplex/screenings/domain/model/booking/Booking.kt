@@ -47,7 +47,7 @@ sealed interface Booking {
                     bookingTime = bookingTime,
                     expirationTime = expirationTime,
                     totalPrice = totalPrice,
-                    confirmedAt = BookingConfirmationTime(currentTime),
+                    confirmationTime = BookingConfirmationTime(currentTime),
                 )
             }
     }
@@ -67,6 +67,6 @@ sealed interface Booking {
         override val bookingTime: BookingTime,
         override val expirationTime: BookingExpirationTime,
         val totalPrice: BookingPrice,
-        val confirmedAt: BookingConfirmationTime,
+        val confirmationTime: BookingConfirmationTime,
     ) : Booking
 }

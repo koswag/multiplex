@@ -1,5 +1,6 @@
 package pl.kskarzynski.multiplex.rooms.infra.adapter.data
 
+import arrow.core.nonEmptyListOf
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.FeatureSpec
 import org.jetbrains.exposed.sql.insert
@@ -7,6 +8,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
+import pl.kskarzynski.multiplex.common.utils.arrow.toNonEmptyList
 import pl.kskarzynski.multiplex.domain.ports.RoomRepository
 import pl.kskarzynski.multiplex.rooms.infra.adapter.data.table.RoomSeatTable
 import pl.kskarzynski.multiplex.rooms.infra.adapter.data.table.RoomTable
@@ -126,7 +128,7 @@ class DatabaseRoomRepositoryTest : FeatureSpec({
                 room(
                     id = roomId.value,
                     number = 1,
-                    seats = listOf(
+                    seats = nonEmptyListOf(
                         seat(1, 1), seat(1, 2), seat(1, 3),
                         seat(2, 1), seat(2, 2), seat(2, 3),
                     ),
@@ -137,7 +139,7 @@ class DatabaseRoomRepositoryTest : FeatureSpec({
             // when:
             val updatedRoom =
                 existentRoom.copy(
-                    seats = listOf(
+                    seats = nonEmptyListOf(
                         seat(1, 1), seat(1, 2),
                         seat(2, 1), seat(2, 2),
                     )
@@ -190,6 +192,7 @@ private fun findRoom(roomId: RoomId): Room? =
                             .map { seatRow ->
                                 seat(seatRow[RoomSeatTable.row], seatRow[RoomSeatTable.number])
                             }
+                            .toNonEmptyList()
                 )
             }
     }
