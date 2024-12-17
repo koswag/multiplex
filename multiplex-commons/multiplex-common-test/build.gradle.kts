@@ -1,12 +1,5 @@
 plugins {
-    kotlin("jvm")
-}
-
-group = "pl.kskarzynski"
-version = "0.0.1-SNAPSHOT"
-
-repositories {
-    mavenCentral()
+    id("multiplex.infra-conventions")
 }
 
 object Versions {
@@ -19,20 +12,9 @@ object Versions {
 }
 
 dependencies {
-    implementation("org.jetbrains.exposed:exposed-jdbc:${Versions.EXPOSED}")
-
-    implementation("io.arrow-kt:arrow-core:${Versions.ARROW}")
-
     implementation("io.kotest.extensions:kotest-extensions-testcontainers:${Versions.KOTEST_TESTCONTAINERS}")
     implementation("io.kotest:kotest-runner-junit5:${Versions.KOTEST}")
     implementation("io.strikt:strikt-core:${Versions.STRIKT}")
     implementation("org.testcontainers:postgresql:${Versions.TESTCONTAINERS}")
     implementation("org.testcontainers:testcontainers:${Versions.TESTCONTAINERS}")
-}
-
-tasks.test {
-    useJUnitPlatform()
-}
-kotlin {
-    jvmToolchain(17)
 }
