@@ -1,5 +1,6 @@
 plugins {
-    id("multiplex.common-conventions")
+    id("multiplex.tooling-conventions")
+    id("multiplex.testing-conventions")
 }
 
 dependencies {

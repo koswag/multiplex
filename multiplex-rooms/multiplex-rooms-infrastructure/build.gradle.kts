@@ -1,6 +1,8 @@
-
 plugins {
-    id("multiplex.infra-conventions")
+    id("multiplex.db-access-conventions")
+    id("multiplex.di-conventions")
+    id("multiplex.testing-conventions")
+    id("multiplex.tooling-conventions")
 }
 
 dependencies {
