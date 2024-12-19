@@ -4,8 +4,6 @@ plugins {
 }
 
 object Versions {
-    const val ARROW = "1.2.4"
-    const val EXPOSED = "0.53.0"
     const val KOTEST = "5.9.1"
     const val STRIKT = "0.34.0"
     const val TESTCONTAINERS = "1.20.2"
@@ -13,7 +11,10 @@ object Versions {
 }
 
 dependencies {
+    implementation(project(":multiplex-shared-kernel"))
+
     implementation("io.kotest.extensions:kotest-extensions-testcontainers:${Versions.KOTEST_TESTCONTAINERS}")
+    implementation("io.kotest:kotest-property:${Versions.KOTEST}")
     implementation("io.kotest:kotest-runner-junit5:${Versions.KOTEST}")
     implementation("io.strikt:strikt-core:${Versions.STRIKT}")
     implementation("org.testcontainers:postgresql:${Versions.TESTCONTAINERS}")
