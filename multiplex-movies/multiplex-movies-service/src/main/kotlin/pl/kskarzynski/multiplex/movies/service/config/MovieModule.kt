@@ -7,9 +7,8 @@ import pl.kskarzynski.multiplex.movies.service.data.DatabaseMovieRepository
 import pl.kskarzynski.multiplex.movies.service.data.MovieQueries
 import pl.kskarzynski.multiplex.movies.service.data.MovieRepository
 
-val MovieModule =
-    module {
-        single<MovieRepository> { DatabaseMovieRepository() }
-        single<MovieQueries> { get<MovieRepository>() }
-        single<MovieService> { MovieServiceImpl(movieQueries = get()) }
-    }
+val MovieModule = module {
+    single<MovieRepository> { DatabaseMovieRepository() }
+    single<MovieQueries> { get<MovieRepository>() }
+    single<MovieService> { MovieServiceImpl(movieQueries = get()) }
+}

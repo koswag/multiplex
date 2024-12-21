@@ -16,8 +16,8 @@ import pl.kskarzynski.multiplex.screenings.infra.config.ScreeningModule
 fun main() {
     startKoin {
         modules(
-            RoomModule,
             MovieModule,
+            RoomModule,
             ScreeningModule,
         )
     }
