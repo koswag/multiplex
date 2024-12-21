@@ -9,7 +9,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.resources.Resources
 import org.koin.core.context.startKoin
 import pl.kskarzynski.multiplex.movies.service.config.MovieModule
-import pl.kskarzynski.multiplex.movies.service.rest.MoviesRestModule.moviesModule
+import pl.kskarzynski.multiplex.movies.service.rest.moviesModule
 import pl.kskarzynski.multiplex.rooms.infra.config.RoomModule
 import pl.kskarzynski.multiplex.screenings.infra.config.ScreeningModule
 
@@ -24,7 +24,6 @@ fun main() {
 
     embeddedServer(Netty, port = 8080) {
         configureApplication()
-
         moviesModule()
     }.start(wait = true)
 }

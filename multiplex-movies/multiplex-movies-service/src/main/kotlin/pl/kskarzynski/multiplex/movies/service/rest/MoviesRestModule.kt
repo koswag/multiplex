@@ -2,7 +2,6 @@
 
 package pl.kskarzynski.multiplex.movies.service.rest
 
-import arrow.core.raise.either
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.http.HttpStatusCode.Companion.NotFound
@@ -16,77 +15,61 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
 import java.util.UUID
 import kotlinx.serialization.UseSerializers
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import pl.kskarzynski.multiplex.common.infra.json.serializer.UuidSerializer
-import pl.kskarzynski.multiplex.common.infra.ktor.notFound
 import pl.kskarzynski.multiplex.common.infra.ktor.respond
-import pl.kskarzynski.multiplex.movies.service.data.MovieRepository
+import pl.kskarzynski.multiplex.movies.service.rest.MovieDataValidationResult.Failure
+import pl.kskarzynski.multiplex.movies.service.rest.MovieDataValidationResult.Success
 import pl.kskarzynski.multiplex.movies.service.rest.dto.CreateMovieDto
 import pl.kskarzynski.multiplex.movies.service.rest.dto.PatchMovieDto
-import pl.kskarzynski.multiplex.movies.service.rest.dto.applyPatch
-import pl.kskarzynski.multiplex.movies.service.rest.dto.toDomain
-import pl.kskarzynski.multiplex.movies.service.rest.dto.toDto
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 
 @Resource("/api/movies")
 private class Movies {
 
     @Resource("/{id}")
-    class Get(val parent: Movies = Movies(), val id: UUID) {
+    class Get(val parent: Movies, val id: UUID) {
         val movieId get() = MovieId(id)
     }
 
     @Resource("")
-    class Create(val parent: Movies = Movies())
+    class Create(val parent: Movies)
 
     @Resource("/{id}")
-    class Update(val parent: Movies = Movies(), val id: UUID) {
+    class Update(val parent: Movies, val id: UUID) {
         val movieId get() = MovieId(id)
     }
 }
 
-object MoviesRestModule : KoinComponent {
-    val movieRepository by inject<MovieRepository>()
+fun Application.moviesModule() {
+    routing {
+        get<Movies.Get> { params ->
+            val movie = MovieRestService.getMovie(params.movieId)
 
-    fun Application.moviesModule() {
-        routing {
-            get<Movies.Get> { params ->
-                val movie = movieRepository.findById(params.movieId)
-
-                if (movie != null) {
-                    call.respond(movie.toDto())
-                } else {
-                    call.respond(NotFound)
-                }
+            if (movie != null) {
+                call.respond(movie)
+            } else {
+                call.respond(NotFound)
             }
+        }
 
-            post<Movies.Create> {
-                either {
-                    val movie = call.receive<CreateMovieDto>().toDomain().bind()
-                    movieRepository.save(movie)
+        post<Movies.Create> {
+            val dto = call.receive<CreateMovieDto>()
+            val creationResult = MovieRestService.createMovie(dto)
 
-                    call.respond(Created, movie.toDto())
-                }.onLeft { errors ->
-                    call.respond(BadRequest, errors)
-                }
+            when (creationResult) {
+                is Success -> call.respond(Created, creationResult.movie)
+                is Failure -> call.respond(BadRequest, creationResult.errors)
             }
+        }
 
-            patch<Movies.Update> { params ->
-                either {
-                    val patch = call.receive<PatchMovieDto>()
-                    val movie = movieRepository.findById(params.movieId)
-                        ?: notFound("Movie of ID '${params.movieId}' not found")
+        patch<Movies.Update> { params ->
+            val dto = call.receive<PatchMovieDto>()
+            val updateResult = MovieRestService.patchMovie(params.movieId, dto)
 
-                    val updated = movie.applyPatch(patch).bind()
-                    if (updated != movie) {
-                        movieRepository.save(updated)
-                    }
-
-                    call.respond(updated.toDto())
-                }.onLeft { errors ->
-                    call.respond(BadRequest, errors)
-                }
+            when (updateResult) {
+                null -> call.respond(NotFound)
+                is Success -> call.respond(updateResult.movie)
+                is Failure -> call.respond(BadRequest, updateResult.errors)
             }
         }
     }

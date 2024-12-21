@@ -1,0 +1,52 @@
+package pl.kskarzynski.multiplex.movies.service.rest
+
+import arrow.core.EitherNel
+import arrow.core.raise.either
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import pl.kskarzynski.multiplex.movies.service.data.MovieRepository
+import pl.kskarzynski.multiplex.movies.service.rest.MovieDataValidationResult.Failure
+import pl.kskarzynski.multiplex.movies.service.rest.MovieDataValidationResult.Success
+import pl.kskarzynski.multiplex.movies.service.rest.dto.CreateMovieDto
+import pl.kskarzynski.multiplex.movies.service.rest.dto.MovieDto
+import pl.kskarzynski.multiplex.movies.service.rest.dto.MovieValidationError
+import pl.kskarzynski.multiplex.movies.service.rest.dto.PatchMovieDto
+import pl.kskarzynski.multiplex.movies.service.rest.dto.applyPatch
+import pl.kskarzynski.multiplex.movies.service.rest.dto.toDomain
+import pl.kskarzynski.multiplex.movies.service.rest.dto.toDto
+import pl.kskarzynski.multiplex.shared.movie.MovieId
+
+object MovieRestService : KoinComponent {
+
+    val movieRepository by inject<MovieRepository>()
+
+    suspend fun getMovie(id: MovieId): MovieDto? =
+        movieRepository.findById(id)
+            ?.toDto()
+
+    suspend fun createMovie(dto: CreateMovieDto): MovieDataValidationResult =
+        either {
+            val movie = dto.toDomain().bind()
+            movieRepository.save(movie)
+
+            movie.toDto()
+        }.toValidationResult()
+
+    suspend fun patchMovie(id: MovieId, patch: PatchMovieDto): MovieDataValidationResult? {
+        val movie = movieRepository.findById(id)
+            ?: return null
+
+        return either {
+            val updatedMovie = movie.applyPatch(patch).bind()
+            movieRepository.save(updatedMovie)
+
+            updatedMovie.toDto()
+        }.toValidationResult()
+    }
+}
+
+private fun EitherNel<MovieValidationError, MovieDto>.toValidationResult(): MovieDataValidationResult =
+    fold(
+        { errors -> Failure(errors) },
+        { movie -> Success(movie) },
+    )
