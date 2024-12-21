@@ -14,15 +14,13 @@ include("multiplex-shared-kernel")
 include("multiplex-rooms")
 include("multiplex-rooms:multiplex-rooms-domain")
 findProject(":multiplex-rooms:multiplex-rooms-domain")?.name = "multiplex-rooms-domain"
-include("multiplex-rooms:multiplex-rooms-infrastructure")
-findProject(":multiplex-rooms:multiplex-rooms-infrastructure")?.name = "multiplex-rooms-infrastructure"
+include("multiplex-rooms:multiplex-rooms-service")
+findProject(":multiplex-rooms:multiplex-rooms-service")?.name = "multiplex-rooms-service"
 include("multiplex-rooms")
 include("multiplex-rooms:multiplex-rooms-domain")
 findProject(":multiplex-rooms:multiplex-rooms-domain")?.name = "multiplex-rooms-domain"
 include("multiplex-rooms:multiplex-rooms-api")
 findProject(":multiplex-rooms:multiplex-rooms-api")?.name = "multiplex-rooms-api"
-include("multiplex-rooms:multiplex-rooms-infrastructure")
-findProject(":multiplex-rooms:multiplex-rooms-infrastructure")?.name = "multiplex-rooms-infrastructure"
 include("multiplex-screenings")
 include("multiplex-screenings:multiplex-screenings-domain")
 findProject(":multiplex-screenings:multiplex-screenings-domain")?.name = "multiplex-screenings-domain"

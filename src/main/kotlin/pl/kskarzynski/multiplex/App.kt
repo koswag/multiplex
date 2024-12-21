@@ -10,7 +10,7 @@ import io.ktor.server.resources.Resources
 import org.koin.core.context.startKoin
 import pl.kskarzynski.multiplex.movies.service.config.MovieModule
 import pl.kskarzynski.multiplex.movies.service.rest.moviesModule
-import pl.kskarzynski.multiplex.rooms.infra.config.RoomModule
+import pl.kskarzynski.multiplex.rooms.service.config.RoomModule
 import pl.kskarzynski.multiplex.screenings.infra.config.ScreeningModule
 
 fun main() {

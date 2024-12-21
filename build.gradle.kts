@@ -15,7 +15,7 @@ dependencies {
     implementation(project(":multiplex-commons:multiplex-common-infra"))
     implementation(project(":multiplex-movies:multiplex-movies-service"))
     implementation(project(":multiplex-movies:multiplex-movies-service"))
-    implementation(project(":multiplex-rooms:multiplex-rooms-infrastructure"))
+    implementation(project(":multiplex-rooms:multiplex-rooms-service"))
     implementation(project(":multiplex-screenings:multiplex-screenings-infrastructure"))
     implementation(project(":multiplex-shared-kernel"))
 
