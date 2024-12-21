@@ -1,7 +1,7 @@
-package pl.kskarzynski.multiplex.movies.service.adapter.api.service
+package pl.kskarzynski.multiplex.movies.service.api.service
 
 import pl.kskarzynski.multiplex.movies.api.service.MovieService
-import pl.kskarzynski.multiplex.movies.service.adapter.data.MovieQueries
+import pl.kskarzynski.multiplex.movies.service.data.MovieQueries
 import pl.kskarzynski.multiplex.shared.movie.Movie
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 

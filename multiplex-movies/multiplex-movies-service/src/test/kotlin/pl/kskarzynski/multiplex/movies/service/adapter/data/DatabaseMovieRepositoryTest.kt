@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
-import pl.kskarzynski.multiplex.movies.service.adapter.data.table.MovieTable
+import pl.kskarzynski.multiplex.movies.service.data.table.MovieTable
 import pl.kskarzynski.multiplex.movies.service.util.movie
 import pl.kskarzynski.multiplex.shared.movie.Movie
 import pl.kskarzynski.multiplex.shared.movie.MovieId

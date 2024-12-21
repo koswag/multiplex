@@ -1,6 +1,7 @@
 plugins {
     id("multiplex.db-access-conventions")
     id("multiplex.di-conventions")
+    id("multiplex.json-conventions")
     id("multiplex.rest-conventions")
     id("multiplex.testing-conventions")
 }
@@ -11,6 +12,7 @@ object Versions {
 
 dependencies {
     implementation(project(":multiplex-commons:multiplex-common-test"))
+    implementation(project(":multiplex-commons:multiplex-common-infra"))
     implementation(project(":multiplex-movies:multiplex-movies-service"))
     implementation(project(":multiplex-movies:multiplex-movies-service"))
     implementation(project(":multiplex-rooms:multiplex-rooms-infrastructure"))

@@ -5,8 +5,8 @@ import io.kotest.koin.KoinExtension
 import org.koin.test.KoinTest
 import org.koin.test.inject
 import pl.kskarzynski.multiplex.movies.api.service.MovieService
-import pl.kskarzynski.multiplex.movies.service.adapter.data.MovieQueries
-import pl.kskarzynski.multiplex.movies.service.adapter.data.MovieRepository
+import pl.kskarzynski.multiplex.movies.service.data.MovieQueries
+import pl.kskarzynski.multiplex.movies.service.data.MovieRepository
 import strikt.api.expectThat
 import strikt.assertions.isNotNull
 

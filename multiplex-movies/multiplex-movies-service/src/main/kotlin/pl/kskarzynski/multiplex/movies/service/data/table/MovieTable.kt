@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.movies.service.adapter.data.table
+package pl.kskarzynski.multiplex.movies.service.data.table
 
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ResultRow

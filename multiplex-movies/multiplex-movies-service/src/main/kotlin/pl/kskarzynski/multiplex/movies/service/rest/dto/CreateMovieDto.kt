@@ -1,0 +1,9 @@
+package pl.kskarzynski.multiplex.movies.service.rest.dto
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class CreateMovieDto(
+    val title: String,
+    val releaseYear: Int,
+)

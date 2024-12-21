@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.movies.service.adapter.data
+package pl.kskarzynski.multiplex.movies.service.data
 
 import pl.kskarzynski.multiplex.shared.movie.Movie
 

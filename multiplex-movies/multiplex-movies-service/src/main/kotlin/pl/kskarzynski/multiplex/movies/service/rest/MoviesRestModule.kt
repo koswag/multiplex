@@ -2,6 +2,8 @@
 
 package pl.kskarzynski.multiplex.movies.service.rest
 
+import arrow.core.raise.either
+import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.resources.Resource
@@ -18,9 +20,10 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import pl.kskarzynski.multiplex.common.infra.json.serializer.UuidSerializer
 import pl.kskarzynski.multiplex.common.infra.ktor.notFound
-import pl.kskarzynski.multiplex.movies.service.adapter.data.MovieRepository
-import pl.kskarzynski.multiplex.movies.service.rest.dto.MovieDto
-import pl.kskarzynski.multiplex.movies.service.rest.dto.MoviePatchDto
+import pl.kskarzynski.multiplex.common.infra.ktor.respond
+import pl.kskarzynski.multiplex.movies.service.data.MovieRepository
+import pl.kskarzynski.multiplex.movies.service.rest.dto.CreateMovieDto
+import pl.kskarzynski.multiplex.movies.service.rest.dto.PatchMovieDto
 import pl.kskarzynski.multiplex.movies.service.rest.dto.applyPatch
 import pl.kskarzynski.multiplex.movies.service.rest.dto.toDomain
 import pl.kskarzynski.multiplex.movies.service.rest.dto.toDto
@@ -48,7 +51,6 @@ object MoviesRestModule : KoinComponent {
 
     fun Application.moviesModule() {
         routing {
-
             get<Movies.Get> { params ->
                 val movie = movieRepository.findById(params.movieId)
 
@@ -60,23 +62,31 @@ object MoviesRestModule : KoinComponent {
             }
 
             post<Movies.Create> {
-                val movie = call.receive<MovieDto>().toDomain()
-                movieRepository.save(movie)
+                either {
+                    val movie = call.receive<CreateMovieDto>().toDomain().bind()
+                    movieRepository.save(movie)
 
-                call.respond(Created, movie.toDto())
+                    call.respond(Created, movie.toDto())
+                }.onLeft { errors ->
+                    call.respond(BadRequest, errors)
+                }
             }
 
             patch<Movies.Update> { params ->
-                val patch = call.receive<MoviePatchDto>()
-                val movie = movieRepository.findById(params.movieId)
-                    ?: notFound("Movie of ID '${params.movieId}' not found")
+                either {
+                    val patch = call.receive<PatchMovieDto>()
+                    val movie = movieRepository.findById(params.movieId)
+                        ?: notFound("Movie of ID '${params.movieId}' not found")
 
-                val updated = movie.applyPatch(patch)
-                if (updated != movie) {
-                    movieRepository.save(updated)
+                    val updated = movie.applyPatch(patch).bind()
+                    if (updated != movie) {
+                        movieRepository.save(updated)
+                    }
+
+                    call.respond(updated.toDto())
+                }.onLeft { errors ->
+                    call.respond(BadRequest, errors)
                 }
-
-                call.respond(updated.toDto())
             }
         }
     }
