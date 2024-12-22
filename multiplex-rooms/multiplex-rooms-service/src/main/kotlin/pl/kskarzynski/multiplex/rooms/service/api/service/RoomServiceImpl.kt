@@ -10,5 +10,5 @@ class RoomServiceImpl(
 ) : RoomService {
 
     override suspend fun findRoom(roomId: RoomId): Room? =
-        roomQueries.findRoom(roomId)
+        roomQueries.findById(roomId)
 }

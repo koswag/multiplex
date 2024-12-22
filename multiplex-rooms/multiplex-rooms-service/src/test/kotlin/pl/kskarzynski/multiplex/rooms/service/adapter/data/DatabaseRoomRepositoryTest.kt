@@ -40,7 +40,7 @@ class DatabaseRoomRepositoryTest : FeatureSpec({
             val nonExistentRoomId = DEFAULT_ROOM_ID
 
             // when:
-            val result = roomRepository.findRoom(nonExistentRoomId)
+            val result = roomRepository.findById(nonExistentRoomId)
 
             // then:
             expectThat(result).isNull()
@@ -54,7 +54,7 @@ class DatabaseRoomRepositoryTest : FeatureSpec({
             insertRoom(existentRoom)
 
             // when:
-            val result = roomRepository.findRoom(nonExistentRoomId)
+            val result = roomRepository.findById(nonExistentRoomId)
 
             // then:
             expectThat(result).isNull()
@@ -66,7 +66,7 @@ class DatabaseRoomRepositoryTest : FeatureSpec({
             insertRoom(existentRoom)
 
             // when:
-            val result = roomRepository.findRoom(existentRoom.id)
+            val result = roomRepository.findById(existentRoom.id)
 
             // then:
             expectThat(result).isNotNull() and {
@@ -83,7 +83,7 @@ class DatabaseRoomRepositoryTest : FeatureSpec({
             val room = room()
 
             // when:
-            roomRepository.saveRoom(room)
+            roomRepository.save(room)
 
             // then:
             val foundRoom = findRoom(room.id)
@@ -103,7 +103,7 @@ class DatabaseRoomRepositoryTest : FeatureSpec({
             insertRoom(existentRoom)
 
             // when:
-            roomRepository.saveRoom(newRoom)
+            roomRepository.save(newRoom)
 
             // then:
             val foundExistentRoom = findRoom(existentRoom.id)
@@ -146,7 +146,7 @@ class DatabaseRoomRepositoryTest : FeatureSpec({
                     )
                 )
 
-            roomRepository.saveRoom(updatedRoom)
+            roomRepository.save(updatedRoom)
 
             // then:
             val foundRoom = findRoom(roomId)

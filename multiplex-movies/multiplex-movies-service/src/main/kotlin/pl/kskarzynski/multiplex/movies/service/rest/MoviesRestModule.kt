@@ -40,7 +40,7 @@ private class Movies {
     }
 }
 
-fun Application.moviesModule() {
+fun Application.movieModule() {
     routing {
         get<Movies.Get> { params ->
             val movie = MovieRestService.getMovie(params.movieId)

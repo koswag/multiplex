@@ -45,7 +45,7 @@ import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.one
 
-class MoviesIntegrationTest : KoinTest, FeatureSpec() {
+class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
 
     private val movieRepository by inject<MovieRepository>()
 

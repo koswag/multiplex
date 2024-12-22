@@ -4,17 +4,23 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import pl.kskarzynski.multiplex.rooms.service.data.table.RoomTable
 import pl.kskarzynski.multiplex.shared.room.Room
 import pl.kskarzynski.multiplex.shared.room.RoomId
+import pl.kskarzynski.multiplex.shared.room.RoomNumber
 
 class DatabaseRoomRepository : RoomRepository {
 
-    override suspend fun saveRoom(room: Room) {
+    override suspend fun save(room: Room) {
         newSuspendedTransaction {
-            RoomTable.saveRoom(room)
+            RoomTable.save(room)
         }
     }
 
-    override suspend fun findRoom(roomId: RoomId): Room? =
+    override suspend fun findById(roomId: RoomId): Room? =
         newSuspendedTransaction {
-            RoomTable.findRoom(roomId)
+            RoomTable.findById(roomId)
+        }
+
+    override suspend fun findByNumber(number: RoomNumber): Room? =
+        newSuspendedTransaction {
+            RoomTable.findByNumber(number)
         }
 }
