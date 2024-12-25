@@ -17,8 +17,8 @@ import java.util.UUID
 import kotlinx.serialization.UseSerializers
 import pl.kskarzynski.multiplex.common.infra.json.serializer.UuidSerializer
 import pl.kskarzynski.multiplex.common.infra.ktor.respond
-import pl.kskarzynski.multiplex.movies.service.rest.MovieDataValidationResult.Failure
-import pl.kskarzynski.multiplex.movies.service.rest.MovieDataValidationResult.Success
+import pl.kskarzynski.multiplex.movies.service.rest.MovieValidationResult.Failure
+import pl.kskarzynski.multiplex.movies.service.rest.MovieValidationResult.Success
 import pl.kskarzynski.multiplex.movies.service.rest.dto.CreateMovieDto
 import pl.kskarzynski.multiplex.movies.service.rest.dto.PatchMovieDto
 import pl.kskarzynski.multiplex.shared.movie.MovieId

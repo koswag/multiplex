@@ -14,10 +14,10 @@ import pl.kskarzynski.multiplex.rooms.service.rest.dto.CreateRoomDto
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.PatchRoomDto
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomDto
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError
+import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.InvalidRoomNumber
+import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.InvalidSeatNumber
+import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.InvalidSeatRow
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.RoomNumberAlreadyExists
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.SeatValidationError
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.SeatValidationError.InvalidSeatNumber
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.SeatValidationError.InvalidSeatRow
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.SeatDto
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.applyPatch
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.toDomain
@@ -37,6 +37,7 @@ object RoomRestService : KoinComponent {
 
     suspend fun createRoom(dto: CreateRoomDto): RoomValidationResult =
         either {
+            ensureValidNumber(dto.number)
             ensureUniqueNumber(dto.number)
             ensureValidSeats(dto.seats)
 
@@ -52,6 +53,7 @@ object RoomRestService : KoinComponent {
 
         return either {
             if (patch.number != null && patch.number != existentRoom.number.value) {
+                ensureValidNumber(patch.number)
                 ensureUniqueNumber(patch.number)
             }
 
@@ -68,13 +70,18 @@ object RoomRestService : KoinComponent {
         }.toRoomValidationResult()
     }
 
+    context(Raise<NonEmptyList<InvalidRoomNumber>>)
+    private fun ensureValidNumber(roomNumber: Int) {
+        ensure(roomNumber >= RoomNumber.MIN_VALUE) { InvalidRoomNumber(roomNumber).nel() }
+    }
+
     context(Raise<NonEmptyList<RoomNumberAlreadyExists>>)
     private suspend fun ensureUniqueNumber(roomNumber: Int) {
         val existentRoom = roomRepository.findByNumber(RoomNumber(roomNumber))
         ensure(existentRoom == null) { RoomNumberAlreadyExists(roomNumber).nel() }
     }
 
-    context(Raise<NonEmptyList<SeatValidationError>>)
+    context(Raise<NonEmptyList<RoomValidationError>>)
     private fun ensureValidSeats(seats: NonEmptyList<SeatDto>) {
         accumulateErrors(seats) { seat ->
             accumulateErrors(

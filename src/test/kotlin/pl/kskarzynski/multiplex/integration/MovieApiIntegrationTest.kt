@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.integration.movies
+package pl.kskarzynski.multiplex.integration
 
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.FeatureSpec
@@ -6,17 +6,15 @@ import io.kotest.koin.KoinExtension
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
-import io.kotest.property.checkAll
 import io.ktor.client.call.body
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
+import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.testing.TestApplicationBuilder
 import io.ktor.server.testing.testApplication
 import org.koin.test.KoinTest
 import org.koin.test.inject
@@ -27,8 +25,7 @@ import pl.kskarzynski.multiplex.common.test.arbs.movieReleaseYear
 import pl.kskarzynski.multiplex.common.test.arbs.movieTitle
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
-import pl.kskarzynski.multiplex.integration.clientWithJson
-import pl.kskarzynski.multiplex.integration.multiplexApplication
+import pl.kskarzynski.multiplex.configureApplication
 import pl.kskarzynski.multiplex.movies.service.config.MovieModule
 import pl.kskarzynski.multiplex.movies.service.data.MovieRepository
 import pl.kskarzynski.multiplex.movies.service.data.table.MovieTable
@@ -38,7 +35,8 @@ import pl.kskarzynski.multiplex.movies.service.rest.dto.MovieValidationError
 import pl.kskarzynski.multiplex.movies.service.rest.dto.MovieValidationError.InvalidMovieReleaseYear
 import pl.kskarzynski.multiplex.movies.service.rest.dto.MovieValidationError.MovieTitleIsEmpty
 import pl.kskarzynski.multiplex.movies.service.rest.dto.PatchMovieDto
-import pl.kskarzynski.multiplex.shared.movie.MovieReleaseYear
+import pl.kskarzynski.multiplex.movies.service.rest.movieModule
+import pl.kskarzynski.multiplex.shared.movie.MovieReleaseYear.Companion.MIN_VALUE
 import strikt.api.expectThat
 import strikt.assertions.hasSize
 import strikt.assertions.isA
@@ -62,7 +60,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
             scenario("Movie does not exist") {
                 testApplication {
                     // given:
-                    multiplexApplication()
+                    setupMultiplexApplication()
 
                     // when:
                     val nonExistentId = Arb.movieId().next()
@@ -78,13 +76,11 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
             scenario("Movie exists") {
                 testApplication {
                     // given:
-                    multiplexApplication()
-                    val client = createClient {
-                        install(ContentNegotiation) { json() }
-                    }
+                    setupMultiplexApplication()
+                    val client = clientWithJson()
 
                     val existentMovie = Arb.movie().next()
-                    movieRepository.save(existentMovie)
+                        .also { movieRepository.save(it) }
 
                     // when:
                     val response = client.get("/api/movies/${existentMovie.id}")
@@ -108,7 +104,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
             scenario("Movie is valid") {
                 testApplication {
                     // given:
-                    multiplexApplication()
+                    setupMultiplexApplication()
                     val client = clientWithJson()
 
                     // when:
@@ -117,7 +113,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                         releaseYear = Arb.movieReleaseYear().next().value,
                     )
                     val response = client.post("/api/movies") {
-                        contentType(ContentType.Application.Json)
+                        contentType(Json)
                         setBody(createMovieDto)
                     }
 
@@ -137,11 +133,11 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
             scenario("Movie is invalid") {
                 testApplication {
                     // given:
-                    multiplexApplication()
+                    setupMultiplexApplication()
                     val client = clientWithJson()
 
-                    checkAll(
-                        Arb.int(1..<MovieReleaseYear.MIN_VALUE),
+                    io.kotest.property.checkAll(
+                        Arb.int(1..<MIN_VALUE),
                     ) { invalidReleaseYear ->
                         val invalidTitle = ""
 
@@ -151,7 +147,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                             releaseYear = invalidReleaseYear,
                         )
                         val response = client.post("/api/movies") {
-                            contentType(ContentType.Application.Json)
+                            contentType(Json)
                             setBody(createMovieDto)
                         }
 
@@ -172,7 +168,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                                 isA<InvalidMovieReleaseYear>() and {
                                     get { type } isEqualTo InvalidMovieReleaseYear::class.simpleName
                                     get { releaseYear } isEqualTo invalidReleaseYear
-                                    get { minValue } isEqualTo MovieReleaseYear.MIN_VALUE
+                                    get { minValue } isEqualTo MIN_VALUE
                                 }
                             }
                         }
@@ -185,14 +181,14 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
             scenario("Movie does not exist") {
                 testApplication {
                     // given:
-                    multiplexApplication()
+                    setupMultiplexApplication()
                     val client = clientWithJson()
 
                     // when:
                     val nonExistentMovieId = Arb.movieId().next()
                     val patchMovieDto = PatchMovieDto()
                     val response = client.patch("/api/movies/$nonExistentMovieId") {
-                        contentType(ContentType.Application.Json)
+                        contentType(Json)
                         setBody(patchMovieDto)
                     }
 
@@ -206,7 +202,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
             scenario("Movie patch is valid") {
                 testApplication {
                     // given:
-                    multiplexApplication()
+                    setupMultiplexApplication()
                     val client = clientWithJson()
                     val existentMovie = Arb.movie().next()
                         .also { movieRepository.save(it) }
@@ -217,7 +213,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                         releaseYear = Arb.movieReleaseYear().next().value,
                     )
                     val response = client.patch("/api/movies/${existentMovie.id}") {
-                        contentType(ContentType.Application.Json)
+                        contentType(Json)
                         setBody(patchMovieDto)
                     }
 
@@ -232,7 +228,8 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                         get { releaseYear } isEqualTo patchMovieDto.releaseYear
                     }
 
-                    val updatedMovie = client.get("api/movies/${existentMovie.id}").body<MovieDto>()
+                    val updatedMovie = client.get("api/movies/${existentMovie.id}")
+                        .body<MovieDto>()
                     expectThat(updatedMovie) {
                         get { title } isEqualTo patchMovieDto.title
                         get { releaseYear } isEqualTo patchMovieDto.releaseYear
@@ -243,13 +240,13 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
             scenario("Movie patch is invalid") {
                 testApplication {
                     // given:
-                    multiplexApplication()
+                    setupMultiplexApplication()
                     val client = clientWithJson()
                     val existentMovie = Arb.movie().next()
                         .also { movieRepository.save(it) }
 
-                    checkAll(
-                        Arb.int(1..<MovieReleaseYear.MIN_VALUE),
+                    io.kotest.property.checkAll(
+                        Arb.int(1..<MIN_VALUE),
                     ) { invalidReleaseYear ->
                         val invalidTitle = ""
 
@@ -259,7 +256,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                             releaseYear = invalidReleaseYear,
                         )
                         val response = client.patch("/api/movies/${existentMovie.id}") {
-                            contentType(ContentType.Application.Json)
+                            contentType(Json)
                             setBody(patchMovieDto)
                         }
 
@@ -280,7 +277,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                                 isA<InvalidMovieReleaseYear>() and {
                                     get { type } isEqualTo InvalidMovieReleaseYear::class.simpleName
                                     get { releaseYear } isEqualTo invalidReleaseYear
-                                    get { minValue } isEqualTo MovieReleaseYear.MIN_VALUE
+                                    get { minValue } isEqualTo MIN_VALUE
                                 }
                             }
                         }
@@ -288,5 +285,12 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                 }
             }
         }
+    }
+}
+
+private fun TestApplicationBuilder.setupMultiplexApplication() {
+    application {
+        configureApplication()
+        movieModule()
     }
 }

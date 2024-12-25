@@ -12,6 +12,7 @@ object Versions {
 
 dependencies {
     implementation(project(":multiplex-shared-kernel"))
+    implementation(project(":multiplex-commons:multiplex-common-utils"))
 
     implementation("io.kotest.extensions:kotest-extensions-testcontainers:${Versions.KOTEST_TESTCONTAINERS}")
     implementation("io.kotest:kotest-property:${Versions.KOTEST}")

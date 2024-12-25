@@ -5,6 +5,7 @@ plugins {
     id("multiplex.rest-conventions")
     id("multiplex.testing-conventions")
     id("multiplex.tooling-conventions")
+    kotlin("plugin.serialization") version "2.1.0"
 }
 
 dependencies {

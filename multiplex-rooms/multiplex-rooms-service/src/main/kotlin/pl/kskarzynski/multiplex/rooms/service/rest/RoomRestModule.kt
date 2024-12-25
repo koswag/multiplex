@@ -23,7 +23,7 @@ import pl.kskarzynski.multiplex.rooms.service.rest.dto.PatchRoomDto
 import pl.kskarzynski.multiplex.shared.room.RoomId
 
 @Resource("/api/rooms")
-class Rooms {
+private class Rooms {
 
     @Resource("/{id}")
     class Get(val parent: Rooms, val id: UUID) {
@@ -39,35 +39,37 @@ class Rooms {
     }
 }
 
-fun Application.roomModule() = routing {
-    get<Rooms.Get> { params ->
-        val room = RoomRestService.getRoom(params.roomId)
+fun Application.roomModule() {
+    routing {
+        get<Rooms.Get> { params ->
+            val room = RoomRestService.getRoom(params.roomId)
 
-        if (room != null) {
-            call.respond(room)
-        } else {
-            call.respond(NotFound)
+            if (room != null) {
+                call.respond(room)
+            } else {
+                call.respond(NotFound)
+            }
         }
-    }
 
-    post<Rooms.Create> {
-        val dto = call.receive<CreateRoomDto>()
-        val creationResult = RoomRestService.createRoom(dto)
+        post<Rooms.Create> {
+            val dto = call.receive<CreateRoomDto>()
+            val creationResult = RoomRestService.createRoom(dto)
 
-        when (creationResult) {
-            is Success -> call.respond(Created, creationResult.room)
-            is Failure -> call.respond(BadRequest, creationResult.errors)
+            when (creationResult) {
+                is Success -> call.respond(Created, creationResult.room)
+                is Failure -> call.respond(BadRequest, creationResult.errors)
+            }
         }
-    }
 
-    patch<Rooms.Update> { params ->
-        val patch = call.receive<PatchRoomDto>()
-        val updateResult = RoomRestService.updateRoom(params.roomId, patch)
+        patch<Rooms.Update> { params ->
+            val patch = call.receive<PatchRoomDto>()
+            val updateResult = RoomRestService.updateRoom(params.roomId, patch)
 
-        when (updateResult) {
-            null -> call.respond(NotFound)
-            is Success -> call.respond(Created, updateResult.room)
-            is Failure -> call.respond(BadRequest, updateResult.errors)
+            when (updateResult) {
+                null -> call.respond(NotFound)
+                is Success -> call.respond(Created, updateResult.room)
+                is Failure -> call.respond(BadRequest, updateResult.errors)
+            }
         }
     }
 }
