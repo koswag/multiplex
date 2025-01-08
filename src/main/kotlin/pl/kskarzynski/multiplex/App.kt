@@ -11,7 +11,7 @@ import org.koin.core.context.startKoin
 import pl.kskarzynski.multiplex.movies.service.config.MovieModule
 import pl.kskarzynski.multiplex.movies.service.rest.movieModule
 import pl.kskarzynski.multiplex.rooms.service.config.RoomModule
-import pl.kskarzynski.multiplex.rooms.service.rest.roomModule
+import pl.kskarzynski.multiplex.rooms.service.rest.RoomRestModule.roomModule
 import pl.kskarzynski.multiplex.screenings.infra.config.ScreeningModule
 
 fun main() {

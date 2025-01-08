@@ -1,4 +1,4 @@
-package pl.kskarzynski.multiplex.rooms.service.adapter.data
+package pl.kskarzynski.multiplex.rooms.service.data
 
 import arrow.core.nonEmptyListOf
 import io.kotest.core.spec.IsolationMode
@@ -9,8 +9,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
 import pl.kskarzynski.multiplex.common.utils.arrow.toNonEmptyList
-import pl.kskarzynski.multiplex.rooms.service.data.DatabaseRoomRepository
-import pl.kskarzynski.multiplex.rooms.service.data.RoomRepository
 import pl.kskarzynski.multiplex.rooms.service.data.table.RoomSeatTable
 import pl.kskarzynski.multiplex.rooms.service.data.table.RoomTable
 import pl.kskarzynski.multiplex.rooms.service.util.DEFAULT_ROOM_ID

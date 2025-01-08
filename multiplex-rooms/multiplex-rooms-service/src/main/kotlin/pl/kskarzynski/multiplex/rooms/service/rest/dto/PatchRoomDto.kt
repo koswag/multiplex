@@ -9,6 +9,6 @@ import kotlinx.serialization.UseSerializers
 
 @Serializable
 data class PatchRoomDto(
-    val number: Int?,
-    val seats: NonEmptyList<SeatDto>?,
+    val number: Int? = null,
+    val seats: NonEmptyList<SeatDto>? = null,
 )

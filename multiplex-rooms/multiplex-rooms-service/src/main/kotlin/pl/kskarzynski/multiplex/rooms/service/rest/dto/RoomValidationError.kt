@@ -8,10 +8,6 @@ import pl.kskarzynski.multiplex.shared.room.RoomNumber
 import pl.kskarzynski.multiplex.shared.room.SeatNumber
 import pl.kskarzynski.multiplex.shared.room.SeatRow
 
-// FIXME: Missing type discriminator
-// TODO: Duplicated seats validation
-// TODO: Missing rows validation
-// TODO: Missing seats validation
 @Serializable
 sealed class RoomValidationError {
 
@@ -32,4 +28,13 @@ sealed class RoomValidationError {
     data class InvalidSeatNumber(val seatRow: Int, val seatNumber: Int) : RoomValidationError() {
         val minValue = SeatNumber.MIN_VALUE
     }
+
+    @Serializable
+    data class DuplicatedSeat(val seatRow: Int, val seatNumber: Int) : RoomValidationError()
+
+    @Serializable
+    data class MissingRow(val row: Int) : RoomValidationError()
+
+    @Serializable
+    data class MissingSeat(val seatRow: Int, val seatNumber: Int) : RoomValidationError()
 }
