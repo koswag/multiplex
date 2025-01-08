@@ -30,6 +30,7 @@ import pl.kskarzynski.multiplex.rooms.service.config.RoomModule
 import pl.kskarzynski.multiplex.rooms.service.data.RoomRepository
 import pl.kskarzynski.multiplex.rooms.service.data.table.RoomSeatTable
 import pl.kskarzynski.multiplex.rooms.service.data.table.RoomTable
+import pl.kskarzynski.multiplex.rooms.service.rest.RoomRestModule.roomModule
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.CreateRoomDto
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.PatchRoomDto
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomDto
@@ -39,7 +40,6 @@ import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.Inval
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.RoomNumberAlreadyExists
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.SeatDto
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.toDto
-import pl.kskarzynski.multiplex.rooms.service.rest.roomModule
 import strikt.api.expectThat
 import strikt.assertions.hasSize
 import strikt.assertions.isA
@@ -161,7 +161,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                         hasSize(3)
                         one {
                             isA<RoomNumberAlreadyExists>() and {
-                                get { number } isEqualTo invalidSeatNumber
+                                get { number } isEqualTo existentRoom.number.value
                             }
                         }
                         one {
@@ -266,7 +266,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                         hasSize(3)
                         one {
                             isA<RoomNumberAlreadyExists>() and {
-                                get { number } isEqualTo invalidSeatNumber
+                                get { number } isEqualTo otherExistentRoom.number.value
                             }
                         }
                         one {
