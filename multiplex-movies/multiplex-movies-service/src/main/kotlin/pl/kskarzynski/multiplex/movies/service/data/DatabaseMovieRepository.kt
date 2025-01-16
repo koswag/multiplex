@@ -9,7 +9,7 @@ class DatabaseMovieRepository : MovieRepository {
 
     override suspend fun save(movie: Movie) {
         newSuspendedTransaction {
-            MovieTable.upsert(movie)
+            MovieTable.save(movie)
         }
     }
 

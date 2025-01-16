@@ -3,9 +3,7 @@ package pl.kskarzynski.multiplex.screenings.infra.adapter.data.table
 import java.time.LocalDateTime
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.javatime.dateTimeLiteral
 import org.jetbrains.exposed.sql.javatime.datetime
-import org.jetbrains.exposed.sql.stringLiteral
 import org.jetbrains.exposed.sql.upsert
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.ScreeningData
@@ -28,19 +26,10 @@ internal object ScreeningTable : UUIDTable("multiplex_screenings.screenings") {
             ?.let { rowToScreeningData(it) }
 
     fun saveScreening(screening: Screening) {
-        upsert(id,
-            onUpdate = listOf(
-                movieId to stringLiteral(screening.movieId.value.toString()),
-                startTime to dateTimeLiteral(screening.startTime.value),
-            )
-        ) {
+        upsert(id) {
             it[id] = screening.id.value
             it[movieId] = screening.movieId.value
             it[startTime] = screening.startTime.value
-        }
-
-        for (booking in screening.bookings) {
-            BookingTable.saveBooking(screening.id, booking)
         }
     }
 

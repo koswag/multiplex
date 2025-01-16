@@ -33,7 +33,7 @@ class DatabaseMovieRepositoryTest : FeatureSpec({
 
             // when:
             transaction {
-                MovieTable.upsert(movie)
+                MovieTable.save(movie)
             }
 
             // then:
@@ -53,7 +53,7 @@ class DatabaseMovieRepositoryTest : FeatureSpec({
 
             // when:
             transaction {
-                MovieTable.upsert(movie)
+                MovieTable.save(movie)
             }
 
             // then:
@@ -79,7 +79,7 @@ class DatabaseMovieRepositoryTest : FeatureSpec({
             // when:
             val updatedMovie = movie.copy(title = MovieTitle("New Title"))
             transaction {
-                MovieTable.upsert(updatedMovie)
+                MovieTable.save(updatedMovie)
             }
 
             // then:

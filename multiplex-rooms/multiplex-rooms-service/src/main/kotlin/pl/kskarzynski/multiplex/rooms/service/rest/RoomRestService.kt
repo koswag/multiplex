@@ -125,10 +125,7 @@ private fun Raise<NonEmptyList<MissingRow>>.ensureNoMissingRows(seats: NonEmptyL
 
 private fun Raise<NonEmptyList<MissingSeat>>.ensureNoMissingSeatNumbers(seats: NonEmptyList<SeatDto>) {
     val missingSeats = buildList {
-        val seatsPerRow = seats.groupBy { it.row }
-            .mapValues { (_, seats) -> seats.map { it.number } }
-
-        for ((row, seats) in seatsPerRow) {
+        for ((row, seats) in seats.groupByRow()) {
             val missingSeats = findMissing(seats).map { MissingSeat(row, it) }
             addAll(missingSeats)
         }
@@ -138,6 +135,10 @@ private fun Raise<NonEmptyList<MissingSeat>>.ensureNoMissingSeatNumbers(seats: N
         raise(missingSeat)
     }
 }
+
+private fun NonEmptyList<SeatDto>.groupByRow(): Map<Int, List<Int>> =
+    groupBy { it.row }
+        .mapValues { (_, seats) -> seats.map { it.number } }
 
 private fun Either<NonEmptyList<RoomValidationError>, RoomDto>.toRoomValidationResult(): RoomValidationResult =
     fold(
