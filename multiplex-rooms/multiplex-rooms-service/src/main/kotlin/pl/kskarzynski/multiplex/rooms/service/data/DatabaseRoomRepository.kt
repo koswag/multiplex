@@ -23,4 +23,9 @@ class DatabaseRoomRepository : RoomRepository {
         newSuspendedTransaction {
             RoomTable.findByNumber(number)
         }
+
+    override suspend fun findByIds(roomIds: Collection<RoomId>): List<Room> =
+        newSuspendedTransaction {
+            RoomTable.findByIds(roomIds)
+        }
 }

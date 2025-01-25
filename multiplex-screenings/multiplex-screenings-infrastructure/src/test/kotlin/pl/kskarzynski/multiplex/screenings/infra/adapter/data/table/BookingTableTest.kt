@@ -78,7 +78,7 @@ class BookingTableTest : FeatureSpec({
 
             // when:
             transaction {
-                BookingTable.save(screeningId, booking)
+                BookingTable.save(booking, screeningId)
             }
 
             // then:
@@ -99,7 +99,7 @@ class BookingTableTest : FeatureSpec({
 
             // when:
             transaction {
-                BookingTable.save(screeningId, booking)
+                BookingTable.save(booking, screeningId)
             }
 
             // then:
@@ -144,8 +144,8 @@ class BookingTableTest : FeatureSpec({
 
             val screeningId = Arb.screeningId().next()
             val nonExpiredBookings = List(5) { Arb.nonExpiredUnconfirmedBooking(currentTime).next() }
-            val expiredBookings = List(5) { Arb.expiredUnconfirmedBooking(currentTime).next() }
-            BookingTable.saveAll(screeningId, nonExpiredBookings + expiredBookings)
+            val expiredUnconfirmedBookings = List(5) { Arb.expiredUnconfirmedBooking(currentTime).next() }
+            BookingTable.saveAll(screeningId, nonExpiredBookings + expiredUnconfirmedBookings)
 
             val otherScreeningId = Arb.screeningId().next()
             val otherNonExpiredBookings = List(5) { Arb.nonExpiredUnconfirmedBooking(currentTime).next() }
@@ -177,7 +177,7 @@ class BookingTableTest : FeatureSpec({
             // given:
             val screeningId = Arb.screeningId().next()
             val existentBooking = Arb.booking().next()
-            transaction { BookingTable.save(screeningId, existentBooking) }
+            transaction { BookingTable.save(existentBooking, screeningId) }
 
             val nonExistentBookingId = Arb.bookingId().next()
 
@@ -192,7 +192,7 @@ class BookingTableTest : FeatureSpec({
             // given:
             val screeningId = Arb.screeningId().next()
             val booking = Arb.booking().next()
-            transaction { BookingTable.save(screeningId, booking) }
+            transaction { BookingTable.save(booking, screeningId) }
 
             // when:
             val result = transaction { BookingTable.findScreeningIdByBooking(booking.id) }
@@ -207,7 +207,7 @@ class BookingTableTest : FeatureSpec({
 private fun BookingTable.saveAll(screeningId: ScreeningId, bookings: Iterable<Booking>) {
     transaction {
         for (booking in bookings) {
-            save(screeningId, booking)
+            save(booking, screeningId)
         }
     }
 }

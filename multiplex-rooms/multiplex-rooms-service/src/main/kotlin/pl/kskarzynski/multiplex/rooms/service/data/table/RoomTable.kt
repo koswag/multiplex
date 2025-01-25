@@ -3,6 +3,7 @@ package pl.kskarzynski.multiplex.rooms.service.data.table
 import arrow.core.toNonEmptyListOrNull
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.upsert
 import pl.kskarzynski.multiplex.common.infra.exposed.findById
 import pl.kskarzynski.multiplex.common.infra.exposed.findOne
@@ -16,6 +17,14 @@ object RoomTable : UUIDTable("multiplex_rooms.rooms") {
     fun findById(roomId: RoomId): Room? =
         findById(roomId.value)
             ?.let { rowToDomain(it) }
+
+    fun findByIds(roomIds: Collection<RoomId>): List<Room> {
+        val ids = roomIds.map { it.value }
+
+        return selectAll()
+            .where { id inList ids }
+            .map { rowToDomain(it) }
+    }
 
     fun findByNumber(roomNumber: RoomNumber): Room? =
         findOne { number eq roomNumber.value }

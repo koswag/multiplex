@@ -11,20 +11,14 @@ import org.jetbrains.exposed.sql.selectAll
 import pl.kskarzynski.multiplex.common.infra.exposed.jsonb
 import pl.kskarzynski.multiplex.common.infra.json.JSON
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ConfirmedBooking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ExpiredBooking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.UnconfirmedBooking
+import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBooking
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus
-import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.CONFIRMED
-import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.EXPIRED
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.UNCONFIRMED
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentTicket
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentUserInfo
-import pl.kskarzynski.multiplex.shared.booking.BookingConfirmationTime
-import pl.kskarzynski.multiplex.shared.booking.BookingExpirationTime
+import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.toDomain
+import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.toPersistentBooking
 import pl.kskarzynski.multiplex.shared.booking.BookingId
-import pl.kskarzynski.multiplex.shared.booking.BookingPrice
-import pl.kskarzynski.multiplex.shared.booking.BookingTime
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
 internal object BookingTable : UUIDTable("multiplex_screenings.bookings") {
@@ -34,33 +28,29 @@ internal object BookingTable : UUIDTable("multiplex_screenings.bookings") {
     val tickets = jsonb<List<PersistentTicket>>("tickets", JSON.mapper)
     val bookingTime = datetime("booking_time")
     val totalPrice = decimal("total_price", 5, 2).nullable()
-    val expirationTime = datetime( "expiration_time").nullable()
+    val expirationTime = datetime( "expiration_time")
     val confirmationTime = datetime( "confirmation_time").nullable()
 
     fun findBookings(scrId: ScreeningId): List<Booking> =
         selectAll()
             .where { screeningId eq scrId.value }
-            .map { rowToDomain(it) }
+            .map { rowToPersistentBooking(it).toDomain() }
 
-    private fun rowToDomain(row: ResultRow): Booking =
-        when (row[status]) {
-            UNCONFIRMED -> rowToUnconfirmedBooking(row)
-            CONFIRMED -> rowToConfirmedBooking(row)
-            EXPIRED -> rowToExpiredBooking(row)
-        }
+    fun save(booking: Booking, screeningId: ScreeningId) {
+        save(booking.toPersistentBooking(screeningId))
+    }
 
-    fun save(scrId: ScreeningId, booking: Booking) {
+    private fun save(booking: PersistentBooking) {
         insertIgnore {
-            it[id] = booking.id.value
-            it[screeningId] = scrId.value
-            it[userInfo] = PersistentUserInfo.from(booking.userInfo)
-            it[tickets] = booking.tickets.map { PersistentTicket.from(it) }
-            it[bookingTime] = booking.bookingTime.value
-
+            it[id] = booking.id
+            it[screeningId] = booking.screeningId
+            it[userInfo] = booking.userInfo
+            it[tickets] = booking.tickets
+            it[bookingTime] = booking.bookingTime
             it[status] = booking.status
-            it[totalPrice] = booking.totalPrice?.value
-            it[expirationTime] = booking.expirationTime.value
-            it[confirmationTime] = if (booking is ConfirmedBooking) booking.confirmationTime.value else null
+            it[totalPrice] = booking.totalPrice
+            it[expirationTime] = booking.expirationTime
+            it[confirmationTime] = booking.confirmationTime
         }
     }
 
@@ -75,67 +65,17 @@ internal object BookingTable : UUIDTable("multiplex_screenings.bookings") {
             .where { id eq bookingId.value }
             .firstOrNull()
             ?.let { row -> ScreeningId(row[screeningId]) }
+
+    private fun rowToPersistentBooking(row: ResultRow) =
+        PersistentBooking(
+            id = row[id].value,
+            status = row[status],
+            screeningId = row[screeningId],
+            userInfo = row[userInfo],
+            tickets = row[tickets].toNonEmptyListOrNull() ?: error("Unconfirmed booking of ID $id has no tickets"),
+            bookingTime = row[bookingTime],
+            expirationTime = row[expirationTime],
+            totalPrice = row[totalPrice],
+            confirmationTime = row[confirmationTime],
+        )
 }
-
-private fun BookingTable.rowToUnconfirmedBooking(row: ResultRow): UnconfirmedBooking {
-    val id = BookingId(row[id].value)
-    val price = row[totalPrice] ?: error("Unconfirmed booking has no price")
-    val expiration = row[expirationTime] ?: error("Unconfirmed booking has no expiration time")
-    val tickets = row[tickets].map { it.toDomain() }.toNonEmptyListOrNull()
-        ?: error("Unconfirmed booking of ID $id has no tickets")
-
-    return UnconfirmedBooking(
-        id = id,
-        userInfo = row[userInfo].toDomain(),
-        tickets = tickets,
-        bookingTime = BookingTime(row[bookingTime]),
-        totalPrice = BookingPrice(price),
-        expirationTime = BookingExpirationTime(expiration),
-    )
-}
-
-private fun BookingTable.rowToConfirmedBooking(row: ResultRow): ConfirmedBooking {
-    val price = row[totalPrice] ?: error("Confirmed booking has no price")
-    val expiration = row[expirationTime] ?: error("Confirmed booking has no expiration time")
-    val confirmation = row[confirmationTime] ?: error("Confirmed booking has no confirmation time")
-    val tickets = row[tickets].map { it.toDomain() }.toNonEmptyListOrNull()
-        ?: error("Confirmed booking of ID $id has no tickets")
-
-    return ConfirmedBooking(
-        id = BookingId(row[id].value),
-        userInfo = row[userInfo].toDomain(),
-        tickets = tickets,
-        bookingTime = BookingTime(row[bookingTime]),
-        totalPrice = BookingPrice(price),
-        expirationTime = BookingExpirationTime(expiration),
-        confirmationTime = BookingConfirmationTime(confirmation),
-    )
-}
-
-private fun BookingTable.rowToExpiredBooking(row: ResultRow): ExpiredBooking {
-    val expiration = row[expirationTime] ?: error("Unconfirmed booking has no expiration time")
-    val tickets = row[tickets].map { it.toDomain() }.toNonEmptyListOrNull()
-        ?: error("Expired booking of ID $id has no tickets")
-
-    return ExpiredBooking(
-        id = BookingId(row[id].value),
-        userInfo = row[userInfo].toDomain(),
-        tickets = tickets,
-        bookingTime = BookingTime(row[bookingTime]),
-        expirationTime = BookingExpirationTime(expiration),
-    )
-}
-
-private val Booking.status: PersistentBookingStatus
-    get() = when (this) {
-        is UnconfirmedBooking -> UNCONFIRMED
-        is ExpiredBooking -> EXPIRED
-        is ConfirmedBooking -> CONFIRMED
-    }
-
-private val Booking.totalPrice: BookingPrice?
-    get() = when (this) {
-        is UnconfirmedBooking -> totalPrice
-        is ConfirmedBooking -> totalPrice
-        is ExpiredBooking -> null
-    }

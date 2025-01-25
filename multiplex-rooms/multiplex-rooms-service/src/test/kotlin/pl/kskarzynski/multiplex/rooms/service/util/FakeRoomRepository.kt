@@ -17,4 +17,9 @@ class FakeRoomRepository : RoomRepository {
 
     override suspend fun findByNumber(number: RoomNumber): Room? =
         rooms.values.find { it.number == number }
+
+    override suspend fun findByIds(roomIds: Collection<RoomId>): List<Room> {
+        val ids = roomIds.toSet()
+        return rooms.values.filter { it.id in ids }
+    }
 }

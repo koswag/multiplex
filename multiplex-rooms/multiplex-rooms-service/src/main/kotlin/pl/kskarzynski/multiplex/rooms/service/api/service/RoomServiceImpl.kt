@@ -11,4 +11,7 @@ class RoomServiceImpl(
 
     override suspend fun findRoom(roomId: RoomId): Room? =
         roomQueries.findById(roomId)
+
+    override suspend fun findRooms(ids: Collection<RoomId>): List<Room> =
+        roomQueries.findByIds(ids)
 }

@@ -8,14 +8,19 @@ import pl.kskarzynski.multiplex.shared.room.RoomId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningStartTime
 
-// TODO: Better naming?
 internal data class ScreeningData(
     val id: ScreeningId,
     val movieId: MovieId,
     val roomId: RoomId,
     val startTime: ScreeningStartTime,
     val bookings: List<Booking>,
-) {
-    fun toDomain(room: Room) =
-        Screening(id, movieId, room, startTime, bookings)
-}
+)
+
+internal fun ScreeningData.toDomain(room: Room) =
+    Screening(
+        id = id,
+        movieId = movieId,
+        room = room,
+        startTime = startTime,
+        bookings = bookings,
+    )

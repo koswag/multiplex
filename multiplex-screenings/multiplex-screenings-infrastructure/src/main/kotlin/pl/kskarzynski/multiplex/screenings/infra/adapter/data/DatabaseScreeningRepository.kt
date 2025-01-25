@@ -8,6 +8,7 @@ import pl.kskarzynski.multiplex.screenings.domain.model.Screening
 import pl.kskarzynski.multiplex.screenings.domain.port.data.ScreeningRepository
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.BookingTable
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.ScreeningTable
+import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.toDomain
 import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
@@ -21,7 +22,7 @@ class DatabaseScreeningRepository(
             ScreeningTable.saveScreening(screening)
 
             for (booking in screening.bookings) {
-                BookingTable.save(screening.id, booking)
+                BookingTable.save(booking, screening.id)
             }
         }
     }
@@ -38,14 +39,16 @@ class DatabaseScreeningRepository(
 
     override suspend fun findScreeningsWithExpiredBookings(): List<Screening> =
         newSuspendedTransaction {
-            ScreeningTable.findScreeningsWithExpiredBookings(clock.currentTime())
-                .map { screeningData ->
-                    // TODO: Optimize
-                    val room = roomService.findRoom(screeningData.roomId)
-                        ?: error("Room of ID ${screeningData.roomId.value} not found (screening: ${screeningData.id.value})")
+            val screenings = ScreeningTable.findScreeningsWithExpiredBookings(clock.currentTime())
 
-                    screeningData.toDomain(room)
-                }
+            val roomIds = screenings.map { it.roomId }
+            val rooms = roomService.findRooms(roomIds).associateBy { it.id }
+
+            screenings.map { screening ->
+                val room = rooms[screening.roomId]
+                    ?: error("Room of ID ${screening.roomId.value} not found (screening: ${screening.id.value})")
+                screening.toDomain(room)
+            }
         }
 
     override suspend fun findScreeningByBooking(bookingId: BookingId): Screening? {

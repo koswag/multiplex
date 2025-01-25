@@ -7,18 +7,16 @@ import pl.kskarzynski.multiplex.shared.room.SeatRow
 internal data class PersistentSeat(
     val row: Int,
     val number: Int,
-) {
-    fun toDomain() =
-        Seat(
-            row = SeatRow(row),
-            number = SeatNumber(number),
-        )
+)
 
-    companion object {
-        fun from(seat: Seat) =
-            PersistentSeat(
-                row = seat.row.value,
-                number = seat.number.value,
-            )
-    }
-}
+internal fun PersistentSeat.toDomain() =
+    Seat(
+        row = SeatRow(row),
+        number = SeatNumber(number),
+    )
+
+internal fun Seat.toPersistentSeat() =
+    PersistentSeat(
+        row = row.value,
+        number = number.value,
+    )

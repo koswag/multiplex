@@ -5,4 +5,5 @@ import pl.kskarzynski.multiplex.shared.room.RoomId
 
 interface RoomService {
     suspend fun findRoom(roomId: RoomId): Room?
+    suspend fun findRooms(ids: Collection<RoomId>): List<Room>
 }
