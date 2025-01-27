@@ -8,6 +8,7 @@ import pl.kskarzynski.multiplex.screenings.domain.model.Screening
 import pl.kskarzynski.multiplex.screenings.domain.port.data.ScreeningRepository
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.BookingTable
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.ScreeningTable
+import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.ScreeningData
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.toDomain
 import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
@@ -19,7 +20,7 @@ class DatabaseScreeningRepository(
 
     override suspend fun saveScreening(screening: Screening) {
         newSuspendedTransaction {
-            ScreeningTable.saveScreening(screening)
+            ScreeningTable.save(screening)
 
             for (booking in screening.bookings) {
                 BookingTable.save(booking, screening.id)
@@ -28,36 +29,49 @@ class DatabaseScreeningRepository(
     }
 
     override suspend fun findScreening(screeningId: ScreeningId): Screening? {
-        val screeningData = newSuspendedTransaction { ScreeningTable.findScreening(screeningId) }
+        val screening = newSuspendedTransaction { ScreeningTable.find(screeningId) }
             ?: return null
 
-        val room = roomService.findRoom(screeningData.roomId)
-            ?: error("Room of ID ${screeningData.roomId.value} not found (screening: ${screeningId.value})")
+        val room = roomService.findRoom(screening.roomId)
+            ?: error("Room of ID ${screening.roomId.value} not found (screening: ${screeningId.value})")
 
-        return screeningData.toDomain(room)
+        return screening.toDomain(room, BookingTable.findBookings(screening.id))
     }
 
     override suspend fun findScreeningsWithExpiredBookings(): List<Screening> =
         newSuspendedTransaction {
-            val screenings = ScreeningTable.findScreeningsWithExpiredBookings(clock.currentTime())
+            val expiredBookingScreeningIds = BookingTable.findExpiredBookingScreeningIds(clock.currentTime())
+            val screenings = ScreeningTable.findAll(expiredBookingScreeningIds)
+
+            val screeningIds = screenings.map { it.id }
+            val bookings = BookingTable.findBookings(screeningIds)
+                .groupBy { ScreeningId(it.screeningId) }
+                .mapValues { (_, bookings) -> bookings.map { it.toDomain() } }
 
             val roomIds = screenings.map { it.roomId }
             val rooms = roomService.findRooms(roomIds).associateBy { it.id }
 
-            screenings.map { screening ->
-                val room = rooms[screening.roomId]
-                    ?: error("Room of ID ${screening.roomId.value} not found (screening: ${screening.id.value})")
-                screening.toDomain(room)
+            screenings.map {
+                it.toDomain(
+                    room = rooms[it.roomId] ?: error("Room ${it.roomId.value} not found (screening: ${it.id.value})"),
+                    bookings = bookings[it.id].orEmpty(),
+                )
             }
         }
 
     override suspend fun findScreeningByBooking(bookingId: BookingId): Screening? {
-        val screeningData = newSuspendedTransaction { ScreeningTable.findScreeningByBooking(bookingId) }
+        val screeningData = findScreeningDataByBooking(bookingId)
             ?: return null
 
         val room = roomService.findRoom(screeningData.roomId)
             ?: error("Room of ID ${screeningData.roomId.value} not found (screening: ${screeningData.id.value})")
 
-        return screeningData.toDomain(room)
+        return screeningData.toDomain(room, BookingTable.findBookings(screeningData.id))
     }
+
+    private suspend fun findScreeningDataByBooking(bookingId: BookingId): ScreeningData? =
+        newSuspendedTransaction {
+            BookingTable.findScreeningIdByBooking(bookingId)
+                ?.let { ScreeningTable.find(it) }
+        }
 }

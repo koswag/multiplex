@@ -13,10 +13,9 @@ internal data class ScreeningData(
     val movieId: MovieId,
     val roomId: RoomId,
     val startTime: ScreeningStartTime,
-    val bookings: List<Booking>,
 )
 
-internal fun ScreeningData.toDomain(room: Room) =
+internal fun ScreeningData.toDomain(room: Room, bookings: List<Booking>) =
     Screening(
         id = id,
         movieId = movieId,

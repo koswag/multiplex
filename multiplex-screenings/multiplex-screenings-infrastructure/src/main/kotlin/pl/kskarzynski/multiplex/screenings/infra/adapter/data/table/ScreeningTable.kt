@@ -1,13 +1,12 @@
 package pl.kskarzynski.multiplex.screenings.infra.adapter.data.table
 
-import java.time.LocalDateTime
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.upsert
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.ScreeningData
-import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.room.RoomId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
@@ -19,36 +18,24 @@ internal object ScreeningTable : UUIDTable("multiplex_screenings.screenings") {
     val roomId = uuid("room_id")
     val startTime = datetime("start_time")
 
-    fun findScreening(screeningId: ScreeningId): ScreeningData? =
-        select(id, movieId, roomId, startTime)
+    fun find(screeningId: ScreeningId): ScreeningData? =
+        selectAll()
             .where { id eq screeningId.value }
             .firstOrNull()
             ?.let { rowToScreeningData(it) }
 
-    fun saveScreening(screening: Screening) {
+    fun findAll(screeningIds: Collection<ScreeningId>): List<ScreeningData> =
+        selectAll()
+            .where { id inList screeningIds.map { it.value } }
+            .map { rowToScreeningData(it) }
+
+    fun save(screening: Screening) {
         upsert(id) {
             it[id] = screening.id.value
             it[movieId] = screening.movieId.value
+            it[roomId] = screening.room.id.value
             it[startTime] = screening.startTime.value
         }
-    }
-
-    // TODO: Optimize
-    fun findScreeningsWithExpiredBookings(currentTime: LocalDateTime): List<ScreeningData> {
-        val screeningIds =
-            BookingTable.findExpiredBookingScreeningIds(currentTime)
-                .map { it.value }
-
-        return select(id, movieId, roomId, startTime)
-            .where { id inList screeningIds }
-            .map { rowToScreeningData(it) }
-    }
-
-    fun findScreeningByBooking(bookingId: BookingId): ScreeningData? {
-        val screeningId = BookingTable.findScreeningIdByBooking(bookingId)
-            ?: return null
-
-        return findScreening(screeningId)
     }
 
     private fun rowToScreeningData(row: ResultRow): ScreeningData {
@@ -59,7 +46,6 @@ internal object ScreeningTable : UUIDTable("multiplex_screenings.screenings") {
             movieId = MovieId(row[movieId]),
             roomId = RoomId(row[roomId]),
             startTime = ScreeningStartTime(row[startTime]),
-            bookings = BookingTable.findBookings(screeningId),
         )
     }
 }
