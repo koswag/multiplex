@@ -8,6 +8,7 @@ import java.util.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import pl.kskarzynski.multiplex.common.infra.json.serializer.UuidSerializer
+import pl.kskarzynski.multiplex.shared.room.Room
 
 @Serializable
 data class RoomDto(
@@ -15,3 +16,10 @@ data class RoomDto(
     val number: Int,
     val seats: NonEmptyList<SeatDto>,
 )
+
+fun Room.toDto() =
+    RoomDto(
+        id = id.value,
+        number = number.value,
+        seats = seats.map { it.toDto() },
+    )

@@ -5,12 +5,19 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
 import pl.kskarzynski.multiplex.rooms.api.service.RoomService
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
+import pl.kskarzynski.multiplex.screenings.domain.model.view.ScreeningListItemRoomView
+import pl.kskarzynski.multiplex.screenings.domain.model.view.ScreeningListItemView
 import pl.kskarzynski.multiplex.screenings.domain.port.data.ScreeningRepository
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.BookingTable
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.ScreeningTable
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.ScreeningData
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.toDomain
 import pl.kskarzynski.multiplex.shared.booking.BookingId
+import pl.kskarzynski.multiplex.shared.misc.Page
+import pl.kskarzynski.multiplex.shared.misc.PagingRequest
+import pl.kskarzynski.multiplex.shared.misc.map
+import pl.kskarzynski.multiplex.shared.movie.MovieId
+import pl.kskarzynski.multiplex.shared.room.Room
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
 class DatabaseScreeningRepository(
@@ -18,7 +25,7 @@ class DatabaseScreeningRepository(
     private val clock: Clock,
 ) : ScreeningRepository {
 
-    override suspend fun saveScreening(screening: Screening) {
+    override suspend fun save(screening: Screening) {
         newSuspendedTransaction {
             ScreeningTable.save(screening)
 
@@ -37,6 +44,19 @@ class DatabaseScreeningRepository(
 
         return screening.toDomain(room, BookingTable.findBookings(screening.id))
     }
+
+    override suspend fun findScreeningsByMovie(movieId: MovieId, paging: PagingRequest): Page<ScreeningListItemView> =
+        newSuspendedTransaction {
+            val screenings = ScreeningTable.findScreeningsByMovie(movieId, paging)
+
+            val roomIds = screenings.content.map { it.roomId }.toSet()
+            val rooms = roomService.findRooms(roomIds).associateBy { it.id }
+
+            screenings.map {
+                val room = rooms[it.roomId] ?: error("Room ${it.roomId.value} not found (screening: ${it.id.value})")
+                it.toListItem(room)
+            }
+        }
 
     override suspend fun findScreeningsWithExpiredBookings(): List<Screening> =
         newSuspendedTransaction {
@@ -75,3 +95,7 @@ class DatabaseScreeningRepository(
                 ?.let { ScreeningTable.find(it) }
         }
 }
+
+private fun ScreeningData.toListItem(room: Room) = ScreeningListItemView(id, startTime, room.toListItemRoom())
+
+private fun Room.toListItemRoom() = ScreeningListItemRoomView(id, number)

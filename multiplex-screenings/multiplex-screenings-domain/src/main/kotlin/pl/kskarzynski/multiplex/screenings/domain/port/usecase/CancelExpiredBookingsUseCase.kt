@@ -11,6 +11,6 @@ class CancelExpiredBookingsUseCase(
 ) {
     suspend fun execute(screening: Screening) {
         val updatedScreening = screening.cancelExpiredBookings(clock.currentTime())
-        screeningRepository.saveScreening(updatedScreening)
+        screeningRepository.save(updatedScreening)
     }
 }

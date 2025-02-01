@@ -24,7 +24,7 @@ tasks.withType<KotlinCompile> {
     compilerOptions {
         freeCompilerArgs.addAll(
             "-Xjsr305=strict",
-            "-Xcontext-receivers",
+            "-Xconsistent-data-class-copy-visibility",
         )
         jvmTarget.set(JvmTarget.JVM_17)
     }

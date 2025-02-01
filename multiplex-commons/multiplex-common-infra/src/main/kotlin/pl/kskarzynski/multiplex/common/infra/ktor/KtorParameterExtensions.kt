@@ -2,21 +2,25 @@ package pl.kskarzynski.multiplex.common.infra.ktor
 
 import io.ktor.http.Parameters
 import io.ktor.server.plugins.BadRequestException
-import java.util.UUID
-import pl.kskarzynski.multiplex.shared.movie.MovieId
+import pl.kskarzynski.multiplex.shared.misc.PagingRequest
 
-fun <T> Parameters.getRequired(name: String, transform: (String) -> T): T =
-    get(name)?.let(transform)
-        ?: throw BadRequestException("Parameter $name is required")
+fun Parameters.getPagingRequest(defaultPageSize: Int): PagingRequest =
+    PagingRequest(
+        pageNumber = getInt("page") ?: 1,
+        pageSize = getInt("size") ?: defaultPageSize,
+    )
 
-fun Parameters.getRequiredUuid(name: String): UUID =
-    getRequired(name) { value ->
-        runCatching { UUID.fromString(value) }
-            .getOrElse { exc ->
-                throw BadRequestException("Parameter $name is not a valid UUID: '$value'", exc)
-            }
-    }
+fun Parameters.getInt(name: String): Int? =
+    get(name)?.transformOrBadRequest(
+        transform = { it.toInt() },
+        errorMessage = { "Parameter $name is not a valid int: '$it'" },
+    )
 
-fun Parameters.getRequiredMovieId(name: String): MovieId =
-    getRequiredUuid(name)
-        .let(::MovieId)
+private fun <T> String.transformOrBadRequest(
+    transform: (String) -> T,
+    errorMessage: (String) -> String,
+): T =
+    runCatching { transform(this) }
+        .getOrElse { exc ->
+            throw BadRequestException(errorMessage(this), exc)
+        }

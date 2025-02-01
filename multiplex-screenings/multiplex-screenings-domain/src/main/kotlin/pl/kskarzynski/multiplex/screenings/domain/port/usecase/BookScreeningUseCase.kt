@@ -1,12 +1,10 @@
 package pl.kskarzynski.multiplex.screenings.domain.port.usecase
 
 import arrow.core.EitherNel
-import arrow.core.nel
 import arrow.core.raise.either
-import arrow.core.raise.ensureNotNull
+import pl.kskarzynski.multiplex.screenings.domain.model.Screening
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.UnconfirmedBooking
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError.ScreeningDoesNotExist
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingRequest
 import pl.kskarzynski.multiplex.screenings.domain.port.data.ScreeningRepository
 import pl.kskarzynski.multiplex.screenings.domain.port.policy.BookingExpirationPolicy
@@ -18,16 +16,13 @@ class BookScreeningUseCase(
     private val bookingExpirationPolicy: BookingExpirationPolicy,
     private val screeningRepository: ScreeningRepository,
 ) {
-    suspend fun execute(bookingRequest: BookingRequest): EitherNel<BookingError, UnconfirmedBooking> =
+    suspend fun execute(screening: Screening, bookingRequest: BookingRequest): EitherNel<BookingError, UnconfirmedBooking> =
         either {
-            val screening = screeningRepository.findScreening(bookingRequest.screeningId)
-            ensureNotNull(screening) { ScreeningDoesNotExist(bookingRequest.screeningId).nel() }
-
             val booking = createBooking(bookingRequest)
             val updatedScreening = screening.book(booking).bind()
+            screeningRepository.save(updatedScreening)
 
             booking
-                .also { screeningRepository.saveScreening(updatedScreening) }
         }
 
     private fun createBooking(bookingRequest: BookingRequest): UnconfirmedBooking {

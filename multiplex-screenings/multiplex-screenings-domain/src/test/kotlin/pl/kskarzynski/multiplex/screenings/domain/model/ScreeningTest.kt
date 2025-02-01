@@ -125,7 +125,7 @@ class ScreeningTest : FeatureSpec({
             expectThat(bookingResult).isLeft() and {
                 hasSize(1)
                 first().isA<BookingError.SeatDoesNotExist>() and {
-                    get { seatPlacement } isEqualTo newBooking.tickets.first().seat
+                    get { seat } isEqualTo newBooking.tickets.first().seat
                 }
             }
         }
@@ -149,7 +149,7 @@ class ScreeningTest : FeatureSpec({
             expectThat(bookingResult).isLeft() and {
                 hasSize(1)
                 first().isA<BookingError.SeatAlreadyTaken>() and {
-                    get { seatPlacement } isEqualTo newBooking.tickets.first().seat
+                    get { seat } isEqualTo newBooking.tickets.first().seat
                 }
             }
         }
@@ -173,7 +173,7 @@ class ScreeningTest : FeatureSpec({
             expectThat(bookingResult).isLeft() and {
                 hasSize(1)
                 first().isA<BookingError.SingleSeatLeft>() and {
-                    get { singleSeatPlacement } isEqualTo seat(1, 1)
+                    get { singleSeat } isEqualTo seat(1, 1)
                 }
             }
         }
@@ -197,7 +197,7 @@ class ScreeningTest : FeatureSpec({
             expectThat(bookingResult).isLeft() and {
                 hasSize(1)
                 first().isA<BookingError.SingleSeatLeft>() and {
-                    get { singleSeatPlacement } isEqualTo seat(1, 5)
+                    get { singleSeat } isEqualTo seat(1, 5)
                 }
             }
         }
@@ -225,7 +225,7 @@ class ScreeningTest : FeatureSpec({
             expectThat(bookingResult).isLeft() and {
                 hasSize(1)
                 first().isA<BookingError.SingleSeatLeft>() and {
-                    get { singleSeatPlacement } isEqualTo seat(1, 3)
+                    get { singleSeat } isEqualTo seat(1, 3)
                 }
             }
         }

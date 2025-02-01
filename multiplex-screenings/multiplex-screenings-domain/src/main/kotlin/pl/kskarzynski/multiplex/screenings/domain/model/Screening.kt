@@ -56,22 +56,19 @@ data class Screening(
         }
     }
 
-    context(Raise<NonEmptyList<SeatDoesNotExist>>)
-    private fun ensureSeatsExist(booking: Booking) {
+    private fun Raise<NonEmptyList<SeatDoesNotExist>>.ensureSeatsExist(booking: Booking) {
         accumulateErrors(booking.seats) { seat ->
             ensure(seat in allSeats) { SeatDoesNotExist(seat) }
         }
     }
 
-    context(Raise<NonEmptyList<SeatAlreadyTaken>>)
-    private fun ensureSeatsNotTaken(booking: Booking) {
+    private fun Raise<NonEmptyList<SeatAlreadyTaken>>.ensureSeatsNotTaken(booking: Booking) {
         accumulateErrors(booking.seats) { seat ->
             ensure(seat !in takenSeats) { SeatAlreadyTaken(seat) }
         }
     }
 
-    context(Raise<NonEmptyList<SingleSeatLeft>>)
-    private fun ensureNoSingleSeats(booking: Booking) {
+    private fun Raise<NonEmptyList<SingleSeatLeft>>.ensureNoSingleSeats(booking: Booking) {
         val updatedSeats = takenSeats + booking.seats
         val singleSeats = findSingleSeats(allSeats, isTaken = { it in updatedSeats })
 

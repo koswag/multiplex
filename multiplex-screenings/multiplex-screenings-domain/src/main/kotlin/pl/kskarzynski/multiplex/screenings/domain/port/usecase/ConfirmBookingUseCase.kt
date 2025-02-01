@@ -21,6 +21,6 @@ class ConfirmBookingUseCase(
 
             val updatedScreening = screening.confirmBooking(bookingId, clock.currentTime()).bind()
 
-            screeningRepository.saveScreening(updatedScreening)
+            screeningRepository.save(updatedScreening)
         }
 }
