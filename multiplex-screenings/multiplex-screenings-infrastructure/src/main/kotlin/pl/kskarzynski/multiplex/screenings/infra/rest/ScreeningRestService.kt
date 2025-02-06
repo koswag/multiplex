@@ -2,6 +2,7 @@ package pl.kskarzynski.multiplex.screenings.infra.rest
 
 import arrow.core.EitherNel
 import arrow.core.getOrElse
+import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
@@ -24,11 +25,11 @@ import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErr
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.PastScreeningTime
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.RoomDoesNotExist
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.applyPatch
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingIdDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingRequestDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.toDomain
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.toDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.toDto
+import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.misc.Page
 import pl.kskarzynski.multiplex.shared.misc.PagingRequest
 import pl.kskarzynski.multiplex.shared.misc.map
@@ -103,13 +104,26 @@ class ScreeningRestService(
         val booking = bookScreeningUseCase.execute(screening, bookingRequest)
             .getOrElse { bookingErrors -> return BookingResult.BookingFailure(bookingErrors.map { it.toDto() }) }
 
-        return BookingResult.Success(BookingIdDto(booking.id.value))
+        return BookingResult.Success(booking.id.toDto())
     }
 
     private suspend fun mapToDtoWithMovie(screening: Screening): ScreeningDto {
         val movie = movieService.findMovie(screening.movieId)
             ?: error("Movie of ID ${screening.movieId} not found (screening ID: ${screening.id})")
         return screening.toDto(movie)
+    }
+
+    suspend fun confirmBooking(screeningId: ScreeningId, bookingId: BookingId): BookingConfirmationResult {
+        val screening = screeningRepository.findScreening(screeningId)
+            ?: return BookingConfirmationResult.ScreeningDoesNotExist(screeningId)
+
+        val updatedScreening = screening.confirmBooking(bookingId, clock.currentTime())
+            .getOrElse { error ->
+                return BookingConfirmationResult.ConfirmationFailure(error.toDto(screeningId, bookingId).nel())
+            }
+
+        screeningRepository.save(updatedScreening)
+        return BookingConfirmationResult.Success(bookingId.toDto())
     }
 }
 
