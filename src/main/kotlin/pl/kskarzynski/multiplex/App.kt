@@ -31,6 +31,8 @@ fun main() {
         )
     }
 
+    Jobs.startAll()
+
     embeddedServer(Netty, port = 8080) {
         configureApplication()
         movieModule()

@@ -7,8 +7,8 @@ import pl.kskarzynski.multiplex.screenings.domain.port.policy.BookingExpirationP
 import pl.kskarzynski.multiplex.screenings.domain.port.policy.BookingPricingPolicy
 import pl.kskarzynski.multiplex.screenings.domain.port.policy.BookingPricingPolicyImpl
 import pl.kskarzynski.multiplex.screenings.domain.port.usecase.BookScreeningUseCase
-import pl.kskarzynski.multiplex.screenings.domain.port.usecase.CancelExpiredBookingsUseCase
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.DatabaseScreeningRepository
+import pl.kskarzynski.multiplex.screenings.infra.job.CancelExpiredBookingsJob
 import pl.kskarzynski.multiplex.screenings.infra.rest.ScreeningRestService
 
 val ScreeningModule = module {
@@ -16,6 +16,6 @@ val ScreeningModule = module {
     single<BookingPricingPolicy> { BookingPricingPolicyImpl() }
     single<BookingExpirationPolicy> { BookingExpirationPolicyImpl() }
     single { BookScreeningUseCase(get(), get(), get()) }
-    single { CancelExpiredBookingsUseCase(get(), get()) }
     single { ScreeningRestService(get(), get(), get(), get(), get()) }
+    single { CancelExpiredBookingsJob(get(), get()) }
 }

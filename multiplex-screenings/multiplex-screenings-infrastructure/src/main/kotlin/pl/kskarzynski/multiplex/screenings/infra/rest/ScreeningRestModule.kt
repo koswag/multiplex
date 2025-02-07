@@ -102,7 +102,7 @@ object ScreeningRestModule : KoinComponent {
                         call.respond(NotFound, "Screening of ID ${bookingResult.screeningId} not found")
                     }
                     is BookingResult.Success -> {
-                        call.respond(bookingResult.bookingId) // TODO: `Created` or `Ok`?
+                        call.respond(bookingResult.bookingId)
                     }
                     is BookingResult.ValidationFailure -> {
                         call.respond<BookingValidationErrorDto>(BadRequest, bookingResult.validationErrors)
