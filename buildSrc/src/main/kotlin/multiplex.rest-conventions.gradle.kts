@@ -9,6 +9,8 @@ object RestVersions {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-server-auth:${RestVersions.KTOR}")
+    implementation("io.ktor:ktor-server-auth-jwt:${RestVersions.KTOR}")
     implementation("io.ktor:ktor-server-content-negotiation:${RestVersions.KTOR}")
     implementation("io.ktor:ktor-server-core:${RestVersions.KTOR}")
     implementation("io.ktor:ktor-server-netty:${RestVersions.KTOR}")

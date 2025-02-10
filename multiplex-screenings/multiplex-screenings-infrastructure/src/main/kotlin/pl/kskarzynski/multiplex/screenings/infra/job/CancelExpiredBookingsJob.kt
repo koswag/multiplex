@@ -9,6 +9,7 @@ import pl.kskarzynski.multiplex.common.infra.job.IntervalBasedJob
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
 import pl.kskarzynski.multiplex.screenings.domain.port.data.ScreeningRepository
 
+// TODO: Tests
 class CancelExpiredBookingsJob(
     private val screeningRepository: ScreeningRepository,
     private val clock: Clock,
@@ -22,6 +23,7 @@ class CancelExpiredBookingsJob(
                 .map { async { it.cancelExpiredBookings(clock.currentTime()) } }
                 .awaitAll()
 
+            // TODO: Retries?
             newSuspendedTransaction {
                 for (screening in updatedScreenings) {
                     screeningRepository.save(screening)

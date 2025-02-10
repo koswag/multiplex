@@ -8,6 +8,7 @@ import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.resources.Resource
 import io.ktor.server.application.Application
+import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
 import io.ktor.server.resources.get
 import io.ktor.server.response.respond
@@ -18,6 +19,7 @@ import java.util.UUID
 import kotlinx.serialization.UseSerializers
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import pl.kskarzynski.multiplex.common.infra.auth.JWT_AUTH
 import pl.kskarzynski.multiplex.common.infra.json.serializer.UuidSerializer
 import pl.kskarzynski.multiplex.common.infra.ktor.getPagingRequest
 import pl.kskarzynski.multiplex.common.infra.ktor.respond
@@ -43,7 +45,7 @@ private class Screenings {
         val screeningId get() = ScreeningId(id)
     }
 
-    @Resource("/movie/{mId}/screenings")
+    @Resource("/movies/{mId}/screenings")
     class GetAllByMovie(val parent: Screenings, val mId: UUID) {
         val movieId get() = MovieId(mId)
     }
@@ -113,29 +115,6 @@ object ScreeningRestModule : KoinComponent {
                 }
             }
 
-            post<Screenings.Create> {
-                // TODO: Authentication
-                val dto = call.receive<CreateScreeningDto>()
-                val creationResult = screeningRestService.createScreening(dto)
-
-                when (creationResult) {
-                    is Success -> call.respond(Created, creationResult.screening)
-                    is Failure -> call.respond<ScreeningValidationErrorDto>(BadRequest, creationResult.errors)
-                }
-            }
-
-            patch<Screenings.Update> { params ->
-                // TODO: Authentication
-                val dto = call.receive<PatchScreeningDto>()
-                val updateResult = screeningRestService.updateScreening(params.screeningId, dto)
-
-                when (updateResult) {
-                    null -> call.respond(NotFound)
-                    is Success -> call.respond(Created, updateResult.screening)
-                    is Failure -> call.respond<ScreeningValidationErrorDto>(BadRequest, updateResult.errors)
-                }
-            }
-
             post<Screenings.ConfirmBooking> { params ->
                 val confirmationResult = screeningRestService.confirmBooking(params.screeningId, params.bookingId)
 
@@ -148,6 +127,29 @@ object ScreeningRestModule : KoinComponent {
                     }
                     is BookingConfirmationResult.ConfirmationFailure -> {
                         call.respond<BookingConfirmationErrorDto>(BadRequest, confirmationResult.errors)
+                    }
+                }
+            }
+
+            authenticate(JWT_AUTH) {
+                post<Screenings.Create> {
+                    val dto = call.receive<CreateScreeningDto>()
+                    val creationResult = screeningRestService.createScreening(dto)
+
+                    when (creationResult) {
+                        is Success -> call.respond(Created, creationResult.screening)
+                        is Failure -> call.respond<ScreeningValidationErrorDto>(BadRequest, creationResult.errors)
+                    }
+                }
+
+                patch<Screenings.Update> { params ->
+                    val dto = call.receive<PatchScreeningDto>()
+                    val updateResult = screeningRestService.updateScreening(params.screeningId, dto)
+
+                    when (updateResult) {
+                        null -> call.respond(NotFound)
+                        is Success -> call.respond(Created, updateResult.screening)
+                        is Failure -> call.respond<ScreeningValidationErrorDto>(BadRequest, updateResult.errors)
                     }
                 }
             }
