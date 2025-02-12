@@ -8,13 +8,13 @@ import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.Persis
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.EXPIRED
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.UNCONFIRMED
 
-internal enum class PersistentBookingStatus {
+enum class PersistentBookingStatus {
     UNCONFIRMED,
     EXPIRED,
     CONFIRMED,
 }
 
-internal val Booking.status: PersistentBookingStatus
+val Booking.status: PersistentBookingStatus
     get() = when (this) {
         is UnconfirmedBooking -> UNCONFIRMED
         is ExpiredBooking -> EXPIRED

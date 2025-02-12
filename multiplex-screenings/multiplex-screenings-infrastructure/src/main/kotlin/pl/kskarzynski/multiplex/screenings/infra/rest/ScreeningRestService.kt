@@ -9,17 +9,18 @@ import arrow.core.raise.ensureNotNull
 import arrow.core.raise.zipOrAccumulate
 import arrow.core.toEitherNel
 import java.time.Clock
+import pl.kskarzynski.multiplex.common.infra.misc.toDto
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
 import pl.kskarzynski.multiplex.common.utils.datetime.isBefore
 import pl.kskarzynski.multiplex.movies.api.service.MovieService
 import pl.kskarzynski.multiplex.rooms.api.service.RoomService
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
+import pl.kskarzynski.multiplex.screenings.domain.model.request.MovieScreeningSearchRequest
 import pl.kskarzynski.multiplex.screenings.domain.port.data.ScreeningRepository
 import pl.kskarzynski.multiplex.screenings.domain.port.usecase.BookScreeningUseCase
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.CreateScreeningDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.PatchScreeningDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningListItemDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.MovieDoesNotExist
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.PastScreeningTime
@@ -30,8 +31,6 @@ import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.toDomain
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.toDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.toDto
 import pl.kskarzynski.multiplex.shared.booking.BookingId
-import pl.kskarzynski.multiplex.shared.misc.Page
-import pl.kskarzynski.multiplex.shared.misc.PagingRequest
 import pl.kskarzynski.multiplex.shared.misc.map
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.room.RoomId
@@ -49,9 +48,15 @@ class ScreeningRestService(
         screeningRepository.findScreening(id)
             ?.let { mapToDtoWithMovie(it) }
 
-    suspend fun getAllByMovie(movieId: MovieId, paging: PagingRequest): Page<ScreeningListItemDto> =
-        screeningRepository.findScreeningsByMovie(movieId, paging)
+    suspend fun getAllByMovie(request: MovieScreeningSearchRequest): MovieScreeningSearchResult {
+        movieService.findMovie(request.movieId)
+            ?: return MovieScreeningSearchResult.MovieNotFound
+
+        val screenings = screeningRepository.findScreeningsByMovie(request)
             .map { it.toDto() }
+
+        return MovieScreeningSearchResult.Success(screenings.toDto())
+    }
 
     suspend fun createScreening(dto: CreateScreeningDto): ScreeningValidationResult =
         either {

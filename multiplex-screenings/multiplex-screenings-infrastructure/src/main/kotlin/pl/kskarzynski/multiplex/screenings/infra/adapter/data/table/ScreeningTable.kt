@@ -2,20 +2,21 @@ package pl.kskarzynski.multiplex.screenings.infra.adapter.data.table
 
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.upsert
 import pl.kskarzynski.multiplex.common.infra.exposed.page
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
+import pl.kskarzynski.multiplex.screenings.domain.model.request.MovieScreeningSearchRequest
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.ScreeningData
 import pl.kskarzynski.multiplex.shared.misc.Page
-import pl.kskarzynski.multiplex.shared.misc.PagingRequest
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.room.RoomId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningStartTime
 
-internal object ScreeningTable : UUIDTable("multiplex_screenings.screenings") {
+object ScreeningTable : UUIDTable("multiplex_screenings.screenings") {
     val movieId = uuid("movie_id")
     val roomId = uuid("room_id")
     val startTime = datetime("start_time")
@@ -31,10 +32,21 @@ internal object ScreeningTable : UUIDTable("multiplex_screenings.screenings") {
             .where { id inList screeningIds.map { it.value } }
             .map { rowToScreeningData(it) }
 
-    fun findScreeningsByMovie(id: MovieId, paging: PagingRequest): Page<ScreeningData> =
-        selectAll()
-            .where { movieId eq id.value }
-            .page(paging) { rowToScreeningData(it) }
+    fun findScreeningsByMovie(request: MovieScreeningSearchRequest): Page<ScreeningData> {
+        val query = selectAll()
+            .where { movieId eq request.movieId.value }
+            .orderBy(startTime)
+
+        request.minStartTime?.let { minStartTime ->
+            query.andWhere { startTime greaterEq minStartTime.value }
+        }
+
+        request.maxStartTime?.let { maxStartTime ->
+            query.andWhere { startTime lessEq maxStartTime.value }
+        }
+
+        return query.page(request.pagingRequest) { rowToScreeningData(it) }
+    }
 
     fun save(screening: Screening) {
         upsert(id) {

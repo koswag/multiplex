@@ -8,7 +8,7 @@ data class PageDto<T>(
     val content: List<T>,
     val pageNumber: Int,
     val pageSize: Int,
-    val totalPages: Int,
+    val totalCount: Long,
 )
 
 fun <T> Page<T>.toDto() =
@@ -16,5 +16,5 @@ fun <T> Page<T>.toDto() =
         content = content,
         pageNumber = pageNumber,
         pageSize = pageSize,
-        totalPages = totalPages,
+        totalCount = totalCount,
     )

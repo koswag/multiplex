@@ -13,9 +13,11 @@ object Versions {
 dependencies {
     implementation(project(":multiplex-commons:multiplex-common-test"))
     implementation(project(":multiplex-commons:multiplex-common-infra"))
+    implementation(project(":multiplex-commons:multiplex-common-utils"))
     implementation(project(":multiplex-movies:multiplex-movies-service"))
     implementation(project(":multiplex-movies:multiplex-movies-service"))
     implementation(project(":multiplex-rooms:multiplex-rooms-service"))
+    implementation(project(":multiplex-screenings:multiplex-screenings-domain"))
     implementation(project(":multiplex-screenings:multiplex-screenings-infrastructure"))
     implementation(project(":multiplex-shared-kernel"))
 

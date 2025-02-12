@@ -4,18 +4,18 @@ import pl.kskarzynski.multiplex.screenings.domain.model.booking.user.UserInfo
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.user.UserName
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.user.UserSurname
 
-internal data class PersistentUserInfo(
+data class PersistentUserInfo(
     val userName: String,
     val userSurname: String,
 )
 
-internal fun PersistentUserInfo.toDomain() =
+fun PersistentUserInfo.toDomain() =
     UserInfo(
         name = UserName(userName),
         surname = UserSurname(userSurname),
     )
 
-internal fun UserInfo.toPersistentUserInfo() =
+fun UserInfo.toPersistentUserInfo() =
     PersistentUserInfo(
         userName = name.value,
         userSurname = surname.value,

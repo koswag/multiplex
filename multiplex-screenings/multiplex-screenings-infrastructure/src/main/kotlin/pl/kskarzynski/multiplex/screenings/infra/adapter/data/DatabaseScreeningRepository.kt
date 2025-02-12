@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
 import pl.kskarzynski.multiplex.rooms.api.service.RoomService
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
+import pl.kskarzynski.multiplex.screenings.domain.model.request.MovieScreeningSearchRequest
 import pl.kskarzynski.multiplex.screenings.domain.model.view.ScreeningListItemRoomView
 import pl.kskarzynski.multiplex.screenings.domain.model.view.ScreeningListItemView
 import pl.kskarzynski.multiplex.screenings.domain.port.data.ScreeningRepository
@@ -14,9 +15,7 @@ import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.Screen
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.toDomain
 import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.misc.Page
-import pl.kskarzynski.multiplex.shared.misc.PagingRequest
 import pl.kskarzynski.multiplex.shared.misc.map
-import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.room.Room
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
@@ -42,12 +41,13 @@ class DatabaseScreeningRepository(
         val room = roomService.findRoom(screening.roomId)
             ?: error("Room of ID ${screening.roomId.value} not found (screening: ${screeningId.value})")
 
-        return screening.toDomain(room, BookingTable.findBookings(screening.id))
+        val bookings = newSuspendedTransaction { BookingTable.findBookings(screening.id) }
+        return screening.toDomain(room, bookings)
     }
 
-    override suspend fun findScreeningsByMovie(movieId: MovieId, paging: PagingRequest): Page<ScreeningListItemView> =
+    override suspend fun findScreeningsByMovie(request: MovieScreeningSearchRequest): Page<ScreeningListItemView> =
         newSuspendedTransaction {
-            val screenings = ScreeningTable.findScreeningsByMovie(movieId, paging)
+            val screenings = ScreeningTable.findScreeningsByMovie(request)
 
             val roomIds = screenings.content.map { it.roomId }.toSet()
             val rooms = roomService.findRooms(roomIds).associateBy { it.id }
@@ -86,7 +86,8 @@ class DatabaseScreeningRepository(
         val room = roomService.findRoom(screeningData.roomId)
             ?: error("Room of ID ${screeningData.roomId.value} not found (screening: ${screeningData.id.value})")
 
-        return screeningData.toDomain(room, BookingTable.findBookings(screeningData.id))
+        val bookings = newSuspendedTransaction { BookingTable.findBookings(screeningData.id) }
+        return screeningData.toDomain(room, bookings)
     }
 
     private suspend fun findScreeningDataByBooking(bookingId: BookingId): ScreeningData? =

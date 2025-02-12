@@ -18,7 +18,7 @@ import pl.kskarzynski.multiplex.shared.booking.BookingPrice
 import pl.kskarzynski.multiplex.shared.booking.BookingTime
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
-internal data class PersistentBooking(
+data class PersistentBooking(
     val id: UUID,
     val status: PersistentBookingStatus,
     val screeningId: UUID,
@@ -30,7 +30,7 @@ internal data class PersistentBooking(
     val confirmationTime: LocalDateTime?,
 )
 
-internal fun PersistentBooking.toDomain(): Booking =
+fun PersistentBooking.toDomain(): Booking =
     when (status) {
         UNCONFIRMED -> UnconfirmedBooking(
             id = BookingId(id),
@@ -60,7 +60,7 @@ internal fun PersistentBooking.toDomain(): Booking =
         )
     }
 
-internal fun Booking.toPersistentBooking(screeningId: ScreeningId) =
+fun Booking.toPersistentBooking(screeningId: ScreeningId) =
     PersistentBooking(
         id = id.value,
         status = status,

@@ -67,12 +67,10 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
 
                     // when:
                     val nonExistentRoomId = Arb.roomId().next()
-                    val response = client.get("/api/rooms/${nonExistentRoomId}")
+                    val response = client.get("/api/rooms/$nonExistentRoomId")
 
                     // then:
-                    expectThat(response) {
-                        get { status } isEqualTo HttpStatusCode.NotFound
-                    }
+                    expectThat(response.status) isEqualTo HttpStatusCode.NotFound
                 }
             }
 

@@ -21,7 +21,7 @@ import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.toPers
 import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 
-internal object BookingTable : UUIDTable("multiplex_screenings.bookings") {
+object BookingTable : UUIDTable("multiplex_screenings.bookings") {
     val screeningId = uuid("screening_id")
     val status = enumerationByName<PersistentBookingStatus>("status", length = 16)
     val userInfo = jsonb<PersistentUserInfo>("user_info", JSON.mapper)

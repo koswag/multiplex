@@ -8,14 +8,14 @@ import pl.kskarzynski.multiplex.shared.room.RoomId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningStartTime
 
-internal data class ScreeningData(
+data class ScreeningData(
     val id: ScreeningId,
     val movieId: MovieId,
     val roomId: RoomId,
     val startTime: ScreeningStartTime,
 )
 
-internal fun ScreeningData.toDomain(room: Room, bookings: List<Booking>) =
+fun ScreeningData.toDomain(room: Room, bookings: List<Booking>) =
     Screening(
         id = id,
         movieId = movieId,

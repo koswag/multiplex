@@ -4,7 +4,7 @@ data class Page<T>(
     val content: List<T>,
     val pageNumber: Int,
     val pageSize: Int,
-    val totalPages: Int,
+    val totalCount: Long,
 )
 
 fun <T, R> Page<T>.map(func: (T) -> R): Page<R> =
@@ -12,5 +12,5 @@ fun <T, R> Page<T>.map(func: (T) -> R): Page<R> =
         content = content.map(func),
         pageNumber = pageNumber,
         pageSize = pageSize,
-        totalPages = totalPages,
+        totalCount = totalCount,
     )
