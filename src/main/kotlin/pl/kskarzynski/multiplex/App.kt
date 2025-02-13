@@ -18,14 +18,14 @@ import pl.kskarzynski.multiplex.rooms.service.rest.RoomRestModule.roomModule
 import pl.kskarzynski.multiplex.screenings.infra.config.ScreeningModule
 import pl.kskarzynski.multiplex.screenings.infra.rest.ScreeningRestModule.screeningModule
 
-val CommonModule = module {
+val ClockModule = module {
     single<Clock> { Clock.systemDefaultZone() }
 }
 
 fun main() {
     startKoin {
         modules(
-            CommonModule,
+            ClockModule,
             MovieModule,
             RoomModule,
             ScreeningModule,

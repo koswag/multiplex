@@ -11,6 +11,7 @@ import arrow.core.toEitherNel
 import java.time.Clock
 import pl.kskarzynski.multiplex.common.infra.misc.toDto
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
+import pl.kskarzynski.multiplex.common.utils.datetime.isAfter
 import pl.kskarzynski.multiplex.common.utils.datetime.isBefore
 import pl.kskarzynski.multiplex.movies.api.service.MovieService
 import pl.kskarzynski.multiplex.rooms.api.service.RoomService
@@ -87,7 +88,7 @@ class ScreeningRestService(
 
         return either {
             if (patch.startTime != null) {
-                ensure(patch.startTime isBefore clock.currentTime()) { PastScreeningTime(patch.startTime) }
+                ensure(patch.startTime isAfter clock.currentTime()) { PastScreeningTime(patch.startTime) }
             }
 
             val updatedScreening = screening.applyPatch(patch)

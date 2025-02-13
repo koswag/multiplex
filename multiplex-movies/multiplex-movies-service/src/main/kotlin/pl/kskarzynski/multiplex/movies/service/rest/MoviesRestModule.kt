@@ -1,4 +1,4 @@
-@file:UseSerializers(UuidSerializer::class)
+@file:UseSerializers(MovieIdSerializer::class)
 
 package pl.kskarzynski.multiplex.movies.service.rest
 
@@ -13,9 +13,8 @@ import io.ktor.server.resources.patch
 import io.ktor.server.resources.post
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
-import java.util.UUID
 import kotlinx.serialization.UseSerializers
-import pl.kskarzynski.multiplex.common.infra.json.serializer.UuidSerializer
+import pl.kskarzynski.multiplex.common.infra.json.serializer.MovieIdSerializer
 import pl.kskarzynski.multiplex.common.infra.ktor.respond
 import pl.kskarzynski.multiplex.movies.service.rest.MovieValidationResult.Failure
 import pl.kskarzynski.multiplex.movies.service.rest.MovieValidationResult.Success
@@ -26,18 +25,14 @@ import pl.kskarzynski.multiplex.shared.movie.MovieId
 @Resource("/api/movies")
 private class Movies {
 
-    @Resource("/{id}")
-    class Get(val parent: Movies, val id: UUID) {
-        val movieId get() = MovieId(id)
-    }
+    @Resource("/{movieId}")
+    class Get(val parent: Movies, val movieId: MovieId)
 
     @Resource("")
     class Create(val parent: Movies)
 
-    @Resource("/{id}")
-    class Update(val parent: Movies, val id: UUID) {
-        val movieId get() = MovieId(id)
-    }
+    @Resource("/{movieId}")
+    class Update(val parent: Movies, val movieId: MovieId)
 }
 
 fun Application.movieModule() {

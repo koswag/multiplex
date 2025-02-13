@@ -1,4 +1,4 @@
-@file:UseSerializers(UuidSerializer::class)
+@file:UseSerializers(ScreeningIdSerializer::class, MovieIdSerializer::class, BookingIdSerializer::class)
 
 package pl.kskarzynski.multiplex.screenings.infra.rest
 
@@ -11,15 +11,16 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receive
 import io.ktor.server.resources.get
+import io.ktor.server.resources.patch
+import io.ktor.server.resources.post
 import io.ktor.server.response.respond
-import io.ktor.server.routing.patch
-import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
-import java.util.UUID
 import kotlinx.serialization.UseSerializers
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import pl.kskarzynski.multiplex.common.infra.json.serializer.UuidSerializer
+import pl.kskarzynski.multiplex.common.infra.json.serializer.BookingIdSerializer
+import pl.kskarzynski.multiplex.common.infra.json.serializer.MovieIdSerializer
+import pl.kskarzynski.multiplex.common.infra.json.serializer.ScreeningIdSerializer
 import pl.kskarzynski.multiplex.common.infra.ktor.getLocalDateTime
 import pl.kskarzynski.multiplex.common.infra.ktor.getPagingRequest
 import pl.kskarzynski.multiplex.common.infra.ktor.respond
@@ -43,34 +44,23 @@ private const val DEFAULT_PAGE_SIZE = 10
 @Resource("/api")
 private class Screenings {
 
-    @Resource("/screenings/{id}")
-    class Get(val parent: Screenings, val id: UUID) {
-        val screeningId get() = ScreeningId(id)
-    }
+    @Resource("/screenings/{screeningId}")
+    class Get(val parent: Screenings, val screeningId: ScreeningId)
 
-    @Resource("/movies/{mId}/screenings")
-    class GetAllByMovie(val parent: Screenings, val mId: UUID) {
-        val movieId get() = MovieId(mId)
-    }
+    @Resource("/movies/{movieId}/screenings")
+    class GetAllByMovie(val parent: Screenings, val movieId: MovieId)
 
     @Resource("/screenings")
     class Create(val parent: Screenings)
 
-    @Resource("/screenings/{id}")
-    class Update(val parent: Screenings, val id: UUID) {
-        val screeningId get() = ScreeningId(id)
-    }
+    @Resource("/screenings/{screeningId}")
+    class Update(val parent: Screenings, val screeningId: ScreeningId)
 
-    @Resource("/screenings/{id}/book")
-    class CreateBooking(val parent: Screenings, val id: UUID) {
-        val screeningId get() = ScreeningId(id)
-    }
+    @Resource("/screenings/{screeningId}/book")
+    class CreateBooking(val parent: Screenings, val screeningId: ScreeningId)
 
-    @Resource("/screenings/{id}/confirm/{bId}")
-    class ConfirmBooking(val parent: Screenings, val id: UUID, val bId: UUID) {
-        val screeningId get() = ScreeningId(id)
-        val bookingId get() = BookingId(bId)
-    }
+    @Resource("/screenings/{iscreeningIdd}/confirm/{bookingId}")
+    class ConfirmBooking(val parent: Screenings, val screeningId: ScreeningId, val bookingId: BookingId)
 }
 
 object ScreeningRestModule : KoinComponent {
@@ -155,7 +145,7 @@ object ScreeningRestModule : KoinComponent {
 
                 when (updateResult) {
                     null -> call.respond(NotFound)
-                    is Success -> call.respond(Created, updateResult.screening)
+                    is Success -> call.respond(updateResult.screening)
                     is Failure -> call.respond<ScreeningValidationErrorDto>(BadRequest, updateResult.errors)
                 }
             }

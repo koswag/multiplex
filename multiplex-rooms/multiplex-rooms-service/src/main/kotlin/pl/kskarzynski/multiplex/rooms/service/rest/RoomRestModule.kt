@@ -1,4 +1,4 @@
-@file:UseSerializers(UuidSerializer::class)
+@file:UseSerializers(RoomIdSerializer::class)
 
 package pl.kskarzynski.multiplex.rooms.service.rest
 
@@ -13,11 +13,10 @@ import io.ktor.server.resources.patch
 import io.ktor.server.resources.post
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
-import java.util.UUID
 import kotlinx.serialization.UseSerializers
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import pl.kskarzynski.multiplex.common.infra.json.serializer.UuidSerializer
+import pl.kskarzynski.multiplex.common.infra.json.serializer.RoomIdSerializer
 import pl.kskarzynski.multiplex.common.infra.ktor.respond
 import pl.kskarzynski.multiplex.rooms.service.rest.RoomValidationResult.Failure
 import pl.kskarzynski.multiplex.rooms.service.rest.RoomValidationResult.Success
@@ -29,18 +28,14 @@ import pl.kskarzynski.multiplex.shared.room.RoomId
 @Resource("/api/rooms")
 private class Rooms {
 
-    @Resource("/{id}")
-    class Get(val parent: Rooms, val id: UUID) {
-        val roomId get() = RoomId(id)
-    }
+    @Resource("/{roomId}")
+    class Get(val parent: Rooms, val roomId: RoomId)
 
     @Resource("")
     class Create(val parent: Rooms)
 
-    @Resource("/{id}")
-    class Update(val parent: Rooms, val id: UUID) {
-        val roomId get() = RoomId(id)
-    }
+    @Resource("/{roomId}")
+    class Update(val parent: Rooms, val roomId: RoomId)
 }
 
 object RoomRestModule : KoinComponent {

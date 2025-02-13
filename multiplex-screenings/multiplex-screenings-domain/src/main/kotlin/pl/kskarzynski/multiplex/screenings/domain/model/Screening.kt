@@ -10,6 +10,7 @@ import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import java.time.LocalDateTime
 import pl.kskarzynski.multiplex.common.utils.arrow.accumulateErrors
+import pl.kskarzynski.multiplex.common.utils.collections.replace
 import pl.kskarzynski.multiplex.common.utils.datetime.isBefore
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ConfirmedBooking
@@ -51,8 +52,7 @@ data class Screening(
                 { ensureNoSingleSeats(booking) },
             )
 
-            val updatedBookings = bookings + booking
-            copy(bookings = updatedBookings)
+            copy(bookings = bookings + booking)
         }
     }
 
@@ -100,15 +100,13 @@ data class Screening(
             val booking = bookings.find { it.id == bookingId }
             ensureNotNull(booking) { BookingDoesNotExist(bookingId) }
 
-            val confirmedBooking =
-                when (booking) {
-                    is ConfirmedBooking -> booking
-                    is UnconfirmedBooking -> booking.confirm(currentTime).bind()
-                    is ExpiredBooking -> raise(BookingExpired(booking.expirationTime))
-                }
+            val confirmedBooking = when (booking) {
+                is ConfirmedBooking -> booking
+                is UnconfirmedBooking -> booking.confirm(currentTime).bind()
+                is ExpiredBooking -> raise(BookingExpired(booking.expirationTime))
+            }
 
-            val updatedBookings = bookings - booking + confirmedBooking
-            copy(bookings = updatedBookings)
+            copy(bookings = bookings.replace(booking, confirmedBooking))
         }
 }
 

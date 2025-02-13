@@ -10,6 +10,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType.Application.Json
@@ -17,11 +18,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.TestApplicationBuilder
 import io.ktor.server.testing.testApplication
+import java.time.Clock
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
 import org.koin.test.KoinTest
 import org.koin.test.inject
-import pl.kskarzynski.multiplex.CommonModule
 import pl.kskarzynski.multiplex.auth.AuthenticationModule.authModule
 import pl.kskarzynski.multiplex.common.infra.ktor.CONTENT_TYPE_JSON_UTF_8
 import pl.kskarzynski.multiplex.common.infra.misc.PageDto
@@ -31,8 +32,10 @@ import pl.kskarzynski.multiplex.common.test.arbs.room
 import pl.kskarzynski.multiplex.common.test.arbs.screeningId
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
+import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
 import pl.kskarzynski.multiplex.configureApplication
 import pl.kskarzynski.multiplex.integration.arbs.screening
+import pl.kskarzynski.multiplex.integration.util.TestClockModule
 import pl.kskarzynski.multiplex.movies.service.config.MovieModule
 import pl.kskarzynski.multiplex.movies.service.data.MovieRepository
 import pl.kskarzynski.multiplex.movies.service.data.table.MovieTable
@@ -47,9 +50,12 @@ import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.ScreeningTab
 import pl.kskarzynski.multiplex.screenings.infra.config.ScreeningModule
 import pl.kskarzynski.multiplex.screenings.infra.rest.ScreeningRestModule.screeningModule
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.CreateScreeningDto
+import pl.kskarzynski.multiplex.screenings.infra.rest.dto.PatchScreeningDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningListItemDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningListItemRoomDto
+import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto
+import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.PastScreeningTime
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.toDto
 import pl.kskarzynski.multiplex.shared.movie.Movie
 import pl.kskarzynski.multiplex.shared.room.Room
@@ -57,14 +63,19 @@ import strikt.api.expect
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
+import strikt.assertions.hasSize
+import strikt.assertions.isA
 import strikt.assertions.isEmpty
 import strikt.assertions.isEqualTo
+import strikt.assertions.one
 
 class ScreeningApiIntegrationTest : KoinTest, FeatureSpec() {
 
-    val screeningRepository by inject<ScreeningRepository>()
-    val roomRepository by inject<RoomRepository>()
-    val movieRepository by inject<MovieRepository>()
+    private val screeningRepository by inject<ScreeningRepository>()
+    private val roomRepository by inject<RoomRepository>()
+    private val movieRepository by inject<MovieRepository>()
+
+    private val fixedClock by inject<Clock>()
 
     init {
         isolationMode = IsolationMode.InstancePerLeaf
@@ -74,7 +85,7 @@ class ScreeningApiIntegrationTest : KoinTest, FeatureSpec() {
                     ScreeningModule,
                     MovieModule,
                     RoomModule,
-                    CommonModule,
+                    TestClockModule,
                 ),
             ),
         )
@@ -379,6 +390,96 @@ class ScreeningApiIntegrationTest : KoinTest, FeatureSpec() {
 
             scenario("Movie does not exist") {}
             scenario("Room does not exist") {}
+        }
+
+        feature("Updating a Screening") {
+            scenario("Screening does not exist") {
+                testApplication {
+                    setupMultiplexApplication()
+                    val client = clientWithJson()
+
+                    // given:
+                    val nonExistentScreeningId = Arb.screeningId().next()
+                    val emptyPatch = PatchScreeningDto(startTime = null)
+
+                    // when:
+                    val response = client.patch("/api/screenings/$nonExistentScreeningId") {
+                        contentType(Json)
+                        setBody(emptyPatch)
+                    }
+
+                    // then:
+                    expectThat(response.status) isEqualTo HttpStatusCode.NotFound
+                }
+            }
+
+            scenario("Past Screening time") {
+                testApplication {
+                    setupMultiplexApplication()
+                    val client = clientWithJson()
+
+                    // given:
+                    val movie = createMovie()
+                    val room = createRoom()
+                    val screening = createScreening(movie, room)
+
+                    // when:
+                    val patch = PatchScreeningDto(startTime = fixedClock.currentTime().minusDays(1))
+                    val response = client.patch("/api/screenings/${screening.id}") {
+                        contentType(Json)
+                        setBody(patch)
+                    }
+
+                    // then:
+                    expectThat(response) {
+                        get { status } isEqualTo HttpStatusCode.BadRequest
+                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                    }
+
+                    expectThat(response.body<List<ScreeningValidationErrorDto>>()) {
+                        hasSize(1)
+                        one {
+                            isA<PastScreeningTime>() and {
+                                get { screeningTime } isEqualTo patch.startTime
+                            }
+                        }
+                    }
+                }
+            }
+
+            scenario("Valid patch on an existent Screening") {
+                testApplication {
+                    setupMultiplexApplication()
+                    val client = clientWithJson()
+
+                    // given:
+                    val movie = createMovie()
+                    val room = createRoom()
+                    val screening = createScreening(movie, room)
+
+                    // when:
+                    val newStartTime = fixedClock.currentTime().plusDays(1)
+                    val patch = PatchScreeningDto(startTime = newStartTime)
+                    val response = client.patch("/api/screenings/${screening.id}") {
+                        contentType(Json)
+                        setBody(patch)
+                    }
+
+                    // then:
+                    expectThat(response) {
+                        get { status } isEqualTo HttpStatusCode.OK
+                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                    }
+
+                    val expectedDto = screening.toDto(movie)
+                        .copy(startTime = newStartTime)
+
+                    expectThat(response.body<ScreeningDto>()) isEqualTo expectedDto
+
+                    val existentScreening = screeningRepository.findScreening(screening.id)?.toDto(movie)
+                    expectThat(existentScreening) isEqualTo expectedDto
+                }
+            }
         }
     }
 
