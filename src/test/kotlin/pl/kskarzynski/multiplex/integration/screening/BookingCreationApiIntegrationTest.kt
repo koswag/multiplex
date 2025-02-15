@@ -38,7 +38,7 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 import strikt.assertions.one
 
-class ScreeningBookingApiIntegrationTest : ScreeningApiIntegrationTest() {
+class BookingCreationApiIntegrationTest : ScreeningApiIntegrationTest() {
 
     init {
         feature("Booking creation") {

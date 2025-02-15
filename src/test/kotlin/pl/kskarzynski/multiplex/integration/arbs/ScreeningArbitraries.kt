@@ -35,12 +35,17 @@ import pl.kskarzynski.multiplex.shared.room.Room
 import pl.kskarzynski.multiplex.shared.room.Seat
 import pl.kskarzynski.multiplex.shared.screening.ScreeningStartTime
 
-fun Arb.Companion.screening(movie: Movie, room: Room, startTime: LocalDateTime? = null): Arb<Screening> =
+fun Arb.Companion.screening(
+    movie: Movie,
+    room: Room,
+    startTime: LocalDateTime? = null,
+    bookings: List<Booking> = emptyList(),
+): Arb<Screening> =
     arbitrary {
         val id = Arb.screeningId().bind()
         val screeningStartTime = ScreeningStartTime(startTime ?: Arb.localDateTime().bind())
 
-        Screening(id, movie.id, room, screeningStartTime, bookings = emptyList())
+        Screening(id, movie.id, room, screeningStartTime, bookings)
     }
 
 fun Arb.Companion.booking(

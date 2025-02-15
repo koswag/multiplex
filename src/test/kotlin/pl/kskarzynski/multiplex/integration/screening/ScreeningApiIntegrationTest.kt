@@ -76,8 +76,12 @@ abstract class ScreeningApiIntegrationTest : KoinTest, FeatureSpec() {
         )
     }
 
-    protected suspend fun createScreening(movie: Movie, room: Room, startTime: LocalDateTime? = null): Screening =
-        Arb.screening(movie, room, startTime).next()
+    protected suspend fun createScreening(
+        movie: Movie? = null,
+        room: Room? = null,
+        startTime: LocalDateTime? = null,
+    ): Screening =
+        Arb.screening(movie ?: createMovie(), room ?: createRoom(), startTime).next()
             .also { screeningRepository.save(it) }
 
     protected suspend fun createMovie(): Movie =

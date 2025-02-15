@@ -5,9 +5,9 @@ import java.time.LocalDateTime
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.upsert
 import pl.kskarzynski.multiplex.common.infra.exposed.jsonb
 import pl.kskarzynski.multiplex.common.infra.json.JSON
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking
@@ -46,7 +46,7 @@ object BookingTable : UUIDTable("multiplex_screenings.bookings") {
     }
 
     private fun save(booking: PersistentBooking) {
-        insertIgnore {
+        upsert(id) {
             it[id] = booking.id
             it[screeningId] = booking.screeningId
             it[userInfo] = booking.userInfo
