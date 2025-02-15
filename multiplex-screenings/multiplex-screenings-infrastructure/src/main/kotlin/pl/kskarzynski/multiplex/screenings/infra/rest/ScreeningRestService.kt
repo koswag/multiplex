@@ -12,7 +12,6 @@ import java.time.Clock
 import pl.kskarzynski.multiplex.common.infra.misc.toDto
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
 import pl.kskarzynski.multiplex.common.utils.datetime.isAfter
-import pl.kskarzynski.multiplex.common.utils.datetime.isBefore
 import pl.kskarzynski.multiplex.movies.api.service.MovieService
 import pl.kskarzynski.multiplex.rooms.api.service.RoomService
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
@@ -67,7 +66,7 @@ class ScreeningRestService(
             zipOrAccumulate(
                 { ensureNotNull(movie) { MovieDoesNotExist(dto.movieId) } },
                 { ensureNotNull(room) { RoomDoesNotExist(dto.roomId) } },
-                { ensure(dto.startTime isBefore clock.currentTime()) { PastScreeningTime(dto.startTime) } },
+                { ensure(dto.startTime isAfter clock.currentTime()) { PastScreeningTime(dto.startTime) } },
             ) { movie, room, _ ->
                 val screening = Screening(
                     id = ScreeningId.generate(),
