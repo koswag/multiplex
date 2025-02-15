@@ -69,8 +69,8 @@ data class Screening(
     }
 
     private fun Raise<NonEmptyList<SingleSeatLeft>>.ensureNoSingleSeats(booking: Booking) {
-        val updatedSeats = takenSeats + booking.seats
-        val singleSeats = findSingleSeats(allSeats, isTaken = { it in updatedSeats })
+        val takenSeatsAfterBooking = takenSeats + booking.seats
+        val singleSeats = findSingleSeats(allSeats, isTaken = { it in takenSeatsAfterBooking })
 
         accumulateErrors(singleSeats) { seat ->
             raise(SingleSeatLeft(seat))

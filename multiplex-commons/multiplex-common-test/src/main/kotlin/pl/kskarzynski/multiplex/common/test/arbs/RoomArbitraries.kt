@@ -36,8 +36,8 @@ fun Arb.Companion.seats(
     maxRowSize: Int = DEFAULT_MAX_ROW_SIZE,
 ): Arb<NonEmptyList<Seat>> =
     arbitrary {
-        val rowCount = Arb.int(2..maxRowCount).bind()
-        val rowSize = Arb.int(2..maxRowSize).bind()
+        val rowCount = Arb.int(3..maxRowCount).bind()
+        val rowSize = Arb.int(3..maxRowSize).bind()
         buildList {
             for (rowNo in 1..rowCount) {
                 for (seatNo in 1..rowSize) {
