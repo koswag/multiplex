@@ -36,7 +36,7 @@ object BookingTable : UUIDTable("multiplex_screenings.bookings") {
             .where { screeningId eq scrId.value }
             .map { rowToPersistentBooking(it).toDomain() }
 
-    fun findBookings(screeningIds: Collection<ScreeningId>): List<PersistentBooking> =
+    internal fun findBookings(screeningIds: Collection<ScreeningId>): List<PersistentBooking> =
         selectAll()
             .where { screeningId inList screeningIds.map { it.value } }
             .map { rowToPersistentBooking(it) }

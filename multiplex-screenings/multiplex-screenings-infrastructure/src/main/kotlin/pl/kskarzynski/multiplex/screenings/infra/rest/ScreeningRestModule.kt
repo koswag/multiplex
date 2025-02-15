@@ -56,10 +56,10 @@ private class Screenings {
     @Resource("/screenings/{screeningId}")
     class Update(val parent: Screenings, val screeningId: ScreeningId)
 
-    @Resource("/screenings/{screeningId}/book")
+    @Resource("/screenings/{screeningId}/bookings")
     class CreateBooking(val parent: Screenings, val screeningId: ScreeningId)
 
-    @Resource("/screenings/{iscreeningIdd}/confirm/{bookingId}")
+    @Resource("/screenings/{screeningId}/bookings/{bookingId}/confirm")
     class ConfirmBooking(val parent: Screenings, val screeningId: ScreeningId, val bookingId: BookingId)
 }
 

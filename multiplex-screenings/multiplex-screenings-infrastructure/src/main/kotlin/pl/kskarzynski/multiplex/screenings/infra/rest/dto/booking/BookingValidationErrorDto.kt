@@ -6,6 +6,7 @@ import pl.kskarzynski.multiplex.screenings.domain.model.booking.user.UserSurname
 import pl.kskarzynski.multiplex.shared.room.SeatNumber
 import pl.kskarzynski.multiplex.shared.room.SeatRow
 
+// TODO: Validation tests
 @Serializable
 sealed interface BookingValidationErrorDto {
 

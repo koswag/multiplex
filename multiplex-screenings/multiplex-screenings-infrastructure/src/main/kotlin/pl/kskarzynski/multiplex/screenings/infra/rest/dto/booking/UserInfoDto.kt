@@ -50,7 +50,7 @@ private fun validateUserName(name: String): EitherNel<BookingValidationErrorDto,
 
 private fun validateUserSurname(surname: String): EitherNel<BookingValidationErrorDto, UserSurname> =
     either {
-        val illegalCharacters = surname.toList().filter { it !in UserName.VALID_CHARACTERS }
+        val illegalCharacters = surname.toList().filter { it !in UserSurname.VALID_CHARACTERS }
 
         accumulateErrors(
             { ensure(surname.length >= UserName.MIN_LENGTH) { UserSurnameTooShort(surname) } },
