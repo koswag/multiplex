@@ -111,9 +111,9 @@ data class Screening(
 }
 
 private val Screening.takenSeats: Set<Seat>
-    get() =
-        bookings.filter { it is UnconfirmedBooking || it is ConfirmedBooking }
-            .flatMapTo(mutableSetOf()) { it.seats }
+    get() = bookings.filter { it is UnconfirmedBooking || it is ConfirmedBooking }
+        .flatMap { it.seats }
+        .toSet()
 
 private val Screening.allSeats: Set<Seat>
     get() = room.seats.toSet()
@@ -133,19 +133,14 @@ private fun findSingleSeatsInRow(
     row: Iterable<Seat>,
     isTaken: (Seat) -> Boolean,
 ): List<Seat> {
-    fun isAvailable(seat: Seat): Boolean = !isTaken(seat)
-
     val sortedSeats = row.sortedBy { it.number.value }
 
-    fun isSingleSeat(seatIndex: Int, seat: Seat): Boolean {
-        val prev = sortedSeats.getOrNull(seatIndex - 1)
-        val next = sortedSeats.getOrNull(seatIndex + 1)
+    return sortedSeats.filterIndexed { i, seat ->
+        val previousSeat = sortedSeats.getOrNull(i - 1)
+        val nextSeat = sortedSeats.getOrNull(i + 1)
 
-        return isAvailable(seat)
-            && (prev == null || isTaken(prev))
-            && (next == null || isTaken(next))
+        !isTaken(seat)
+            && (previousSeat == null || isTaken(previousSeat))
+            && (nextSeat == null || isTaken(nextSeat))
     }
-
-    return sortedSeats
-        .filterIndexed(::isSingleSeat)
 }
