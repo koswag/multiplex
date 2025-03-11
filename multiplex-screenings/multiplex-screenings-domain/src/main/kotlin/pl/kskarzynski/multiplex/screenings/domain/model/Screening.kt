@@ -78,19 +78,19 @@ data class Screening(
     }
 
     fun cancelExpiredBookings(currentTime: LocalDateTime): Screening {
-        val expiredBookings = findExpiredBookings(currentTime)
+        val expiredBookings = findExpiredUnconfirmedBookings(currentTime)
+            .map { it.expire() }
 
-        val expiredBookingIds: Set<BookingId> = expiredBookings.mapTo(mutableSetOf()) { it.id }
+        val expiredBookingIds = expiredBookings.map { it.id }.toSet()
         val nonExpiredBookings = bookings.filter { it.id !in expiredBookingIds }
 
         val updatedBookings = nonExpiredBookings + expiredBookings
         return copy(bookings = updatedBookings)
     }
 
-    private fun findExpiredBookings(currentTime: LocalDateTime) =
+    private fun findExpiredUnconfirmedBookings(currentTime: LocalDateTime): List<UnconfirmedBooking> =
         bookings.filterIsInstance<UnconfirmedBooking>()
             .filter { it.expirationTime.value isBefore currentTime }
-            .map { it.expire() }
 
     fun confirmBooking(
         bookingId: BookingId,
