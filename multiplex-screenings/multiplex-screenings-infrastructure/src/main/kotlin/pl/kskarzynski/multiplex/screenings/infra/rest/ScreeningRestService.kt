@@ -69,14 +69,12 @@ class ScreeningRestService(
                 { ensure(dto.startTime isAfter clock.currentTime()) { PastScreeningTime(dto.startTime) } },
             ) { movie, room, _ ->
                 val screening = Screening(
-                    id = ScreeningId.generate(),
                     movieId = movie.id,
                     room = room,
                     startTime = ScreeningStartTime(dto.startTime),
-                    bookings = emptyList(),
                 )
-
                 screeningRepository.save(screening)
+
                 screening.toDto(movie)
             }
         }.toScreeningValidationResult()
@@ -107,9 +105,9 @@ class ScreeningRestService(
             .getOrElse { validationErrors -> return BookingResult.ValidationFailure(validationErrors) }
 
         val booking = bookScreeningUseCase.execute(screening, bookingRequest)
-            .getOrElse { bookingErrors -> return BookingResult.BookingFailure(bookingErrors.map { it.toDto() }) }
+            .getOrElse { bookingErrors -> return BookingResult.BookingFailure(bookingErrors) }
 
-        return BookingResult.Success(booking.id.toDto())
+        return BookingResult.Success(booking.id)
     }
 
     private suspend fun mapToDtoWithMovie(screening: Screening): ScreeningDto {

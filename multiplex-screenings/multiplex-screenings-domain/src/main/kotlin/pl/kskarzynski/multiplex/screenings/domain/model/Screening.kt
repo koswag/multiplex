@@ -31,11 +31,11 @@ import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningStartTime
 
 data class Screening(
-    val id: ScreeningId,
+    val id: ScreeningId = ScreeningId.generate(),
     val movieId: MovieId,
     val room: Room,
     val startTime: ScreeningStartTime,
-    val bookings: List<Booking>,
+    val bookings: List<Booking> = emptyList(),
 ) {
     init {
         val singleSeats = findSingleSeats(allSeats, isTaken = { it in takenSeats })

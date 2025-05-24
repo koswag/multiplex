@@ -31,9 +31,8 @@ import pl.kskarzynski.multiplex.screenings.infra.rest.dto.CreateScreeningDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.PatchScreeningDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingConfirmationErrorDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingErrorDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingRequestDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingValidationErrorDto
+import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.toDto
 import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
@@ -102,13 +101,13 @@ object ScreeningRestModule : KoinComponent {
                         call.respond(NotFound, "Screening of ID ${bookingResult.screeningId} not found")
                     }
                     is BookingResult.Success -> {
-                        call.respond(bookingResult.bookingId)
+                        call.respond(bookingResult.bookingId.toDto())
                     }
                     is BookingResult.ValidationFailure -> {
-                        call.respond<BookingValidationErrorDto>(BadRequest, bookingResult.validationErrors)
+                        call.respond(BadRequest, bookingResult.validationErrors)
                     }
                     is BookingResult.BookingFailure -> {
-                        call.respond<BookingErrorDto>(Conflict, bookingResult.bookingErrors)
+                        call.respond(Conflict, bookingResult.bookingErrors.map { it.toDto() })
                     }
                 }
             }
