@@ -6,14 +6,13 @@ import io.kotest.property.arbitrary.next
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
-import pl.kskarzynski.multiplex.common.infra.ktor.CONTENT_TYPE_JSON_UTF_8
 import pl.kskarzynski.multiplex.common.infra.misc.PageDto
 import pl.kskarzynski.multiplex.common.test.arbs.movieId
 import pl.kskarzynski.multiplex.common.test.arbs.screeningId
-import pl.kskarzynski.multiplex.integration.clientWithJson
+import pl.kskarzynski.multiplex.integration.configureClient
+import pl.kskarzynski.multiplex.integration.util.assertions.hasContentTypeJsonUtf8
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningListItemDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.toDto
@@ -45,7 +44,7 @@ class ScreeningReadApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Screening has no bookings") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val movie = createMovie()
@@ -58,7 +57,7 @@ class ScreeningReadApiIntegrationTest : ScreeningApiIntegrationTest() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.OK
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     val screening = response.body<ScreeningDto>()
@@ -86,7 +85,7 @@ class ScreeningReadApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Movie does not exist") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val nonExistentMovieId = Arb.movieId().next()
@@ -102,7 +101,7 @@ class ScreeningReadApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Movie has no Screenings") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val movie = createMovie()
@@ -118,7 +117,7 @@ class ScreeningReadApiIntegrationTest : ScreeningApiIntegrationTest() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.OK
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     val screenings = response.body<PageDto<ScreeningListItemDto>>()
@@ -134,7 +133,7 @@ class ScreeningReadApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario(" Movie has only past Screenings") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val currentTime = Arb.localDateTime().next()
@@ -157,7 +156,7 @@ class ScreeningReadApiIntegrationTest : ScreeningApiIntegrationTest() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.OK
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     val screenings = response.body<PageDto<ScreeningListItemDto>>()
@@ -173,7 +172,7 @@ class ScreeningReadApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Movie has future Screenings") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val currentTime = Arb.localDateTime().next()
@@ -202,7 +201,7 @@ class ScreeningReadApiIntegrationTest : ScreeningApiIntegrationTest() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.OK
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     val screenings = response.body<PageDto<ScreeningListItemDto>>()
@@ -222,7 +221,7 @@ class ScreeningReadApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Movie has Screenings in given period") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val periodStart = Arb.localDateTime().next()
@@ -255,7 +254,7 @@ class ScreeningReadApiIntegrationTest : ScreeningApiIntegrationTest() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.OK
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     val screenings = response.body<PageDto<ScreeningListItemDto>>()

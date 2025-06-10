@@ -23,6 +23,6 @@ fun Screening.toDto(movie: Movie) =
     ScreeningDto(
         id = id.value,
         movie = movie.toDto(),
-        room = room.toDto(bookings),
+        room = this.toScreeningRoomDto(),
         startTime = startTime.value,
     )

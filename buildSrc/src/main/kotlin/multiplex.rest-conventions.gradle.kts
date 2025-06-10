@@ -16,6 +16,7 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:${RestVersions.KTOR}")
     implementation("io.ktor:ktor-server-resources:${RestVersions.KTOR}")
     implementation("io.ktor:ktor-serialization-kotlinx-json:${RestVersions.KTOR}")
+    implementation("io.ktor:ktor-server-sse:${RestVersions.KTOR}")
 
     testImplementation("io.ktor:ktor-server-test-host:${RestVersions.KTOR}")
 }

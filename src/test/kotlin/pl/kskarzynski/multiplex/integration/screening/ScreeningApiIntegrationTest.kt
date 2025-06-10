@@ -19,7 +19,7 @@ import pl.kskarzynski.multiplex.common.test.arbs.room
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
-import pl.kskarzynski.multiplex.configureApplication
+import pl.kskarzynski.multiplex.installPlugins
 import pl.kskarzynski.multiplex.integration.arbs.screening
 import pl.kskarzynski.multiplex.integration.util.TestClockModule
 import pl.kskarzynski.multiplex.movies.service.config.MovieModule
@@ -95,7 +95,7 @@ abstract class ScreeningApiIntegrationTest : KoinTest, FeatureSpec() {
 
 fun TestApplicationBuilder.setupMultiplexApplication() {
     application {
-        configureApplication()
+        installPlugins()
         authModule()
         screeningModule()
     }

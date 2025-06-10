@@ -2,6 +2,8 @@
 
 package pl.kskarzynski.multiplex.screenings.infra.rest
 
+import io.ktor.http.CacheControl
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.HttpStatusCode.Companion.Created
@@ -13,11 +15,15 @@ import io.ktor.server.request.receive
 import io.ktor.server.resources.get
 import io.ktor.server.resources.patch
 import io.ktor.server.resources.post
+import io.ktor.server.response.cacheControl
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondTextWriter
 import io.ktor.server.routing.routing
+import kotlinx.coroutines.flow.take
 import kotlinx.serialization.UseSerializers
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import pl.kskarzynski.multiplex.common.infra.io.writeJson
 import pl.kskarzynski.multiplex.common.infra.json.serializer.BookingIdSerializer
 import pl.kskarzynski.multiplex.common.infra.json.serializer.MovieIdSerializer
 import pl.kskarzynski.multiplex.common.infra.json.serializer.ScreeningIdSerializer
@@ -62,6 +68,13 @@ private class Screenings {
     class ConfirmBooking(val parent: Screenings, val screeningId: ScreeningId, val bookingId: BookingId)
 }
 
+@Resource("/sse")
+private class ScreeningsSse {
+
+    @Resource("/screenings/{screeningId}/room")
+    class ScreeningRoomStateStream(val parent: ScreeningsSse, val screeningId: ScreeningId)
+}
+
 object ScreeningRestModule : KoinComponent {
 
     private val screeningRestService by inject<ScreeningRestService>()
@@ -83,12 +96,10 @@ object ScreeningRestModule : KoinComponent {
                 val result = screeningRestService.getAllByMovie(request)
 
                 when (result) {
-                    is MovieScreeningSearchResult.MovieNotFound -> {
+                    is MovieScreeningSearchResult.MovieNotFound ->
                         call.respond(NotFound, "Movie of ID ${params.movieId} not found")
-                    }
-                    is MovieScreeningSearchResult.Success -> {
+                    is MovieScreeningSearchResult.Success ->
                         call.respond(result.screenings)
-                    }
                 }
             }
 
@@ -97,18 +108,14 @@ object ScreeningRestModule : KoinComponent {
                 val bookingResult = screeningRestService.bookScreening(params.screeningId, dto)
 
                 when (bookingResult) {
-                    is BookingResult.ScreeningDoesNotExist -> {
+                    is BookingResult.ScreeningDoesNotExist ->
                         call.respond(NotFound, "Screening of ID ${bookingResult.screeningId} not found")
-                    }
-                    is BookingResult.Success -> {
+                    is BookingResult.Success ->
                         call.respond(bookingResult.bookingId.toDto())
-                    }
-                    is BookingResult.ValidationFailure -> {
+                    is BookingResult.ValidationFailure ->
                         call.respond(BadRequest, bookingResult.validationErrors)
-                    }
-                    is BookingResult.BookingFailure -> {
+                    is BookingResult.BookingFailure ->
                         call.respond(Conflict, bookingResult.bookingErrors.map { it.toDto() })
-                    }
                 }
             }
 
@@ -116,15 +123,12 @@ object ScreeningRestModule : KoinComponent {
                 val confirmationResult = screeningRestService.confirmBooking(params.screeningId, params.bookingId)
 
                 when (confirmationResult) {
-                    is BookingConfirmationResult.ScreeningDoesNotExist -> {
+                    is BookingConfirmationResult.ScreeningDoesNotExist ->
                         call.respond(NotFound, "Screening of ID ${confirmationResult.screeningId} not found")
-                    }
-                    is BookingConfirmationResult.Success -> {
+                    is BookingConfirmationResult.Success ->
                         call.respond(confirmationResult.bookingId)
-                    }
-                    is BookingConfirmationResult.ConfirmationFailure -> {
+                    is BookingConfirmationResult.ConfirmationFailure ->
                         call.respond<BookingConfirmationErrorDto>(BadRequest, confirmationResult.errors)
-                    }
                 }
             }
 
@@ -146,6 +150,17 @@ object ScreeningRestModule : KoinComponent {
                     null -> call.respond(NotFound)
                     is Success -> call.respond(updateResult.screening)
                     is Failure -> call.respond<ScreeningValidationErrorDto>(BadRequest, updateResult.errors)
+                }
+            }
+
+            get<ScreeningsSse.ScreeningRoomStateStream> { params ->
+                call.response.cacheControl(CacheControl.NoCache(null))
+                call.respondTextWriter(contentType = ContentType.Text.EventStream) {
+                    screeningRestService.screeningRoomState(params.screeningId)
+                        .take(5) // FIXME: Temporary solution before tests can handle infinite event streams
+                        .collect { screeningRoomState ->
+                            writeJson(screeningRoomState)
+                        }
                 }
             }
         }

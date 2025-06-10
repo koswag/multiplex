@@ -20,12 +20,12 @@ import io.ktor.server.testing.TestApplicationBuilder
 import io.ktor.server.testing.testApplication
 import org.koin.test.KoinTest
 import org.koin.test.inject
-import pl.kskarzynski.multiplex.common.infra.ktor.CONTENT_TYPE_JSON_UTF_8
 import pl.kskarzynski.multiplex.common.test.arbs.room
 import pl.kskarzynski.multiplex.common.test.arbs.roomId
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
-import pl.kskarzynski.multiplex.configureApplication
+import pl.kskarzynski.multiplex.installPlugins
+import pl.kskarzynski.multiplex.integration.util.assertions.hasContentTypeJsonUtf8
 import pl.kskarzynski.multiplex.rooms.service.config.RoomModule
 import pl.kskarzynski.multiplex.rooms.service.data.RoomRepository
 import pl.kskarzynski.multiplex.rooms.service.data.table.RoomSeatTable
@@ -78,7 +78,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     val existentRoom = Arb.room().next()
                         .also { roomRepository.save(it) }
@@ -89,7 +89,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.OK
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     expectThat(response.body<RoomDto>()) {
@@ -106,7 +106,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // when:
                     val createRoomDto = Arb.createRoomDto().next()
@@ -118,7 +118,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.Created
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     expectThat(response.body<RoomDto>()) {
@@ -132,7 +132,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     val existentRoom = Arb.room().next()
                         .also { roomRepository.save(it) }
@@ -152,7 +152,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.BadRequest
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     expectThat(response.body<List<RoomValidationError>>()) {
@@ -184,7 +184,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     val existentRoom = Arb.room().next()
                         .also { roomRepository.save(it) }
@@ -199,7 +199,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.OK
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     expectThat(response.body<RoomDto>()) {
@@ -213,7 +213,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // when:
                     val nonExistentRoomId = Arb.roomId().next()
@@ -234,7 +234,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     val existentRoom = Arb.room().next()
                         .also { roomRepository.save(it) }
@@ -257,7 +257,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.BadRequest
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     expectThat(response.body<List<RoomValidationError>>()) {
@@ -288,7 +288,7 @@ class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
 
 private fun TestApplicationBuilder.setupMultiplexApplication() {
     application {
-        configureApplication()
+        installPlugins()
         roomModule()
     }
 }

@@ -35,7 +35,7 @@ fun main() {
     Jobs.startAll()
 
     embeddedServer(Netty, port = 8080) {
-        configureApplication()
+        installPlugins()
 
         authModule()
         movieModule()
@@ -44,7 +44,7 @@ fun main() {
     }.start(wait = true)
 }
 
-fun Application.configureApplication() {
+fun Application.installPlugins() {
     install(ContentNegotiation) {
         json()
     }

@@ -9,10 +9,10 @@ import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
-import pl.kskarzynski.multiplex.common.infra.ktor.CONTENT_TYPE_JSON_UTF_8
 import pl.kskarzynski.multiplex.common.test.arbs.screeningId
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
-import pl.kskarzynski.multiplex.integration.clientWithJson
+import pl.kskarzynski.multiplex.integration.configureClient
+import pl.kskarzynski.multiplex.integration.util.assertions.hasContentTypeJsonUtf8
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.PatchScreeningDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto
@@ -32,7 +32,7 @@ class ScreeningUpdateApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Screening does not exist") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val nonExistentScreeningId = Arb.screeningId().next()
@@ -52,7 +52,7 @@ class ScreeningUpdateApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Past Screening time") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val movie = createMovie()
@@ -70,7 +70,7 @@ class ScreeningUpdateApiIntegrationTest : ScreeningApiIntegrationTest() {
                     expect {
                         that(response) {
                             get { status } isEqualTo HttpStatusCode.BadRequest
-                            get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                            hasContentTypeJsonUtf8()
                         }
 
                         that(response.body<List<ScreeningValidationErrorDto>>()) {
@@ -88,7 +88,7 @@ class ScreeningUpdateApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Valid patch on an existent Screening") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val movie = createMovie()
@@ -106,7 +106,7 @@ class ScreeningUpdateApiIntegrationTest : ScreeningApiIntegrationTest() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.OK
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     val expectedDto = screening.toDto(movie)

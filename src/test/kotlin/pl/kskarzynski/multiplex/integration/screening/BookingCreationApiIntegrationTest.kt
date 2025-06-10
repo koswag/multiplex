@@ -11,11 +11,11 @@ import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
-import pl.kskarzynski.multiplex.common.infra.ktor.CONTENT_TYPE_JSON_UTF_8
 import pl.kskarzynski.multiplex.common.test.arbs.screeningId
 import pl.kskarzynski.multiplex.common.test.arbs.seat
 import pl.kskarzynski.multiplex.integration.arbs.userInfo
-import pl.kskarzynski.multiplex.integration.clientWithJson
+import pl.kskarzynski.multiplex.integration.configureClient
+import pl.kskarzynski.multiplex.integration.util.assertions.hasContentTypeJsonUtf8
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.user.UserInfo
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingErrorDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingErrorDto.SeatDoesNotExist
@@ -45,7 +45,7 @@ class BookingCreationApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Screening does not exist") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val nonExistentScreeningId = Arb.screeningId().next()
@@ -65,7 +65,7 @@ class BookingCreationApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Valid Booking") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val movie = createMovie()
@@ -84,7 +84,7 @@ class BookingCreationApiIntegrationTest : ScreeningApiIntegrationTest() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.OK
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     val createdBookingId = response.body<BookingIdDto>()
@@ -101,7 +101,7 @@ class BookingCreationApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Booking validation failure") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val movie = createMovie()
@@ -126,7 +126,7 @@ class BookingCreationApiIntegrationTest : ScreeningApiIntegrationTest() {
                     expect {
                         that(response) {
                             get { status } isEqualTo HttpStatusCode.BadRequest
-                            get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                            hasContentTypeJsonUtf8()
                         }
 
                         that(response.body<List<BookingValidationErrorDto>>()) {
@@ -144,7 +144,7 @@ class BookingCreationApiIntegrationTest : ScreeningApiIntegrationTest() {
             scenario("Booking failure") {
                 testApplication {
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // given:
                     val movie = createMovie()
@@ -165,7 +165,7 @@ class BookingCreationApiIntegrationTest : ScreeningApiIntegrationTest() {
                     expect {
                         that(response) {
                             get { status } isEqualTo HttpStatusCode.Conflict
-                            get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                            hasContentTypeJsonUtf8()
                         }
 
                         that(response.body<List<BookingErrorDto>>()) {

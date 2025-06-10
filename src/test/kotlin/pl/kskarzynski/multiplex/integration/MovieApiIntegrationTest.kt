@@ -18,14 +18,14 @@ import io.ktor.server.testing.TestApplicationBuilder
 import io.ktor.server.testing.testApplication
 import org.koin.test.KoinTest
 import org.koin.test.inject
-import pl.kskarzynski.multiplex.common.infra.ktor.CONTENT_TYPE_JSON_UTF_8
 import pl.kskarzynski.multiplex.common.test.arbs.movie
 import pl.kskarzynski.multiplex.common.test.arbs.movieId
 import pl.kskarzynski.multiplex.common.test.arbs.movieReleaseYear
 import pl.kskarzynski.multiplex.common.test.arbs.movieTitle
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
-import pl.kskarzynski.multiplex.configureApplication
+import pl.kskarzynski.multiplex.installPlugins
+import pl.kskarzynski.multiplex.integration.util.assertions.hasContentTypeJsonUtf8
 import pl.kskarzynski.multiplex.movies.service.config.MovieModule
 import pl.kskarzynski.multiplex.movies.service.data.MovieRepository
 import pl.kskarzynski.multiplex.movies.service.data.table.MovieTable
@@ -77,7 +77,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     val existentMovie = Arb.movie().next()
                         .also { movieRepository.save(it) }
@@ -88,7 +88,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.OK
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     expectThat(response.body<MovieDto>()) {
@@ -105,7 +105,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // when:
                     val createMovieDto = CreateMovieDto(
@@ -120,7 +120,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.Created
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     expectThat(response.body<MovieDto>()) {
@@ -134,7 +134,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     io.kotest.property.checkAll(
                         Arb.int(1..<MIN_VALUE),
@@ -154,7 +154,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                         // then:
                         expectThat(response) {
                             get { status } isEqualTo HttpStatusCode.BadRequest
-                            get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                            hasContentTypeJsonUtf8()
                         }
 
                         expectThat(response.body<List<MovieValidationError>>()) {
@@ -182,7 +182,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
 
                     // when:
                     val nonExistentMovieId = Arb.movieId().next()
@@ -203,7 +203,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
                     val existentMovie = Arb.movie().next()
                         .also { movieRepository.save(it) }
 
@@ -220,7 +220,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                     // then:
                     expectThat(response) {
                         get { status } isEqualTo HttpStatusCode.OK
-                        get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                        hasContentTypeJsonUtf8()
                     }
 
                     expectThat(response.body<MovieDto>()) {
@@ -241,7 +241,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                 testApplication {
                     // given:
                     setupMultiplexApplication()
-                    val client = clientWithJson()
+                    val client = configureClient()
                     val existentMovie = Arb.movie().next()
                         .also { movieRepository.save(it) }
 
@@ -263,7 +263,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                         // then:
                         expectThat(response) {
                             get { status } isEqualTo HttpStatusCode.BadRequest
-                            get { contentType() } isEqualTo CONTENT_TYPE_JSON_UTF_8
+                            hasContentTypeJsonUtf8()
                         }
 
                         expectThat(response.body<List<MovieValidationError>>()) {
@@ -290,7 +290,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
 
 private fun TestApplicationBuilder.setupMultiplexApplication() {
     application {
-        configureApplication()
+        installPlugins()
         movieModule()
     }
 }
