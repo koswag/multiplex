@@ -1,6 +1,6 @@
 plugins {
-    id("multiplex.tooling-conventions")
-    id("multiplex.testing-conventions")
+    id("multiplex.tooling-convention")
+    id("multiplex.testing-convention")
 }
 
 dependencies {
@@ -8,4 +8,10 @@ dependencies {
     implementation(project(":multiplex-shared-kernel"))
 
     testImplementation(project(":multiplex-commons:multiplex-common-test"))
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
 }

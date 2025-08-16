@@ -1,3 +1,3 @@
 plugins {
-    id("multiplex.tooling-conventions")
+    id("multiplex.tooling-convention")
 }

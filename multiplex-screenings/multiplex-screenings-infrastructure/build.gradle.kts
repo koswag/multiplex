@@ -1,11 +1,11 @@
 plugins {
-    id("multiplex.db-access-conventions")
-    id("multiplex.di-conventions")
-    id("multiplex.json-conventions")
-    id("multiplex.rest-conventions")
-    id("multiplex.testing-conventions")
-    id("multiplex.tooling-conventions")
-    kotlin("plugin.serialization") version "2.1.0"
+    id("multiplex.db-access-convention")
+    id("multiplex.di-convention")
+    id("multiplex.json-convention")
+    id("multiplex.rest-convention")
+    id("multiplex.testing-convention")
+    id("multiplex.tooling-convention")
+    kotlin("plugin.serialization") version "2.2.0"
 }
 
 dependencies {

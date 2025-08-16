@@ -1,5 +1,5 @@
 plugins {
-    id("multiplex.common-conventions")
+    id("multiplex.common-convention")
 }
 
 object LoggingVersions {

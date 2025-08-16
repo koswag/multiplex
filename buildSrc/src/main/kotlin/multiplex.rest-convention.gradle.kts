@@ -1,7 +1,7 @@
 plugins {
-    id("multiplex.common-conventions")
-    id("multiplex.logging-conventions")
-    id("multiplex.json-conventions")
+    id("multiplex.common-convention")
+    id("multiplex.logging-convention")
+    id("multiplex.json-convention")
 }
 
 object RestVersions {

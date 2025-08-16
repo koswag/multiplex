@@ -1,6 +1,6 @@
 plugins {
-    id("multiplex.tooling-conventions")
-    id("multiplex.db-access-conventions")
+    id("multiplex.tooling-convention")
+    id("multiplex.db-access-convention")
 }
 
 object Versions {
