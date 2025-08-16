@@ -38,8 +38,7 @@ data class Screening(
     val bookings: List<Booking> = emptyList(),
 ) {
     init {
-        val singleSeats = findSingleSeats(allSeats, isTaken = { it in takenSeats })
-        check(singleSeats.isEmpty()) { "Booking of ID $id has single seats: $singleSeats" }
+        checkNoSingleSeats()
     }
 
     fun book(booking: UnconfirmedBooking): EitherNel<BookingError, Screening> {
@@ -53,27 +52,6 @@ data class Screening(
             )
 
             copy(bookings = bookings + booking)
-        }
-    }
-
-    private fun Raise<NonEmptyList<SeatDoesNotExist>>.ensureSeatsExist(booking: Booking) {
-        accumulateErrors(booking.seats) { seat ->
-            ensure(seat in allSeats) { SeatDoesNotExist(seat) }
-        }
-    }
-
-    private fun Raise<NonEmptyList<SeatAlreadyTaken>>.ensureSeatsNotTaken(booking: Booking) {
-        accumulateErrors(booking.seats) { seat ->
-            ensure(seat !in takenSeats) { SeatAlreadyTaken(seat) }
-        }
-    }
-
-    private fun Raise<NonEmptyList<SingleSeatLeft>>.ensureNoSingleSeats(booking: Booking) {
-        val takenSeatsAfterBooking = takenSeats + booking.seats
-        val singleSeats = findSingleSeats(allSeats, isTaken = { it in takenSeatsAfterBooking })
-
-        accumulateErrors(singleSeats) { seat ->
-            raise(SingleSeatLeft(seat))
         }
     }
 
@@ -110,8 +88,14 @@ data class Screening(
         }
 }
 
-private val Screening.takenSeats: Set<Seat>
-    get() = bookings.filter { it is UnconfirmedBooking || it is ConfirmedBooking }
+private fun Screening.checkNoSingleSeats() {
+    val takenSeats = findTakenSeats()
+    val singleSeats = findSingleSeats(allSeats, isTaken = { it in takenSeats })
+    check(singleSeats.isEmpty()) { "Booking of ID $id has single seats: $singleSeats" }
+}
+
+private fun Screening.findTakenSeats(): Set<Seat> =
+    bookings.filter { it is UnconfirmedBooking || it is ConfirmedBooking }
         .flatMap { it.seats }
         .toSet()
 
@@ -120,6 +104,31 @@ private val Screening.allSeats: Set<Seat>
 
 private val Screening.bookingIds: Set<BookingId>
     get() = bookings.mapTo(mutableSetOf()) { it.id }
+
+context(err: Raise<NonEmptyList<SeatDoesNotExist>>)
+private fun Screening.ensureSeatsExist(booking: Booking) {
+    err.accumulateErrors(booking.seats) { seat ->
+        ensure(seat in allSeats) { SeatDoesNotExist(seat) }
+    }
+}
+
+context(err: Raise<NonEmptyList<SeatAlreadyTaken>>)
+private fun Screening.ensureSeatsNotTaken(booking: Booking) {
+    val takenSeats = findTakenSeats()
+    err.accumulateErrors(booking.seats) { seat ->
+        ensure(seat !in takenSeats) { SeatAlreadyTaken(seat) }
+    }
+}
+
+context(err: Raise<NonEmptyList<SingleSeatLeft>>)
+private fun Screening.ensureNoSingleSeats(booking: Booking) {
+    val takenSeatsAfterBooking = findTakenSeats() + booking.seats
+    val singleSeats = findSingleSeats(allSeats, isTaken = { it in takenSeatsAfterBooking })
+
+    err.accumulateErrors(singleSeats) { seat ->
+        raise(SingleSeatLeft(seat))
+    }
+}
 
 private fun findSingleSeats(
     allSeats: Iterable<Seat>,

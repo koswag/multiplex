@@ -23,3 +23,9 @@ dependencies {
 
     testImplementation("io.ktor:ktor-client-content-negotiation:${Versions.KTOR}")
 }
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
+}
