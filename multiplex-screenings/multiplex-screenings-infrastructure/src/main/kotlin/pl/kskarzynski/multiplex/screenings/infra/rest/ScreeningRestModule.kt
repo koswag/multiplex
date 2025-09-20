@@ -87,7 +87,7 @@ object ScreeningRestModule : KoinComponent {
                 if (screening != null) {
                     call.respond(screening)
                 } else {
-                    call.respond(NotFound)
+                    call.respond(NotFound, "Screening of ID ${params.screeningId} not found")
                 }
             }
 
