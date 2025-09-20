@@ -18,15 +18,15 @@ class BookScreeningUseCase(
 ) {
     suspend fun execute(screening: Screening, bookingRequest: BookingRequest): EitherNel<BookingError, UnconfirmedBooking> =
         either {
-            val booking = createBooking(bookingRequest)
+            val booking = createBooking(bookingRequest, screening)
             val updatedScreening = screening.book(booking).bind()
             screeningRepository.save(updatedScreening)
 
             booking
         }
 
-    private fun createBooking(bookingRequest: BookingRequest): UnconfirmedBooking {
-        val totalPrice = bookingPricingPolicy.priceBooking(bookingRequest)
+    private fun createBooking(bookingRequest: BookingRequest, screening: Screening): UnconfirmedBooking {
+        val totalPrice = bookingPricingPolicy.priceBooking(bookingRequest, screening)
         val expirationTime = bookingExpirationPolicy.determineBookingExpirationTime(bookingRequest)
 
         return UnconfirmedBooking(

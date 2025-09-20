@@ -2,7 +2,7 @@
 
 package pl.kskarzynski.multiplex.screenings.infra.rest
 
-import io.ktor.http.CacheControl
+import io.ktor.http.CacheControl.NoCache
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Conflict
@@ -93,9 +93,8 @@ object ScreeningRestModule : KoinComponent {
 
             get<Screenings.GetAllByMovie> { params ->
                 val request = call.getMovieScreeningSearchRequest(params.movieId)
-                val result = screeningRestService.getAllByMovie(request)
 
-                when (result) {
+                when (val result = screeningRestService.getAllByMovie(request)) {
                     is MovieScreeningSearchResult.MovieNotFound ->
                         call.respond(NotFound, "Movie of ID ${params.movieId} not found")
                     is MovieScreeningSearchResult.Success ->
@@ -105,9 +104,8 @@ object ScreeningRestModule : KoinComponent {
 
             post<Screenings.CreateBooking> { params ->
                 val dto = call.receive<BookingRequestDto>()
-                val bookingResult = screeningRestService.bookScreening(params.screeningId, dto)
 
-                when (bookingResult) {
+                when (val bookingResult = screeningRestService.bookScreening(params.screeningId, dto)) {
                     is BookingResult.ScreeningDoesNotExist ->
                         call.respond(NotFound, "Screening of ID ${bookingResult.screeningId} not found")
                     is BookingResult.Success ->
@@ -120,9 +118,9 @@ object ScreeningRestModule : KoinComponent {
             }
 
             post<Screenings.ConfirmBooking> { params ->
-                val confirmationResult = screeningRestService.confirmBooking(params.screeningId, params.bookingId)
-
-                when (confirmationResult) {
+                when (
+                    val confirmationResult = screeningRestService.confirmBooking(params.screeningId, params.bookingId)
+                ) {
                     is BookingConfirmationResult.ScreeningDoesNotExist ->
                         call.respond(NotFound, "Screening of ID ${confirmationResult.screeningId} not found")
                     is BookingConfirmationResult.Success ->
@@ -134,9 +132,8 @@ object ScreeningRestModule : KoinComponent {
 
             post<Screenings.Create> {
                 val dto = call.receive<CreateScreeningDto>()
-                val creationResult = screeningRestService.createScreening(dto)
 
-                when (creationResult) {
+                when (val creationResult = screeningRestService.createScreening(dto)) {
                     is Success -> call.respond(Created, creationResult.screening)
                     is Failure -> call.respond<ScreeningValidationErrorDto>(BadRequest, creationResult.errors)
                 }
@@ -144,9 +141,8 @@ object ScreeningRestModule : KoinComponent {
 
             patch<Screenings.Update> { params ->
                 val dto = call.receive<PatchScreeningDto>()
-                val updateResult = screeningRestService.updateScreening(params.screeningId, dto)
 
-                when (updateResult) {
+                when (val updateResult = screeningRestService.updateScreening(params.screeningId, dto)) {
                     null -> call.respond(NotFound)
                     is Success -> call.respond(updateResult.screening)
                     is Failure -> call.respond<ScreeningValidationErrorDto>(BadRequest, updateResult.errors)
@@ -154,7 +150,7 @@ object ScreeningRestModule : KoinComponent {
             }
 
             get<ScreeningsSse.ScreeningRoomStateStream> { params ->
-                call.response.cacheControl(CacheControl.NoCache(null))
+                call.response.cacheControl(NoCache(null))
                 call.respondTextWriter(contentType = ContentType.Text.EventStream) {
                     screeningRestService.screeningRoomState(params.screeningId)
                         .take(5) // FIXME: Temporary solution before tests can handle infinite event streams
