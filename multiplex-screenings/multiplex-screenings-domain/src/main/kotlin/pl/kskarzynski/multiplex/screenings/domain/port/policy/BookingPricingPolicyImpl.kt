@@ -11,8 +11,8 @@ import pl.kskarzynski.multiplex.shared.booking.BookingPrice
 
 class BookingPricingPolicyImpl : BookingPricingPolicy {
 
-    override fun priceBooking(bookingRequest: BookingRequest, screening: Screening): BookingPrice {
-        val basePrice = BookingPrice(bookingRequest.tickets.sumOf { it.basePrice.value })
+    override fun priceBooking(request: BookingRequest, screening: Screening): BookingPrice {
+        val basePrice = BookingPrice(request.tickets.sumOf { it.basePrice.value })
         return increasePriceIfWeekend(screening.startTime.value, basePrice)
     }
 

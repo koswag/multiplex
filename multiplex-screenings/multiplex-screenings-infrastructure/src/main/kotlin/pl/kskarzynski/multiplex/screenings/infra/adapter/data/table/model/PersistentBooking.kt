@@ -5,9 +5,9 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ConfirmedBooking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ExpiredBooking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.UnconfirmedBooking
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.ConfirmedBooking
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.ExpiredBooking
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.UnconfirmedBooking
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.CONFIRMED
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.EXPIRED
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.UNCONFIRMED

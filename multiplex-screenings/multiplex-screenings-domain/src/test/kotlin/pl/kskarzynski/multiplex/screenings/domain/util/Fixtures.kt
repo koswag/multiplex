@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 import pl.kskarzynski.multiplex.common.utils.arrow.toNonEmptyList
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.UnconfirmedBooking
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.UnconfirmedBooking
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.ticket.Ticket
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.ticket.TicketType
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.user.UserInfo

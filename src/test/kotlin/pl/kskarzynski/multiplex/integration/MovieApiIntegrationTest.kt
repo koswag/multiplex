@@ -6,6 +6,7 @@ import io.kotest.koin.KoinExtension
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
+import io.kotest.property.checkAll
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
@@ -136,7 +137,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                     setupMultiplexApplication()
                     val client = configureClient()
 
-                    io.kotest.property.checkAll(
+                    checkAll(
                         Arb.int(1..<MIN_VALUE),
                     ) { invalidReleaseYear ->
                         val invalidTitle = ""
@@ -245,9 +246,7 @@ class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
                     val existentMovie = Arb.movie().next()
                         .also { movieRepository.save(it) }
 
-                    io.kotest.property.checkAll(
-                        Arb.int(1..<MIN_VALUE),
-                    ) { invalidReleaseYear ->
+                    checkAll(Arb.int(1..<MIN_VALUE)) { invalidReleaseYear ->
                         val invalidTitle = ""
 
                         // when:

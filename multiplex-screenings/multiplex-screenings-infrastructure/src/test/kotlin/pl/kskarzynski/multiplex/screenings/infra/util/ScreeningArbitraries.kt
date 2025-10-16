@@ -2,7 +2,6 @@ package pl.kskarzynski.multiplex.screenings.infra.util
 
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.arbitrary
-import io.kotest.property.arbitrary.list
 import io.kotest.property.arbitrary.localDateTime
 import pl.kskarzynski.multiplex.common.test.arbs.movieId
 import pl.kskarzynski.multiplex.common.test.arbs.room
@@ -10,6 +9,7 @@ import pl.kskarzynski.multiplex.common.test.arbs.roomId
 import pl.kskarzynski.multiplex.common.test.arbs.screeningId
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
 import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.ScreeningData
+import pl.kskarzynski.multiplex.shared.misc.AggregateVersion
 import pl.kskarzynski.multiplex.shared.screening.ScreeningStartTime
 
 internal fun Arb.Companion.screeningData(): Arb<ScreeningData> =
@@ -19,7 +19,7 @@ internal fun Arb.Companion.screeningData(): Arb<ScreeningData> =
         val roomId = Arb.roomId().bind()
         val startTime = Arb.localDateTime().bind()
 
-        ScreeningData(id, movieId, roomId, ScreeningStartTime(startTime))
+        ScreeningData(id, movieId, roomId, ScreeningStartTime(startTime), AggregateVersion(1))
     }
 
 fun Arb.Companion.screening(): Arb<Screening> =
@@ -28,7 +28,6 @@ fun Arb.Companion.screening(): Arb<Screening> =
         val movieId = Arb.movieId().bind()
         val room = Arb.room().bind()
         val startTime = Arb.localDateTime().bind()
-        val bookings = Arb.list(Arb.booking(), 0..5).bind()
 
-        Screening(id, movieId, room, ScreeningStartTime(startTime), bookings)
+        Screening(id, movieId, room, ScreeningStartTime(startTime))
     }

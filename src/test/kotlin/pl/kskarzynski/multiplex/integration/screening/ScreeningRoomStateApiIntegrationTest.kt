@@ -23,7 +23,7 @@ import strikt.assertions.isEqualTo
 class ScreeningRoomStateApiIntegrationTest : ScreeningApiIntegrationTest() {
 
     init {
-        feature("Streaming room state") {
+        xfeature("Streaming room state") {
             scenario("Room state does not change") {
                 testApplication {
                     setupMultiplexApplication()

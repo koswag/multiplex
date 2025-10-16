@@ -13,9 +13,6 @@ import pl.kskarzynski.multiplex.common.utils.arrow.accumulateErrors
 import pl.kskarzynski.multiplex.common.utils.collections.replace
 import pl.kskarzynski.multiplex.common.utils.datetime.isBefore
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ConfirmedBooking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ExpiredBooking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.UnconfirmedBooking
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingConfirmationError
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingConfirmationError.BookingDoesNotExist
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingConfirmationError.BookingExpired
@@ -23,7 +20,11 @@ import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError.SeatAlreadyTaken
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError.SeatDoesNotExist
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError.SingleSeatLeft
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.ConfirmedBooking
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.ExpiredBooking
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.UnconfirmedBooking
 import pl.kskarzynski.multiplex.shared.booking.BookingId
+import pl.kskarzynski.multiplex.shared.misc.AggregateVersion
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.room.Room
 import pl.kskarzynski.multiplex.shared.room.Seat
@@ -36,6 +37,7 @@ data class Screening(
     val room: Room,
     val startTime: ScreeningStartTime,
     val bookings: List<Booking> = emptyList(),
+    val version: AggregateVersion = AggregateVersion.ZERO,
 ) {
     init {
         checkNoSingleSeats()
@@ -62,8 +64,7 @@ data class Screening(
         val expiredBookingIds = expiredBookings.map { it.id }.toSet()
         val nonExpiredBookings = bookings.filter { it.id !in expiredBookingIds }
 
-        val updatedBookings = nonExpiredBookings + expiredBookings
-        return copy(bookings = updatedBookings)
+        return copy(bookings = nonExpiredBookings + expiredBookings)
     }
 
     private fun findExpiredUnconfirmedBookings(currentTime: LocalDateTime): List<UnconfirmedBooking> =
@@ -136,13 +137,10 @@ private fun findSingleSeats(
 ): Collection<Seat> =
     allSeats.groupBy { it.row }
         .values
-        .flatMap { row -> findSingleSeatsInRow(row, isTaken) }
+        .flatMap { it.findSingleSeats(isTaken) }
 
-private fun findSingleSeatsInRow(
-    row: Iterable<Seat>,
-    isTaken: (Seat) -> Boolean,
-): List<Seat> {
-    val sortedSeats = row.sortedBy { it.number.value }
+private fun Iterable<Seat>.findSingleSeats(isTaken: (Seat) -> Boolean): List<Seat> {
+    val sortedSeats = sortedBy { it.number.value }
 
     return sortedSeats.filterIndexed { i, seat ->
         val previousSeat = sortedSeats.getOrNull(i - 1)

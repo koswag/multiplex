@@ -14,9 +14,9 @@ import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
 import pl.kskarzynski.multiplex.common.utils.datetime.plus
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ConfirmedBooking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ExpiredBooking
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.UnconfirmedBooking
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.ConfirmedBooking
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.ExpiredBooking
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.UnconfirmedBooking
 import pl.kskarzynski.multiplex.screenings.infra.util.booking
 import pl.kskarzynski.multiplex.screenings.infra.util.confirmedBooking
 import pl.kskarzynski.multiplex.screenings.infra.util.expiredBooking

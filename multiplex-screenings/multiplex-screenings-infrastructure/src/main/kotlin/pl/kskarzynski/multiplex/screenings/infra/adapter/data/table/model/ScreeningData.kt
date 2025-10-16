@@ -2,6 +2,7 @@ package pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model
 
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking
+import pl.kskarzynski.multiplex.shared.misc.AggregateVersion
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.room.Room
 import pl.kskarzynski.multiplex.shared.room.RoomId
@@ -13,6 +14,7 @@ data class ScreeningData(
     val movieId: MovieId,
     val roomId: RoomId,
     val startTime: ScreeningStartTime,
+    val version: AggregateVersion,
 )
 
 fun ScreeningData.toDomain(room: Room, bookings: List<Booking>) =
@@ -22,4 +24,5 @@ fun ScreeningData.toDomain(room: Room, bookings: List<Booking>) =
         room = room,
         startTime = startTime,
         bookings = bookings,
+        version = version,
     )

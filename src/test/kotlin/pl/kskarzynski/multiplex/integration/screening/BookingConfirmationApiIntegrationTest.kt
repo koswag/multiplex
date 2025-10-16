@@ -15,7 +15,7 @@ import pl.kskarzynski.multiplex.integration.arbs.screening
 import pl.kskarzynski.multiplex.integration.arbs.unconfirmedBooking
 import pl.kskarzynski.multiplex.integration.configureClient
 import pl.kskarzynski.multiplex.integration.util.assertions.hasContentTypeJsonUtf8
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking.ConfirmedBooking
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.ConfirmedBooking
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingConfirmationErrorDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingConfirmationErrorDto.BookingDoesNotExist
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingConfirmationErrorDto.BookingExpired

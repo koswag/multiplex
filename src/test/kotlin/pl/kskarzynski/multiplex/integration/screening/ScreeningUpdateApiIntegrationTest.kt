@@ -6,9 +6,14 @@ import io.ktor.client.call.body
 import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType.Application.Json
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.HttpStatusCode.Companion.BadRequest
+import io.ktor.http.HttpStatusCode.Companion.Conflict
+import io.ktor.http.HttpStatusCode.Companion.NotFound
+import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import pl.kskarzynski.multiplex.common.test.arbs.screeningId
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
 import pl.kskarzynski.multiplex.integration.configureClient
@@ -45,7 +50,7 @@ class ScreeningUpdateApiIntegrationTest : ScreeningApiIntegrationTest() {
                     }
 
                     // then:
-                    expectThat(response.status) isEqualTo HttpStatusCode.NotFound
+                    expectThat(response.status) isEqualTo NotFound
                 }
             }
 
@@ -69,7 +74,7 @@ class ScreeningUpdateApiIntegrationTest : ScreeningApiIntegrationTest() {
                     // then:
                     expect {
                         that(response) {
-                            get { status } isEqualTo HttpStatusCode.BadRequest
+                            get { status } isEqualTo BadRequest
                             hasContentTypeJsonUtf8()
                         }
 
@@ -105,7 +110,7 @@ class ScreeningUpdateApiIntegrationTest : ScreeningApiIntegrationTest() {
 
                     // then:
                     expectThat(response) {
-                        get { status } isEqualTo HttpStatusCode.OK
+                        get { status } isEqualTo OK
                         hasContentTypeJsonUtf8()
                     }
 
@@ -116,6 +121,37 @@ class ScreeningUpdateApiIntegrationTest : ScreeningApiIntegrationTest() {
 
                     val existentScreening = screeningRepository.findScreening(screening.id)?.toDto(movie)
                     expectThat(existentScreening) isEqualTo expectedDto
+                }
+            }
+
+            // FIXME: Doesn't work
+            xscenario("Screening was updated in the meantime") {
+                testApplication {
+                    setupMultiplexApplication()
+                    val client = configureClient()
+
+                    // given:
+                    val movie = createMovie()
+                    val room = createRoom()
+                    val screening = createScreening(movie, room)
+
+                    // when:
+                    val newStartTime = fixedClock.currentTime().plusDays(1)
+                    val concurrentPatches = List(2) { PatchScreeningDto(startTime = newStartTime) }
+                    val responses = concurrentPatches.map { patch ->
+                        async {
+                            client.patch("/api/screenings/${screening.id}") {
+                                contentType(Json)
+                                setBody(patch)
+                            }
+                        }
+                    }.awaitAll()
+
+                    // then:
+                    expectThat(responses) {
+                        one { get { status } isEqualTo OK }
+                        one { get { status } isEqualTo Conflict }
+                    }
                 }
             }
         }

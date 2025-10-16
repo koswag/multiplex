@@ -210,6 +210,7 @@ private fun ScreeningTable.insert(screening: ScreeningData) {
         it[movieId] = screening.movieId.value
         it[roomId] = screening.roomId.value
         it[startTime] = screening.startTime.value
+        it[version] = screening.version.value
     }
 }
 
@@ -219,5 +220,6 @@ private fun ScreeningTable.insert(screening: Screening) {
         it[movieId] = screening.movieId.value
         it[roomId] = screening.room.id.value
         it[startTime] = screening.startTime.value
+        it[version] = screening.version.value
     }
 }
