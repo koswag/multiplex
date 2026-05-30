@@ -1,42 +1,31 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.integration.screening
 
 import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.ktor.client.call.body
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
+import io.ktor.server.testing.*
 import pl.kskarzynski.multiplex.common.test.arbs.screeningId
 import pl.kskarzynski.multiplex.common.test.arbs.seat
 import pl.kskarzynski.multiplex.integration.arbs.userInfo
 import pl.kskarzynski.multiplex.integration.configureClient
 import pl.kskarzynski.multiplex.integration.util.assertions.hasContentTypeJsonUtf8
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.user.UserInfo
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingErrorDto
+import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.*
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingErrorDto.SeatDoesNotExist
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingIdDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingRequestDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingSeatDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingValidationErrorDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingValidationErrorDto.IllegalSeatNumber
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.TicketDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.TicketTypeDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.UserInfoDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.toDto
 import pl.kskarzynski.multiplex.shared.room.Seat
 import pl.kskarzynski.multiplex.shared.room.SeatRow
 import strikt.api.expect
 import strikt.api.expectThat
-import strikt.assertions.hasSize
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNotNull
-import strikt.assertions.one
+import strikt.assertions.*
+import kotlin.uuid.ExperimentalUuidApi
 
 class BookingCreationApiIntegrationTest : ScreeningApiIntegrationTest() {
 

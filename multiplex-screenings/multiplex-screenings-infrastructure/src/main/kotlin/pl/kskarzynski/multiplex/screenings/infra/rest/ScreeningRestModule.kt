@@ -2,22 +2,20 @@
 
 package pl.kskarzynski.multiplex.screenings.infra.rest
 
-import io.ktor.http.CacheControl.NoCache
-import io.ktor.http.ContentType
+import io.ktor.http.*
+import io.ktor.http.CacheControl.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.http.HttpStatusCode.Companion.NotFound
-import io.ktor.resources.Resource
+import io.ktor.resources.*
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.request.receive
-import io.ktor.server.resources.get
+import io.ktor.server.request.*
+import io.ktor.server.resources.*
 import io.ktor.server.resources.patch
 import io.ktor.server.resources.post
-import io.ktor.server.response.cacheControl
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondTextWriter
+import io.ktor.server.response.*
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.flow.take
 import kotlinx.serialization.UseSerializers
@@ -94,7 +92,9 @@ object ScreeningRestModule : KoinComponent {
             get<Screenings.GetAllByMovie> { params ->
                 val request = call.getMovieScreeningSearchRequest(params.movieId)
 
-                when (val result = screeningRestService.getAllByMovie(request)) {
+                when (
+                    val result = screeningRestService.getAllByMovie(request)
+                ) {
                     is MovieScreeningSearchResult.MovieNotFound ->
                         call.respond(NotFound, "Movie of ID ${params.movieId} not found")
                     is MovieScreeningSearchResult.Success ->
@@ -105,11 +105,13 @@ object ScreeningRestModule : KoinComponent {
             post<Screenings.CreateBooking> { params ->
                 val dto = call.receive<BookingRequestDto>()
 
-                when (val bookingResult = screeningRestService.bookScreening(params.screeningId, dto)) {
-                    is BookingResult.ScreeningDoesNotExist ->
-                        call.respond(NotFound, "Screening of ID ${bookingResult.screeningId} not found")
+                when (
+                    val bookingResult = screeningRestService.bookScreening(params.screeningId, dto)
+                ) {
                     is BookingResult.Success ->
                         call.respond(bookingResult.bookingId.toDto())
+                    is BookingResult.ScreeningDoesNotExist ->
+                        call.respond(NotFound, "Screening of ID ${bookingResult.screeningId} not found")
                     is BookingResult.ValidationFailure ->
                         call.respond(BadRequest, bookingResult.validationErrors)
                     is BookingResult.BookingFailure ->
@@ -133,7 +135,9 @@ object ScreeningRestModule : KoinComponent {
             post<Screenings.Create> {
                 val dto = call.receive<CreateScreeningDto>()
 
-                when (val creationResult = screeningRestService.createScreening(dto)) {
+                when (
+                    val creationResult = screeningRestService.createScreening(dto)
+                ) {
                     is Success -> call.respond(Created, creationResult.screening)
                     is Failure -> call.respond<ScreeningValidationErrorDto>(BadRequest, creationResult.errors)
                 }
@@ -142,7 +146,9 @@ object ScreeningRestModule : KoinComponent {
             patch<Screenings.Update> { params ->
                 val dto = call.receive<PatchScreeningDto>()
 
-                when (val updateResult = screeningRestService.updateScreening(params.screeningId, dto)) {
+                when (
+                    val updateResult = screeningRestService.updateScreening(params.screeningId, dto)
+                ) {
                     null -> call.respond(NotFound)
                     is Success -> call.respond(updateResult.screening)
                     is Failure -> call.respond<ScreeningValidationErrorDto>(BadRequest, updateResult.errors)

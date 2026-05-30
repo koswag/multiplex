@@ -1,20 +1,21 @@
 package pl.kskarzynski.multiplex.common.infra.exposed
 
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.selectAll
+import kotlinx.coroutines.flow.firstOrNull
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.selectAll
 
-fun <T : Table> T.findOne(predicate: SqlExpressionBuilder.() -> Op<Boolean>): ResultRow? =
+suspend fun <T : Table> T.findOne(predicate: () -> Op<Boolean>): ResultRow? =
     selectAll()
         .where(predicate)
         .firstOrNull()
 
-fun <ID, T> T.findById(id: ID): ResultRow?
+suspend fun <ID, T> T.findById(id: ID): ResultRow?
     where ID : Comparable<ID>,
           T : IdTable<ID> =
     selectAll()
-        .where { this@findById.id eq id }
+        .where { this.id eq id }
         .firstOrNull()

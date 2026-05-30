@@ -2,10 +2,10 @@ package pl.kskarzynski.multiplex.common.infra.exposed
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ColumnType
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.statements.api.PreparedStatementApi
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ColumnType
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.statements.api.PreparedStatementApi
 import org.postgresql.util.PGobject
 
 inline fun <reified T : Any> Table.jsonb(name: String, jsonMapper: ObjectMapper): Column<T> =
@@ -22,10 +22,11 @@ class JsonColumnType<T : Any>(
     override fun sqlType() = "jsonb"
 
     override fun setParameter(stmt: PreparedStatementApi, index: Int, value: Any?) {
-        val obj = PGobject()
-        obj.type = "jsonb"
-        obj.value = value as String
-        stmt[index] = obj
+        val obj = PGobject().also {
+            it.type = "jsonb"
+            it.value = value as String
+        }
+        stmt.set(index, obj, this)
     }
 
     @Suppress("UNCHECKED_CAST")

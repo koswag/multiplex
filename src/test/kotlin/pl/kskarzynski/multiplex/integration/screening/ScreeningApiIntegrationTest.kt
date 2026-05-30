@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.integration.screening
 
 import io.kotest.core.spec.IsolationMode
@@ -6,11 +8,8 @@ import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.koin.KoinExtension
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.ktor.client.request.HttpRequestBuilder
-import io.ktor.client.request.parameter
-import io.ktor.server.testing.TestApplicationBuilder
-import java.time.Clock
-import java.time.LocalDateTime
+import io.ktor.client.request.*
+import io.ktor.server.testing.*
 import org.koin.test.KoinTest
 import org.koin.test.inject
 import pl.kskarzynski.multiplex.auth.AuthenticationModule.authModule
@@ -40,6 +39,9 @@ import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningListItemDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningListItemRoomDto
 import pl.kskarzynski.multiplex.shared.movie.Movie
 import pl.kskarzynski.multiplex.shared.room.Room
+import java.time.Clock
+import java.time.LocalDateTime
+import kotlin.uuid.ExperimentalUuidApi
 
 abstract class ScreeningApiIntegrationTest : KoinTest, FeatureSpec() {
 

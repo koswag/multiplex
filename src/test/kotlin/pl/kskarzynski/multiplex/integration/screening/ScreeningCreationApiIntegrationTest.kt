@@ -1,14 +1,14 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.integration.screening
 
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.ktor.client.call.body
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
+import io.ktor.server.testing.*
 import pl.kskarzynski.multiplex.common.test.arbs.movie
 import pl.kskarzynski.multiplex.common.test.arbs.room
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
@@ -17,18 +17,12 @@ import pl.kskarzynski.multiplex.integration.configureClient
 import pl.kskarzynski.multiplex.integration.util.assertions.hasContentTypeJsonUtf8
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.MovieDoesNotExist
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.PastScreeningTime
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.RoomDoesNotExist
+import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.*
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.toDto
 import strikt.api.expect
 import strikt.api.expectThat
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.hasSize
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNotEqualTo
-import strikt.assertions.one
+import strikt.assertions.*
+import kotlin.uuid.ExperimentalUuidApi
 
 class ScreeningCreationApiIntegrationTest : ScreeningApiIntegrationTest() {
 

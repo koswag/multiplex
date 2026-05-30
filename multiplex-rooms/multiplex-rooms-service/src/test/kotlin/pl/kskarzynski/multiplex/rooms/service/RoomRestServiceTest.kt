@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.rooms.service
 
 import arrow.core.nonEmptyListOf
@@ -10,34 +12,22 @@ import io.kotest.property.arbitrary.next
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.inject
-import pl.kskarzynski.multiplex.common.test.arbs.room
-import pl.kskarzynski.multiplex.common.test.arbs.roomId
-import pl.kskarzynski.multiplex.common.test.arbs.roomNumber
-import pl.kskarzynski.multiplex.common.test.arbs.seat
-import pl.kskarzynski.multiplex.common.test.arbs.seats
+import pl.kskarzynski.multiplex.common.test.arbs.*
 import pl.kskarzynski.multiplex.rooms.service.data.RoomRepository
 import pl.kskarzynski.multiplex.rooms.service.rest.RoomRestService
 import pl.kskarzynski.multiplex.rooms.service.rest.RoomValidationResult.Failure
 import pl.kskarzynski.multiplex.rooms.service.rest.RoomValidationResult.Success
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.CreateRoomDto
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.PatchRoomDto
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.DuplicatedSeat
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.InvalidSeatNumber
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.InvalidSeatRow
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.MissingRow
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.MissingSeat
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.RoomNumberAlreadyExists
+import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.*
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.SeatDto
 import pl.kskarzynski.multiplex.rooms.service.rest.dto.toDto
 import pl.kskarzynski.multiplex.rooms.service.util.FakeRoomRepository
 import pl.kskarzynski.multiplex.shared.room.Room
 import pl.kskarzynski.multiplex.shared.room.RoomNumber
 import strikt.api.expectThat
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNotNull
-import strikt.assertions.isNull
+import strikt.assertions.*
+import kotlin.uuid.ExperimentalUuidApi
 
 private val TestRoomModule = module {
     single<RoomRepository> { FakeRoomRepository() }

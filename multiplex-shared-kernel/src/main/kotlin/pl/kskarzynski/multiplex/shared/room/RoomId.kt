@@ -1,13 +1,16 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.shared.room
 
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @JvmInline
-value class RoomId(val value: UUID) {
+value class RoomId(val value: Uuid) {
 
     override fun toString() = value.toString()
 
     companion object {
-        fun generate() = RoomId(UUID.randomUUID())
+        fun generate() = RoomId(Uuid.random())
     }
 }

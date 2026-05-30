@@ -1,11 +1,17 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.screenings.infra.adapter.data.table
 
-import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.javatime.datetime
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.upsert
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.dao.id.UuidTable
+import org.jetbrains.exposed.v1.javatime.datetime
+import org.jetbrains.exposed.v1.r2dbc.andWhere
+import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.upsert
 import pl.kskarzynski.multiplex.common.infra.exposed.page
 import pl.kskarzynski.multiplex.screenings.domain.model.Screening
 import pl.kskarzynski.multiplex.screenings.domain.model.request.MovieScreeningSearchRequest
@@ -17,25 +23,26 @@ import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.room.RoomId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningStartTime
+import kotlin.uuid.ExperimentalUuidApi
 
-object ScreeningTable : UUIDTable("multiplex_screenings.screenings") {
+object ScreeningTable : UuidTable("multiplex_screenings.screenings") {
     val movieId = uuid("movie_id")
     val roomId = uuid("room_id")
     val startTime = datetime("start_time")
     val version = long("version")
 
-    fun find(screeningId: ScreeningId): ScreeningData? =
+    suspend fun find(screeningId: ScreeningId): ScreeningData? =
         selectAll()
             .where { id eq screeningId.value }
             .firstOrNull()
             ?.let { rowToScreeningData(it) }
 
-    fun findAll(screeningIds: Collection<ScreeningId>): List<ScreeningData> =
+    fun findAll(screeningIds: Collection<ScreeningId>): Flow<ScreeningData> =
         selectAll()
             .where { id inList screeningIds.map { it.value } }
             .map { rowToScreeningData(it) }
 
-    fun findScreeningsByMovie(request: MovieScreeningSearchRequest): Page<ScreeningData> {
+    suspend fun findScreeningsByMovie(request: MovieScreeningSearchRequest): Page<ScreeningData> {
         val query = selectAll()
             .where { movieId eq request.movieId.value }
             .orderBy(startTime)
@@ -51,7 +58,7 @@ object ScreeningTable : UUIDTable("multiplex_screenings.screenings") {
         return query.page(request.pagingRequest) { rowToScreeningData(it) }
     }
 
-    fun save(screening: Screening) {
+    suspend fun save(screening: Screening) {
         findCurrentVersion(screening.id)?.let { currentVersion ->
             if (screening.version != currentVersion) {
                 throw StaleAggregateVersionException("The Screening state has already been changed.")
@@ -67,7 +74,7 @@ object ScreeningTable : UUIDTable("multiplex_screenings.screenings") {
         }
     }
 
-    private fun findCurrentVersion(screeningId: ScreeningId): AggregateVersion? =
+    private suspend fun findCurrentVersion(screeningId: ScreeningId): AggregateVersion? =
         select(version).where { id eq screeningId.value }
             .firstOrNull()
             ?.let { row -> AggregateVersion(row[version]) }

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.integration
 
 import arrow.core.nonEmptyListOf
@@ -8,16 +10,10 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.map
 import io.kotest.property.arbitrary.negativeInt
 import io.kotest.property.arbitrary.next
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.patch
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.server.testing.TestApplicationBuilder
-import io.ktor.server.testing.testApplication
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.server.testing.*
 import org.koin.test.KoinTest
 import org.koin.test.inject
 import pl.kskarzynski.multiplex.common.test.arbs.room
@@ -31,20 +27,14 @@ import pl.kskarzynski.multiplex.rooms.service.data.RoomRepository
 import pl.kskarzynski.multiplex.rooms.service.data.table.RoomSeatTable
 import pl.kskarzynski.multiplex.rooms.service.data.table.RoomTable
 import pl.kskarzynski.multiplex.rooms.service.rest.RoomRestModule.roomModule
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.CreateRoomDto
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.PatchRoomDto
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomDto
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.InvalidSeatNumber
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.InvalidSeatRow
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.RoomNumberAlreadyExists
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.SeatDto
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.toDto
+import pl.kskarzynski.multiplex.rooms.service.rest.dto.*
+import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.*
 import strikt.api.expectThat
 import strikt.assertions.hasSize
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.one
+import kotlin.uuid.ExperimentalUuidApi
 
 class RoomApiIntegrationTest : KoinTest, FeatureSpec() {
 

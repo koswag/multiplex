@@ -1,12 +1,10 @@
 package pl.kskarzynski.multiplex.screenings.domain.model.booking.ticket
 
 import io.kotest.core.spec.style.FeatureSpec
-import java.math.BigDecimal
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.ticket.TicketType.ADULT
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.ticket.TicketType.CHILD
-import pl.kskarzynski.multiplex.screenings.domain.model.booking.ticket.TicketType.STUDENT
+import pl.kskarzynski.multiplex.screenings.domain.model.booking.ticket.TicketType.*
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
+import java.math.BigDecimal
 
 class TicketTest : FeatureSpec({
 
@@ -27,5 +25,4 @@ class TicketTest : FeatureSpec({
             expectThat(CHILD.price.value) isEqualTo expectedChildTicketPrice
         }
     }
-
 })

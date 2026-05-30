@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.checkAll
-import kotlin.time.Duration.Companion.seconds
 import pl.kskarzynski.multiplex.common.test.arrow.isLeft
 import pl.kskarzynski.multiplex.common.test.arrow.isRight
 import pl.kskarzynski.multiplex.common.utils.datetime.minus
@@ -14,6 +13,7 @@ import pl.kskarzynski.multiplex.screenings.domain.util.unconfirmedBooking
 import strikt.api.expectThat
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
+import kotlin.time.Duration.Companion.seconds
 
 class BookingTest : FeatureSpec({
 
@@ -54,5 +54,4 @@ class BookingTest : FeatureSpec({
             }
         }
     }
-
 })

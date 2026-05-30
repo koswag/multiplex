@@ -5,13 +5,13 @@ package pl.kskarzynski.multiplex.movies.service.rest
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.http.HttpStatusCode.Companion.NotFound
-import io.ktor.resources.Resource
+import io.ktor.resources.*
 import io.ktor.server.application.Application
-import io.ktor.server.request.receive
-import io.ktor.server.resources.get
+import io.ktor.server.request.*
+import io.ktor.server.resources.*
 import io.ktor.server.resources.patch
 import io.ktor.server.resources.post
-import io.ktor.server.response.respond
+import io.ktor.server.response.*
 import io.ktor.server.routing.routing
 import kotlinx.serialization.UseSerializers
 import pl.kskarzynski.multiplex.common.infra.json.serializer.MovieIdSerializer
@@ -49,9 +49,9 @@ fun Application.movieModule() {
 
         post<Movies.Create> {
             val dto = call.receive<CreateMovieDto>()
-            val creationResult = MovieRestService.createMovie(dto)
-
-            when (creationResult) {
+            when (
+                val creationResult = MovieRestService.createMovie(dto)
+            ) {
                 is Success -> call.respond(Created, creationResult.movie)
                 is Failure -> call.respond(BadRequest, creationResult.errors)
             }
@@ -59,9 +59,9 @@ fun Application.movieModule() {
 
         patch<Movies.Update> { params ->
             val dto = call.receive<PatchMovieDto>()
-            val updateResult = MovieRestService.patchMovie(params.movieId, dto)
-
-            when (updateResult) {
+            when (
+                val updateResult = MovieRestService.patchMovie(params.movieId, dto)
+            ) {
                 null -> call.respond(NotFound)
                 is Success -> call.respond(updateResult.movie)
                 is Failure -> call.respond(BadRequest, updateResult.errors)

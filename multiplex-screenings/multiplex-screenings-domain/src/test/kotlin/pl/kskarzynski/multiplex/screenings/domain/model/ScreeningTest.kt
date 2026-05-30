@@ -5,19 +5,9 @@ import io.kotest.core.spec.style.FeatureSpec
 import pl.kskarzynski.multiplex.common.test.arrow.isLeft
 import pl.kskarzynski.multiplex.common.test.arrow.isRight
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.BookingError
-import pl.kskarzynski.multiplex.screenings.domain.util.adultTicket
-import pl.kskarzynski.multiplex.screenings.domain.util.room
-import pl.kskarzynski.multiplex.screenings.domain.util.screening
-import pl.kskarzynski.multiplex.screenings.domain.util.seat
-import pl.kskarzynski.multiplex.screenings.domain.util.unconfirmedBooking
-import pl.kskarzynski.multiplex.screenings.domain.util.unconfirmedBookingWithOneTicket
+import pl.kskarzynski.multiplex.screenings.domain.util.*
 import strikt.api.expectThat
-import strikt.assertions.containsExactly
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.first
-import strikt.assertions.hasSize
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
+import strikt.assertions.*
 
 class ScreeningTest : FeatureSpec({
 
@@ -318,5 +308,4 @@ class ScreeningTest : FeatureSpec({
             }
         }
     }
-
 })

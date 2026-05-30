@@ -5,9 +5,8 @@ import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.localDateTime
 import io.kotest.property.arbitrary.next
-import java.time.LocalDateTime
-import kotlin.time.Duration.Companion.seconds
-import org.jetbrains.exposed.sql.transactions.transaction
+import kotlinx.coroutines.flow.toList
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import pl.kskarzynski.multiplex.common.test.arbs.bookingId
 import pl.kskarzynski.multiplex.common.test.arbs.screeningId
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
@@ -23,12 +22,9 @@ import pl.kskarzynski.multiplex.screenings.infra.util.expiredBooking
 import pl.kskarzynski.multiplex.screenings.infra.util.unconfirmedBooking
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 import strikt.api.expectThat
-import strikt.assertions.containsExactly
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.hasSize
-import strikt.assertions.isEmpty
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNull
+import strikt.assertions.*
+import java.time.LocalDateTime
+import kotlin.time.Duration.Companion.seconds
 
 class BookingTableTest : FeatureSpec({
 
@@ -45,7 +41,7 @@ class BookingTableTest : FeatureSpec({
             val screeningId = Arb.screeningId().next()
 
             // when:
-            val result = transaction { BookingTable.findBookings(screeningId) }
+            val result = suspendTransaction { BookingTable.findBookings(screeningId).toList() }
 
             // then:
             expectThat(result).isEmpty()
@@ -63,7 +59,7 @@ class BookingTableTest : FeatureSpec({
             BookingTable.saveAll(otherScreeningId, otherScreeningBookings)
 
             // when:
-            val result = transaction { BookingTable.findBookings(screeningId) }
+            val result = suspendTransaction { BookingTable.findBookings(screeningId).toList() }
 
             // then:
             expectThat(result) containsExactlyInAnyOrder screeningBookings
@@ -77,12 +73,12 @@ class BookingTableTest : FeatureSpec({
             val booking = Arb.booking().next()
 
             // when:
-            transaction {
+            suspendTransaction {
                 BookingTable.save(booking, screeningId)
             }
 
             // then:
-            val screeningBookings = transaction { BookingTable.findBookings(screeningId) }
+            val screeningBookings = suspendTransaction { BookingTable.findBookings(screeningId).toList() }
             expectThat(screeningBookings).hasSize(1) and {
                 get { first() } isEqualTo booking
             }
@@ -98,15 +94,15 @@ class BookingTableTest : FeatureSpec({
             BookingTable.saveAll(otherScreeningId, otherScreeningBookings)
 
             // when:
-            transaction {
+            suspendTransaction {
                 BookingTable.save(booking, screeningId)
             }
 
             // then:
-            val screeningBookings = transaction { BookingTable.findBookings(screeningId) }
+            val screeningBookings = suspendTransaction { BookingTable.findBookings(screeningId).toList() }
             expectThat(screeningBookings).containsExactly(booking)
 
-            val otherBookingScreenings = transaction { BookingTable.findBookings(otherScreeningId) }
+            val otherBookingScreenings = suspendTransaction { BookingTable.findBookings(otherScreeningId).toList() }
             expectThat(otherBookingScreenings) containsExactlyInAnyOrder otherBookingScreenings
         }
     }
@@ -117,7 +113,7 @@ class BookingTableTest : FeatureSpec({
             val currentTime = Arb.localDateTime().next()
 
             // when:
-            val result = transaction { BookingTable.findExpiredBookingScreeningIds(currentTime) }
+            val result = suspendTransaction { BookingTable.findExpiredBookingScreeningIds(currentTime).toList() }
 
             //then:
             expectThat(result).isEmpty()
@@ -132,7 +128,7 @@ class BookingTableTest : FeatureSpec({
             BookingTable.saveAll(screeningId, nonExpiredBookings)
 
             // when:
-            val screeningIds = transaction { BookingTable.findExpiredBookingScreeningIds(currentTime) }
+            val screeningIds = suspendTransaction { BookingTable.findExpiredBookingScreeningIds(currentTime).toList() }
 
             // then:
             expectThat(screeningIds).isEmpty()
@@ -154,7 +150,7 @@ class BookingTableTest : FeatureSpec({
             BookingTable.saveAll(otherScreeningId, otherNonExpiredBookings + expiredBooking + confirmedBooking)
 
             // when:
-            val result = transaction { BookingTable.findExpiredBookingScreeningIds(currentTime) }
+            val result = suspendTransaction { BookingTable.findExpiredBookingScreeningIds(currentTime).toList() }
 
             // then:
             expectThat(result).containsExactly(screeningId)
@@ -167,7 +163,7 @@ class BookingTableTest : FeatureSpec({
             val bookingId = Arb.bookingId().next()
 
             // when:
-            val result = transaction { BookingTable.findScreeningIdByBooking(bookingId) }
+            val result = suspendTransaction { BookingTable.findScreeningIdByBooking(bookingId) }
 
             // then:
             expectThat(result).isNull()
@@ -177,12 +173,12 @@ class BookingTableTest : FeatureSpec({
             // given:
             val screeningId = Arb.screeningId().next()
             val existentBooking = Arb.booking().next()
-            transaction { BookingTable.save(existentBooking, screeningId) }
+            suspendTransaction { BookingTable.save(existentBooking, screeningId) }
 
             val nonExistentBookingId = Arb.bookingId().next()
 
             // when:
-            val result = transaction { BookingTable.findScreeningIdByBooking(nonExistentBookingId) }
+            val result = suspendTransaction { BookingTable.findScreeningIdByBooking(nonExistentBookingId) }
 
             // then:
             expectThat(result).isNull()
@@ -192,10 +188,10 @@ class BookingTableTest : FeatureSpec({
             // given:
             val screeningId = Arb.screeningId().next()
             val booking = Arb.booking().next()
-            transaction { BookingTable.save(booking, screeningId) }
+            suspendTransaction { BookingTable.save(booking, screeningId) }
 
             // when:
-            val result = transaction { BookingTable.findScreeningIdByBooking(booking.id) }
+            val result = suspendTransaction { BookingTable.findScreeningIdByBooking(booking.id) }
 
             // then:
             expectThat(result) isEqualTo screeningId
@@ -204,8 +200,8 @@ class BookingTableTest : FeatureSpec({
 
 })
 
-private fun BookingTable.saveAll(screeningId: ScreeningId, bookings: Iterable<Booking>) {
-    transaction {
+private suspend fun BookingTable.saveAll(screeningId: ScreeningId, bookings: Iterable<Booking>) {
+    suspendTransaction {
         for (booking in bookings) {
             save(booking, screeningId)
         }

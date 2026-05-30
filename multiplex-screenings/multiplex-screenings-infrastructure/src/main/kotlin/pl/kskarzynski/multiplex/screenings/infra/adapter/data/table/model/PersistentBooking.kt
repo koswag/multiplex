@@ -1,27 +1,24 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model
 
 import arrow.core.NonEmptyList
-import java.math.BigDecimal
-import java.time.LocalDateTime
-import java.util.UUID
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.Booking
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.ConfirmedBooking
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.ExpiredBooking
 import pl.kskarzynski.multiplex.screenings.domain.model.booking.UnconfirmedBooking
-import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.CONFIRMED
-import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.EXPIRED
-import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.UNCONFIRMED
-import pl.kskarzynski.multiplex.shared.booking.BookingConfirmationTime
-import pl.kskarzynski.multiplex.shared.booking.BookingExpirationTime
-import pl.kskarzynski.multiplex.shared.booking.BookingId
-import pl.kskarzynski.multiplex.shared.booking.BookingPrice
-import pl.kskarzynski.multiplex.shared.booking.BookingTime
+import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.PersistentBookingStatus.*
+import pl.kskarzynski.multiplex.shared.booking.*
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
+import java.math.BigDecimal
+import java.time.LocalDateTime
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 data class PersistentBooking(
-    val id: UUID,
+    val id: Uuid,
     val status: PersistentBookingStatus,
-    val screeningId: UUID,
+    val screeningId: Uuid,
     val userInfo: PersistentUserInfo,
     val tickets: NonEmptyList<PersistentTicket>,
     val bookingTime: LocalDateTime,

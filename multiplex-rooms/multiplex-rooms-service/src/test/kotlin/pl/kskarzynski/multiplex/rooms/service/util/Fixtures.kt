@@ -1,14 +1,12 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.rooms.service.util
 
 import arrow.core.NonEmptyList
 import arrow.core.nonEmptyListOf
-import java.util.UUID
-import pl.kskarzynski.multiplex.shared.room.Room
-import pl.kskarzynski.multiplex.shared.room.RoomId
-import pl.kskarzynski.multiplex.shared.room.RoomNumber
-import pl.kskarzynski.multiplex.shared.room.Seat
-import pl.kskarzynski.multiplex.shared.room.SeatNumber
-import pl.kskarzynski.multiplex.shared.room.SeatRow
+import pl.kskarzynski.multiplex.shared.room.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 val DEFAULT_ROOM_ID = RoomId.generate()
 val DEFAULT_ROOM_NUMBER = RoomNumber(1)
@@ -21,9 +19,14 @@ val DEFAULT_SEATS =
     )
 
 fun room(
-    id: UUID = RoomId.generate().value,
+    id: Uuid = RoomId.generate().value,
     number: Int = DEFAULT_ROOM_NUMBER.value,
     seats: NonEmptyList<Seat> = DEFAULT_SEATS,
-) = Room(RoomId(id), RoomNumber(number), seats)
+) =
+    Room(
+        id = RoomId(id),
+        number = RoomNumber(number),
+        seats = seats,
+    )
 
 fun seat(row: Int, number: Int) = Seat(SeatRow(row), SeatNumber(number))

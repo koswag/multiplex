@@ -1,19 +1,14 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.common.test.arbs
 
 import arrow.core.NonEmptyList
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.arbitrary
-import io.kotest.property.arbitrary.int
-import io.kotest.property.arbitrary.map
-import io.kotest.property.arbitrary.positiveInt
-import io.kotest.property.arbitrary.uuid
+import io.kotest.property.arbitrary.*
 import pl.kskarzynski.multiplex.common.utils.arrow.toNonEmptyList
-import pl.kskarzynski.multiplex.shared.room.Room
-import pl.kskarzynski.multiplex.shared.room.RoomId
-import pl.kskarzynski.multiplex.shared.room.RoomNumber
-import pl.kskarzynski.multiplex.shared.room.Seat
-import pl.kskarzynski.multiplex.shared.room.SeatNumber
-import pl.kskarzynski.multiplex.shared.room.SeatRow
+import pl.kskarzynski.multiplex.shared.room.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.toKotlinUuid
 
 private const val DEFAULT_MAX_ROOM_NUMBER = 20
 private const val DEFAULT_MAX_ROW_COUNT = 10
@@ -48,7 +43,7 @@ fun Arb.Companion.seats(
     }
 
 fun Arb.Companion.roomId(): Arb<RoomId> =
-    Arb.uuid().map { RoomId(it) }
+    Arb.uuid().map { RoomId(it.toKotlinUuid()) }
 
 fun Arb.Companion.roomNumber(max: Int = DEFAULT_MAX_ROOM_NUMBER): Arb<RoomNumber> =
     Arb.positiveInt(max).map { RoomNumber(it) }

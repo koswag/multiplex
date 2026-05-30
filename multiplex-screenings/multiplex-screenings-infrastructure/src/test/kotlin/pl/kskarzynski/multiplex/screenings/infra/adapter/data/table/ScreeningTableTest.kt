@@ -1,11 +1,14 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.screenings.infra.adapter.data.table
 
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.FeatureSpec
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
+import kotlinx.coroutines.flow.toList
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import pl.kskarzynski.multiplex.common.test.arbs.screeningId
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
@@ -14,11 +17,8 @@ import pl.kskarzynski.multiplex.screenings.infra.adapter.data.table.model.Screen
 import pl.kskarzynski.multiplex.screenings.infra.util.screening
 import pl.kskarzynski.multiplex.screenings.infra.util.screeningData
 import strikt.api.expectThat
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.isEmpty
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNotNull
-import strikt.assertions.isNull
+import strikt.assertions.*
+import kotlin.uuid.ExperimentalUuidApi
 
 class ScreeningTableTest : FeatureSpec({
 
@@ -35,7 +35,7 @@ class ScreeningTableTest : FeatureSpec({
             val nonExistentScreeningId = Arb.screeningId().next()
 
             // when:
-            val result = transaction { ScreeningTable.find(nonExistentScreeningId) }
+            val result = suspendTransaction { ScreeningTable.find(nonExistentScreeningId) }
 
             // then:
             expectThat(result).isNull()
@@ -44,12 +44,12 @@ class ScreeningTableTest : FeatureSpec({
         scenario("Other screenings exists") {
             // given:
             val otherScreenings = List(5) { Arb.screeningData().next() }
-            transaction { ScreeningTable.insertAll(otherScreenings) }
+            suspendTransaction { ScreeningTable.insertAll(otherScreenings) }
 
             val nonExistentScreeningId = Arb.screeningId().next()
 
             // when:
-            val result = transaction { ScreeningTable.find(nonExistentScreeningId) }
+            val result = suspendTransaction { ScreeningTable.find(nonExistentScreeningId) }
 
             // then:
             expectThat(result).isNull()
@@ -59,10 +59,10 @@ class ScreeningTableTest : FeatureSpec({
             // given:
             val otherScreenings = List(5) { Arb.screeningData().next() }
             val screening = Arb.screeningData().next()
-            transaction { ScreeningTable.insertAll(otherScreenings + screening) }
+            suspendTransaction { ScreeningTable.insertAll(otherScreenings + screening) }
 
             // when:
-            val result = transaction { ScreeningTable.find(screening.id) }
+            val result = suspendTransaction { ScreeningTable.find(screening.id) }
 
             // then:
             expectThat(result) isEqualTo screening
@@ -75,7 +75,7 @@ class ScreeningTableTest : FeatureSpec({
             val nonExistentScreeningIds = List(5) { Arb.screeningId().next() }
 
             // when:
-            val result = transaction { ScreeningTable.findAll(nonExistentScreeningIds) }
+            val result = suspendTransaction { ScreeningTable.findAll(nonExistentScreeningIds).toList() }
 
             // then:
             expectThat(result).isEmpty()
@@ -84,12 +84,12 @@ class ScreeningTableTest : FeatureSpec({
         scenario("Other screenings exists") {
             // given:
             val otherScreenings = List(5) { Arb.screeningData().next() }
-            transaction { ScreeningTable.insertAll(otherScreenings) }
+            suspendTransaction { ScreeningTable.insertAll(otherScreenings) }
 
             val nonExistentScreeningIds = List(5) { Arb.screeningId().next() }
 
             // when:
-            val result = transaction { ScreeningTable.findAll(nonExistentScreeningIds) }
+            val result = suspendTransaction { ScreeningTable.findAll(nonExistentScreeningIds).toList() }
 
             // then:
             expectThat(result).isEmpty()
@@ -98,14 +98,14 @@ class ScreeningTableTest : FeatureSpec({
         scenario("Screenings exists") {
             // given:
             val otherScreenings = List(5) { Arb.screeningData().next() }
-            transaction { ScreeningTable.insertAll(otherScreenings) }
+            suspendTransaction { ScreeningTable.insertAll(otherScreenings) }
 
             val screenings = List(5) { Arb.screeningData().next() }
-            transaction { ScreeningTable.insertAll(screenings) }
+            suspendTransaction { ScreeningTable.insertAll(screenings) }
             val screeningIds = screenings.map { it.id }
 
             // when:
-            val result = transaction { ScreeningTable.findAll(screeningIds) }
+            val result = suspendTransaction { ScreeningTable.findAll(screeningIds).toList() }
 
             // then:
             expectThat(result) containsExactlyInAnyOrder screenings
@@ -114,16 +114,16 @@ class ScreeningTableTest : FeatureSpec({
         scenario("Part of the screenings exists") {
             // given:
             val otherScreenings = List(5) { Arb.screeningData().next() }
-            transaction { ScreeningTable.insertAll(otherScreenings) }
+            suspendTransaction { ScreeningTable.insertAll(otherScreenings) }
 
             val screenings = List(5) { Arb.screeningData().next() }
-            transaction { ScreeningTable.insertAll(screenings) }
+            suspendTransaction { ScreeningTable.insertAll(screenings) }
             val screeningIds = screenings.map { it.id }
 
             val nonExistentScreeningIds = List(5) { Arb.screeningId().next() }
 
             // when:
-            val result = transaction { ScreeningTable.findAll(screeningIds + nonExistentScreeningIds) }
+            val result = suspendTransaction { ScreeningTable.findAll(screeningIds + nonExistentScreeningIds).toList() }
 
             // then:
             expectThat(result) containsExactlyInAnyOrder screenings
@@ -136,12 +136,12 @@ class ScreeningTableTest : FeatureSpec({
             val screening = Arb.screening().next()
 
             // when:
-            transaction {
+            suspendTransaction {
                 ScreeningTable.save(screening)
             }
 
             // then:
-            val saved = transaction { ScreeningTable.find(screening.id) }
+            val saved = suspendTransaction { ScreeningTable.find(screening.id) }
             expectThat(saved).isNotNull() and {
                 get { id } isEqualTo screening.id
                 get { movieId } isEqualTo screening.movieId
@@ -153,17 +153,17 @@ class ScreeningTableTest : FeatureSpec({
         scenario("Other screenings exists") {
             // given:
             val otherScreenings = List(5) { Arb.screeningData().next() }
-            transaction { ScreeningTable.insertAll(otherScreenings) }
+            suspendTransaction { ScreeningTable.insertAll(otherScreenings) }
 
             val screening = Arb.screening().next()
 
             // when:
-            transaction {
+            suspendTransaction {
                 ScreeningTable.save(screening)
             }
 
             // then:
-            val saved = transaction { ScreeningTable.find(screening.id) }
+            val saved = suspendTransaction { ScreeningTable.find(screening.id) }
             expectThat(saved).isNotNull() and {
                 get { id } isEqualTo screening.id
                 get { movieId } isEqualTo screening.movieId
@@ -175,18 +175,18 @@ class ScreeningTableTest : FeatureSpec({
         scenario("Screening already exists") {
             // given:
             val otherScreenings = List(5) { Arb.screeningData().next() }
-            transaction { ScreeningTable.insertAll(otherScreenings) }
+            suspendTransaction { ScreeningTable.insertAll(otherScreenings) }
 
             val screening = Arb.screening().next()
-            transaction { ScreeningTable.insert(screening) }
+            suspendTransaction { ScreeningTable.insert(screening) }
 
             // when:
-            transaction {
+            suspendTransaction {
                 ScreeningTable.save(screening)
             }
 
             // then:
-            val saved = transaction { ScreeningTable.find(screening.id) }
+            val saved = suspendTransaction { ScreeningTable.find(screening.id) }
             expectThat(saved).isNotNull() and {
                 get { id } isEqualTo screening.id
                 get { movieId } isEqualTo screening.movieId
@@ -198,13 +198,13 @@ class ScreeningTableTest : FeatureSpec({
 
 })
 
-private fun ScreeningTable.insertAll(screenings: Collection<ScreeningData>) {
+private suspend fun ScreeningTable.insertAll(screenings: Collection<ScreeningData>) {
     for (screening in screenings) {
         insert(screening)
     }
 }
 
-private fun ScreeningTable.insert(screening: ScreeningData) {
+private suspend fun ScreeningTable.insert(screening: ScreeningData) {
     insert {
         it[id] = screening.id.value
         it[movieId] = screening.movieId.value
@@ -214,7 +214,7 @@ private fun ScreeningTable.insert(screening: ScreeningData) {
     }
 }
 
-private fun ScreeningTable.insert(screening: Screening) {
+private suspend fun ScreeningTable.insert(screening: Screening) {
     insert {
         it[id] = screening.id.value
         it[movieId] = screening.movieId.value

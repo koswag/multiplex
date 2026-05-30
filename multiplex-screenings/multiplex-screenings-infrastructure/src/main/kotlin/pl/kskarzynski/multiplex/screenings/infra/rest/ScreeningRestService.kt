@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.screenings.infra.rest
 
 import arrow.core.EitherNel
@@ -8,13 +10,10 @@ import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import arrow.core.raise.zipOrAccumulate
 import arrow.core.toEitherNel
-import io.ktor.server.plugins.NotFoundException
-import java.time.Clock
-import kotlinx.coroutines.Dispatchers
+import io.ktor.server.plugins.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import pl.kskarzynski.multiplex.common.infra.misc.toDto
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
 import pl.kskarzynski.multiplex.common.utils.datetime.isAfter
@@ -24,28 +23,22 @@ import pl.kskarzynski.multiplex.screenings.domain.model.Screening
 import pl.kskarzynski.multiplex.screenings.domain.model.request.MovieScreeningSearchRequest
 import pl.kskarzynski.multiplex.screenings.domain.port.data.ScreeningRepository
 import pl.kskarzynski.multiplex.screenings.domain.port.usecase.BookScreeningUseCase
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.CreateScreeningDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.PatchScreeningDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningRoomDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.MovieDoesNotExist
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.PastScreeningTime
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.RoomDoesNotExist
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.applyPatch
+import pl.kskarzynski.multiplex.screenings.infra.rest.dto.*
+import pl.kskarzynski.multiplex.screenings.infra.rest.dto.ScreeningValidationErrorDto.*
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingRequestDto
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.toDomain
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.toDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.toDto
-import pl.kskarzynski.multiplex.screenings.infra.rest.dto.toScreeningRoomDto
 import pl.kskarzynski.multiplex.shared.booking.BookingId
 import pl.kskarzynski.multiplex.shared.misc.map
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.room.RoomId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningId
 import pl.kskarzynski.multiplex.shared.screening.ScreeningStartTime
+import java.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.uuid.ExperimentalUuidApi
 
-private const val SCREENING_ROOM_FLOW_INTERVAL = 3000L
+private val SCREENING_ROOM_FLOW_INTERVAL = 3000L.milliseconds
 
 class ScreeningRestService(
     private val screeningRepository: ScreeningRepository,
@@ -147,7 +140,7 @@ class ScreeningRestService(
                 emit(screening.toScreeningRoomDto())
                 delay(SCREENING_ROOM_FLOW_INTERVAL)
             }
-        }.flowOn(Dispatchers.IO)
+        }
 }
 
 private fun EitherNel<ScreeningValidationErrorDto, ScreeningDto>.toScreeningValidationResult(): ScreeningValidationResult =

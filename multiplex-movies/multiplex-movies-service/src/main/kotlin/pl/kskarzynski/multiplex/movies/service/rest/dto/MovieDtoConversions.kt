@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.movies.service.rest.dto
 
 import arrow.core.EitherNel
@@ -11,6 +13,7 @@ import pl.kskarzynski.multiplex.shared.movie.Movie
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.movie.MovieReleaseYear
 import pl.kskarzynski.multiplex.shared.movie.MovieTitle
+import kotlin.uuid.ExperimentalUuidApi
 
 fun Movie.toDto() =
     MovieDto(

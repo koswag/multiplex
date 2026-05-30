@@ -1,11 +1,16 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.rooms.service.data
 
 import arrow.core.nonEmptyListOf
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.FeatureSpec
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
 import pl.kskarzynski.multiplex.common.utils.arrow.toNonEmptyList
@@ -20,6 +25,7 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 import strikt.assertions.isNull
+import kotlin.uuid.ExperimentalUuidApi
 
 class DatabaseRoomRepositoryTest : FeatureSpec({
 
@@ -159,8 +165,8 @@ class DatabaseRoomRepositoryTest : FeatureSpec({
 
 })
 
-private fun insertRoom(room: Room) {
-    transaction {
+private suspend fun insertRoom(room: Room) {
+    suspendTransaction {
         RoomTable.insert {
             it[id] = room.id.value
             it[number] = room.number.value
@@ -176,8 +182,8 @@ private fun insertRoom(room: Room) {
     }
 }
 
-private fun findRoom(roomId: RoomId): Room? =
-    transaction {
+private suspend fun findRoom(roomId: RoomId): Room? =
+    suspendTransaction {
         RoomTable.selectAll()
             .where { RoomTable.id eq roomId.value }
             .firstOrNull()

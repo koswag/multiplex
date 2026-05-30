@@ -9,26 +9,9 @@ import org.koin.core.component.KoinComponent
 import pl.kskarzynski.multiplex.common.utils.arrow.accumulateErrors
 import pl.kskarzynski.multiplex.common.utils.arrow.flattenErrors
 import pl.kskarzynski.multiplex.rooms.service.data.RoomRepository
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.CreateRoomDto
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.PatchRoomDto
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomDto
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.DuplicatedSeat
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.InvalidRoomNumber
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.InvalidSeatNumber
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.InvalidSeatRow
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.MissingRow
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.MissingSeat
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.RoomNumberAlreadyExists
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.SeatDto
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.applyPatch
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.toDomain
-import pl.kskarzynski.multiplex.rooms.service.rest.dto.toDto
-import pl.kskarzynski.multiplex.shared.room.Room
-import pl.kskarzynski.multiplex.shared.room.RoomId
-import pl.kskarzynski.multiplex.shared.room.RoomNumber
-import pl.kskarzynski.multiplex.shared.room.SeatNumber
-import pl.kskarzynski.multiplex.shared.room.SeatRow
+import pl.kskarzynski.multiplex.rooms.service.rest.dto.*
+import pl.kskarzynski.multiplex.rooms.service.rest.dto.RoomValidationError.*
+import pl.kskarzynski.multiplex.shared.room.*
 
 class RoomRestService(
     private val roomRepository: RoomRepository,
@@ -40,9 +23,9 @@ class RoomRestService(
 
     suspend fun createRoom(dto: CreateRoomDto): RoomValidationResult =
         either {
-            val existentRoomWithNumber = roomRepository.findByNumber(RoomNumber(dto.number))
+            val existentRoom = roomRepository.findByNumber(RoomNumber(dto.number))
             accumulateErrors(
-                { ensureValidNumber(dto.number, existentRoomWithNumber) },
+                { ensureValidNumber(dto.number, existentRoom) },
                 { ensureValidSeats(dto.seats) },
             )
 

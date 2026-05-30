@@ -5,13 +5,13 @@ package pl.kskarzynski.multiplex.rooms.service.rest
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.http.HttpStatusCode.Companion.NotFound
-import io.ktor.resources.Resource
+import io.ktor.resources.*
 import io.ktor.server.application.Application
-import io.ktor.server.request.receive
-import io.ktor.server.resources.get
+import io.ktor.server.request.*
+import io.ktor.server.resources.*
 import io.ktor.server.resources.patch
 import io.ktor.server.resources.post
-import io.ktor.server.response.respond
+import io.ktor.server.response.*
 import io.ktor.server.routing.routing
 import kotlinx.serialization.UseSerializers
 import org.koin.core.component.KoinComponent
@@ -56,9 +56,9 @@ object RoomRestModule : KoinComponent {
 
             post<Rooms.Create> {
                 val dto = call.receive<CreateRoomDto>()
-                val creationResult = roomRestService.createRoom(dto)
-
-                when (creationResult) {
+                when (
+                    val creationResult = roomRestService.createRoom(dto)
+                ) {
                     is Success -> call.respond(Created, creationResult.room)
                     is Failure -> call.respond<RoomValidationError>(BadRequest, creationResult.errors)
                 }
@@ -66,9 +66,9 @@ object RoomRestModule : KoinComponent {
 
             patch<Rooms.Update> { params ->
                 val patch = call.receive<PatchRoomDto>()
-                val updateResult = roomRestService.updateRoom(params.roomId, patch)
-
-                when (updateResult) {
+                when (
+                    val updateResult = roomRestService.updateRoom(params.roomId, patch)
+                ) {
                     null -> call.respond(NotFound)
                     is Success -> call.respond(updateResult.room)
                     is Failure -> call.respond<RoomValidationError>(BadRequest, updateResult.errors)

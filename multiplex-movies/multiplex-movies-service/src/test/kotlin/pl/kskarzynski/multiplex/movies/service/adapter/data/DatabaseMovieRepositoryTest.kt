@@ -1,9 +1,14 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.movies.service.adapter.data
 
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.FeatureSpec
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
+import kotlinx.coroutines.flow.firstOrNull
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import pl.kskarzynski.multiplex.common.test.exposed.initializeDatabase
 import pl.kskarzynski.multiplex.common.test.testcontainers.installPostgresContainer
 import pl.kskarzynski.multiplex.movies.service.data.table.MovieTable
@@ -16,6 +21,7 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 import strikt.assertions.isNull
+import kotlin.uuid.ExperimentalUuidApi
 
 class DatabaseMovieRepositoryTest : FeatureSpec({
 
@@ -32,7 +38,7 @@ class DatabaseMovieRepositoryTest : FeatureSpec({
             val movie = movie()
 
             // when:
-            transaction {
+            suspendTransaction {
                 MovieTable.save(movie)
             }
 
@@ -52,7 +58,7 @@ class DatabaseMovieRepositoryTest : FeatureSpec({
             insertMovie(otherMovie)
 
             // when:
-            transaction {
+            suspendTransaction {
                 MovieTable.save(movie)
             }
 
@@ -78,7 +84,7 @@ class DatabaseMovieRepositoryTest : FeatureSpec({
 
             // when:
             val updatedMovie = movie.copy(title = MovieTitle("New Title"))
-            transaction {
+            suspendTransaction {
                 MovieTable.save(updatedMovie)
             }
 
@@ -98,7 +104,7 @@ class DatabaseMovieRepositoryTest : FeatureSpec({
 
             // when:
             val foundMovie =
-                transaction {
+                suspendTransaction {
                     MovieTable.find(nonExistentMovieId)
                 }
 
@@ -115,7 +121,7 @@ class DatabaseMovieRepositoryTest : FeatureSpec({
 
             // when:
             val foundMovie =
-                transaction {
+                suspendTransaction {
                     MovieTable.find(nonExistentMovieId)
                 }
 
@@ -130,7 +136,7 @@ class DatabaseMovieRepositoryTest : FeatureSpec({
 
             // when:
             val foundMovie =
-                transaction {
+                suspendTransaction {
                     MovieTable.find(movie.id)
                 }
 
@@ -143,8 +149,8 @@ class DatabaseMovieRepositoryTest : FeatureSpec({
 
 })
 
-private fun findMovie(movieId: MovieId): Movie? =
-    transaction {
+private suspend fun findMovie(movieId: MovieId): Movie? =
+    suspendTransaction {
         with(MovieTable) {
             select(id, title, year)
                 .where { id eq movieId.value }
@@ -153,8 +159,8 @@ private fun findMovie(movieId: MovieId): Movie? =
         }
     }
 
-private fun insertMovie(movie: Movie) {
-    transaction {
+private suspend fun insertMovie(movie: Movie) {
+    suspendTransaction {
         with(MovieTable) {
             insert {
                 it[id] = movie.id.value

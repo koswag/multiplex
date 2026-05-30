@@ -1,14 +1,20 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.rooms.service.data.table
 
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.select
 import pl.kskarzynski.multiplex.shared.room.RoomId
 import pl.kskarzynski.multiplex.shared.room.Seat
 import pl.kskarzynski.multiplex.shared.room.SeatNumber
 import pl.kskarzynski.multiplex.shared.room.SeatRow
+import kotlin.uuid.ExperimentalUuidApi
 
 object RoomSeatTable : Table("multiplex_rooms.seats") {
     val roomId = reference("room_id", RoomTable)
@@ -17,7 +23,7 @@ object RoomSeatTable : Table("multiplex_rooms.seats") {
 
     override val primaryKey = PrimaryKey(roomId, row, number)
 
-    fun findSeats(id: RoomId): List<Seat> =
+    fun findSeats(id: RoomId): Flow<Seat> =
         select(row, number)
             .where { roomId eq id.value }
             .map { rowToDomain(it) }
@@ -28,7 +34,7 @@ object RoomSeatTable : Table("multiplex_rooms.seats") {
             number = SeatNumber(resultRow[number]),
         )
 
-    fun updateRoomSeats(id: RoomId, seats: List<Seat>) {
+    suspend fun updateRoomSeats(id: RoomId, seats: List<Seat>) {
         deleteWhere { roomId eq id.value }
 
         for (seat in seats) {

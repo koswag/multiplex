@@ -1,20 +1,18 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.common.test.arbs
 
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.Codepoint
-import io.kotest.property.arbitrary.alphanumeric
-import io.kotest.property.arbitrary.arbitrary
-import io.kotest.property.arbitrary.int
-import io.kotest.property.arbitrary.map
-import io.kotest.property.arbitrary.string
-import io.kotest.property.arbitrary.uuid
+import io.kotest.property.arbitrary.*
 import pl.kskarzynski.multiplex.shared.movie.Movie
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.movie.MovieReleaseYear
 import pl.kskarzynski.multiplex.shared.movie.MovieTitle
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.toKotlinUuid
 
 fun Arb.Companion.movieId(): Arb<MovieId> =
-    uuid().map { MovieId(it) }
+    uuid().map { MovieId(it.toKotlinUuid()) }
 
 fun Arb.Companion.movieTitle(): Arb<MovieTitle> =
     string(

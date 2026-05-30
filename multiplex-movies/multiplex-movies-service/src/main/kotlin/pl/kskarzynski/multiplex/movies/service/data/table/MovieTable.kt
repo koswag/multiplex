@@ -1,18 +1,24 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.movies.service.data.table
 
-import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.upsert
+import kotlinx.coroutines.flow.firstOrNull
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.dao.id.UuidTable
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.r2dbc.select
+import org.jetbrains.exposed.v1.r2dbc.upsert
 import pl.kskarzynski.multiplex.shared.movie.Movie
 import pl.kskarzynski.multiplex.shared.movie.MovieId
 import pl.kskarzynski.multiplex.shared.movie.MovieReleaseYear
 import pl.kskarzynski.multiplex.shared.movie.MovieTitle
+import kotlin.uuid.ExperimentalUuidApi
 
-object MovieTable : UUIDTable("multiplex_movies.movies") {
+object MovieTable : UuidTable("multiplex_movies.movies") {
     val title = varchar("title", 255)
     val year = integer("year")
 
-    fun save(movie: Movie) {
+    suspend fun save(movie: Movie) {
         upsert(id) {
             it[id] = movie.id.value
             it[title] = movie.title.value
@@ -20,7 +26,7 @@ object MovieTable : UUIDTable("multiplex_movies.movies") {
         }
     }
 
-    fun find(movieId: MovieId): Movie? =
+    suspend fun find(movieId: MovieId): Movie? =
         select(id, title, year)
             .where { id eq movieId.value }
             .firstOrNull()

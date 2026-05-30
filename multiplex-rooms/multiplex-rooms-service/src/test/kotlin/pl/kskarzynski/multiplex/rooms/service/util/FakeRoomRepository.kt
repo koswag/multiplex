@@ -10,7 +10,7 @@ class FakeRoomRepository : RoomRepository {
     private val rooms = mutableMapOf<RoomId, Room>()
 
     override suspend fun save(room: Room) {
-        rooms.put(room.id, room)
+        rooms[room.id] = room
     }
 
     override suspend fun findById(roomId: RoomId): Room? = rooms[roomId]

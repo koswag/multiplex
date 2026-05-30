@@ -1,14 +1,18 @@
 package pl.kskarzynski.multiplex.common.infra.exposed
 
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.ResultRow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.r2dbc.Query
 import pl.kskarzynski.multiplex.shared.misc.Page
 import pl.kskarzynski.multiplex.shared.misc.PagingRequest
 
-inline fun <T> Query.page(paging: PagingRequest, transform: (ResultRow) -> T): Page<T> {
-    val pagedQuery = this.limit(paging.pageSize, paging.offset.toLong())
+suspend inline fun <T> Query.page(paging: PagingRequest, crossinline transform: (ResultRow) -> T): Page<T> {
+    val pagedQuery = this
+        .limit(paging.pageSize)
+        .offset(paging.offset.toLong())
     return Page(
-        content = pagedQuery.map(transform),
+        content = pagedQuery.map(transform).toList(),
         pageNumber = paging.pageNumber,
         pageSize = paging.pageSize,
         totalCount = this.count(),

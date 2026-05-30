@@ -1,18 +1,19 @@
-@file:UseSerializers(UuidSerializer::class, NonEmptyListSerializer::class)
+@file:UseSerializers(NonEmptyListSerializer::class)
+@file:OptIn(ExperimentalUuidApi::class)
 
 package pl.kskarzynski.multiplex.rooms.service.rest.dto
 
 import arrow.core.NonEmptyList
 import arrow.core.serialization.NonEmptyListSerializer
-import java.util.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import pl.kskarzynski.multiplex.common.infra.json.serializer.UuidSerializer
 import pl.kskarzynski.multiplex.shared.room.Room
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Serializable
 data class RoomDto(
-    val id: UUID,
+    val id: Uuid,
     val number: Int,
     val seats: NonEmptyList<SeatDto>,
 )

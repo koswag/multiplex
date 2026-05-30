@@ -1,12 +1,14 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.integration.screening
 
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
 import io.kotest.property.arbitrary.of
-import io.ktor.client.call.body
-import io.ktor.client.request.post
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.testApplication
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.server.testing.*
 import pl.kskarzynski.multiplex.common.test.arbs.bookingId
 import pl.kskarzynski.multiplex.common.test.arbs.screeningId
 import pl.kskarzynski.multiplex.common.utils.datetime.currentTime
@@ -22,11 +24,8 @@ import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingConfirm
 import pl.kskarzynski.multiplex.screenings.infra.rest.dto.booking.BookingIdDto
 import strikt.api.expect
 import strikt.api.expectThat
-import strikt.assertions.hasSize
-import strikt.assertions.isA
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNotNull
-import strikt.assertions.one
+import strikt.assertions.*
+import kotlin.uuid.ExperimentalUuidApi
 
 class BookingConfirmationApiIntegrationTest : ScreeningApiIntegrationTest() {
 

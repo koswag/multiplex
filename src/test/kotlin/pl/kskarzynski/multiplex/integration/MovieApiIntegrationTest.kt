@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.integration
 
 import io.kotest.core.spec.IsolationMode
@@ -7,16 +9,11 @@ import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.next
 import io.kotest.property.checkAll
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.patch
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.server.testing.TestApplicationBuilder
-import io.ktor.server.testing.testApplication
+import io.ktor.server.testing.*
 import org.koin.test.KoinTest
 import org.koin.test.inject
 import pl.kskarzynski.multiplex.common.test.arbs.movie
@@ -43,6 +40,7 @@ import strikt.assertions.hasSize
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.one
+import kotlin.uuid.ExperimentalUuidApi
 
 class MovieApiIntegrationTest : KoinTest, FeatureSpec() {
 

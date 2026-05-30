@@ -1,17 +1,18 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package pl.kskarzynski.multiplex.integration.screening
 
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.next
-import io.ktor.client.call.body
-import io.ktor.client.request.patch
-import io.ktor.client.request.setBody
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.Conflict
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.http.HttpStatusCode.Companion.OK
-import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
+import io.ktor.server.testing.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import pl.kskarzynski.multiplex.common.test.arbs.screeningId
@@ -29,6 +30,7 @@ import strikt.assertions.hasSize
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.one
+import kotlin.uuid.ExperimentalUuidApi
 
 class ScreeningUpdateApiIntegrationTest : ScreeningApiIntegrationTest() {
 
